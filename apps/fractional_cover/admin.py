@@ -44,7 +44,7 @@ class SatelliteAdmin(admin.ModelAdmin):
     list_display = ('satellite_id','satellite_name')
 
 class AreaAdmin(admin.ModelAdmin):
-    list_display = ('area_id','area_name','area_product')
+    list_display = ('area_id','area_name')
 
 class CompositorAdmin(admin.ModelAdmin):
     list_display = ('compositor_id','compositor')
