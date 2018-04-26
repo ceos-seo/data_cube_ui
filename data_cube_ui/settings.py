@@ -55,7 +55,7 @@ db_host = os.environ.get('POSTGRES_HOSTNAME', '127.0.0.1')
 db_port = os.environ.get('POSTGRES_PORT', '5432')
 
 # Set the master node from the environment of from the db host
-MASTER_NODE = os.env.get('DC_HOSTNAME', db_host)
+MASTER_NODE = os.environ.get('DC_HOSTNAME', db_host)
 
 # Application definition
 BASE_HOST = "localhost:8000/"
