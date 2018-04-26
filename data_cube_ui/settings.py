@@ -47,7 +47,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-MASTER_NODE = '127.0.0.1'
+# Database settings from the environment or default
+db_user = os.environ.get('POSTGRES_USER', 'dc_user')
+db_pass = os.environ.get('POSTGRES_PASSWORD', 'localuser1234')
+db_name = os.environ.get('POSTGRES_DATABASE', 'datacube')
+db_host = os.environ.get('POSTGRES_HOSTNAME', '127.0.0.1')
+db_port = os.environ.get('POSTGRES_PORT', '5432')
+
+# Set the master node from the environment of from the db host
+MASTER_NODE = os.env.get('DC_HOSTNAME', db_host)
 
 # Application definition
 BASE_HOST = "localhost:8000/"
@@ -136,10 +144,11 @@ WSGI_APPLICATION = 'data_cube_ui.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'datacube',
-        'USER': 'dc_user',
-        'PASSWORD': 'localuser1234',
-        'HOST': MASTER_NODE
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': db_host,
+        'PORT': db_port,
     },
     'agdc': {
         'ENGINE': 'django.db.backends.postgresql',
