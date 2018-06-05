@@ -8,8 +8,8 @@ Contents
 
   * [Introduction](#introduction)
   * [Prerequisites](#prerequisites)
-  * [Automated Setup](#automated_setup)
   * [Installation Process](#installation_process)
+  * [Automated Setup](#automated_setup)
   * [Configuring the Server](#configuration)
   * [Initializing the Database](#database_initialization)
   * [Starting Workers](#starting_workers)
@@ -52,18 +52,6 @@ To set up and run our Data Cube UI, the following conditions must be met:
   * The ingestion process was completed for that sample Landsat 7 scene
 
 If these requirements are not met, please see the associated documentation. Please take some time to get familiar with the documentation of our core technologies - most of this guide is concerning setup and configuration and is not geared towards teaching about our tools.
-
-<a name="automated_setup"></a> Automated Setup
-=================
-
-We have automated this setup process as much as we could - You will need to edit all the configurations manually, but the rest of the setup is automated. Edit the files in the `config` directory (.datacube.conf, dc_ui.conf) and the project `settings.py` to reflect the user that will be used to run the UI and the database credentials. Examples of this can be found in the later sections. After your credentials are entered and you have replaced instances of 'localuser' with your system user, run:
-
-```
-cd ~/Datacube/data_cube_ui
-bash scripts/ui_setup.sh
-```
-
-This will move the configuration files, do the migrations, and restart everything. This will also daemonize the celery workers. If you want more detail about the setup process or require some additional modifications, follow the entire process below.
 
 <a name="installation_process"></a> Installation Process
 =================
@@ -125,6 +113,18 @@ inet_interfaces = localhost
 and run `sudo service postfix restart`, then `echo "This is the body of the email" | mail -s "This is the subject line" {your_email@mail.com}` to verify the installation.
 
 With all of the packages above installed, you can now move on to the configuration step.
+
+<a name="automated_setup"></a> Automated Setup
+=================
+
+We have automated the rest of the setup process as much as we could - You will need to edit all the configurations manually, but the rest of the setup is automated. Edit the files in the `config` directory (.datacube.conf, dc_ui.conf) and the project `settings.py` to reflect the user that will be used to run the UI and the database credentials. Examples of this can be found in the later sections. After your credentials are entered and you have replaced instances of 'localuser' with your system user, run:
+
+```
+cd ~/Datacube/data_cube_ui
+bash scripts/ui_setup.sh
+```
+
+This will move the configuration files, do the migrations, and restart everything. This will also daemonize the celery workers. If you want more detail about the setup process or require some additional modifications, follow the entire process below.
 
 <a name="configuration"></a> Configuring the Server
 =================
