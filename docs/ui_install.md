@@ -90,22 +90,13 @@ sudo apt-get install -y tmux
 Next, you'll need various Python packages responsible for the entire application:
 
 ```
-pip install django
-pip install redis
-pip install imageio
-pip install django-bootstrap3
-pip install matplotlib
-pip install stringcase
-```
-
-The UI relies on a slightly newer version of Celery that has not yet been pushed to Pypi - This is due to a bug that was fixed a few days after their latest release.
-
-```
-source ~/Datacube/datacube_env/bin/activate
-cd ~/Datacube
-git clone https://github.com/celery/celery.git
-cd celery
-python setup.py install
+pip install Django==1.11.6
+pip install redis==2.10.6
+pip install imageio==2.2.0
+pip install django-bootstrap3==9.0.0
+pip install matplotlib==2.1.0
+pip install stringcase==1.2.0
+pip install celery==4.1.1
 ```
 
 You will also need to create a base directory structure for results:
@@ -350,12 +341,13 @@ sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd 
 sudo chmod 777 /etc/init.d/data_cube_ui
 sudo chmod 644 /etc/default/data_cube_ui
 sudo /etc/init.d/data_cube_ui start
+sudo systemctl enable data_cube_ui
 
 sudo cp config/celerybeat_conf /etc/default/celerybeat && sudo cp config/celerybeat /etc/init.d/celerybeat
 sudo chmod 777 /etc/init.d/celerybeat
 sudo chmod 644 /etc/default/celerybeat
 sudo /etc/init.d/celerybeat start
-
+sudo systemctl enable celerybeat
 ```
 
 This is done in the initial setup script.
