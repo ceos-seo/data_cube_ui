@@ -13,11 +13,13 @@ sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd 
 sudo chmod 777 /etc/init.d/data_cube_ui
 sudo chmod 644 /etc/default/data_cube_ui
 sudo /etc/init.d/data_cube_ui start
+sudo systemctl enable data_cube_ui
 
 sudo cp config/celerybeat_conf /etc/default/celerybeat && sudo cp config/celerybeat /etc/init.d/celerybeat
 sudo chmod 777 /etc/init.d/celerybeat
 sudo chmod 644 /etc/default/celerybeat
 sudo /etc/init.d/celerybeat start
+sudo systemctl enable celerybeat
 
 sudo cp config/.pgpass ~/.pgpass
 sudo chmod 600 ~/.pgpass 
