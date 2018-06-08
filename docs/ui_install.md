@@ -254,8 +254,8 @@ sudo service apache2 restart
 You will also need to create a base directory structure for results:
 
 ```
-mkdir /datacube/ui_results
-chmod 777 /datacube/ui_results
+mkdir /datacube/{ui_results,ui_results_temp}
+chmod 777 /datacube/{ui_results,ui_results_temp}
 ```
 
 Additionally, a .pgpass is required for the Data Cube On Demand functionality. Edit the .pgpass in the config directory with your database username and password from above and copy it into the home directory of your local user.
