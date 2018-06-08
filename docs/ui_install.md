@@ -400,7 +400,7 @@ For the Area Id, enter 'general', or whatever area you've named that is prepende
 
 Enter the latitude and longitude bounds in all of the latitude/longitude min/max fields for both the top and the detail fields.
 
-For all of the imagery fields, enter '/static/assets/images/black.png'/static/assets/images/black.png' - this will give a black area, but will still highlight our area.
+For all of the imagery fields, enter '/static/assets/images/black.png' - this will give a black area, but will still highlight our area.
 
 Select LANDSAT_7 in the satellites field and save your new area.
 
