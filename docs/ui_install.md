@@ -87,13 +87,6 @@ pip install stringcase==1.2.0
 pip install celery==4.1.1
 ```
 
-You will also need to create a base directory structure for results:
-
-```
-mkdir /datacube/ui_results
-chmod 777 /datacube/ui_results
-```
-
 The Data Cube UI also sends admin mail, so a mail server is required:
 
 ```
@@ -256,6 +249,13 @@ Now that the Apache configuration file is in place and the Django settings have 
 sudo a2dissite 000-default.conf
 sudo a2ensite dc_ui.conf
 sudo service apache2 restart
+```
+
+You will also need to create a base directory structure for results:
+
+```
+mkdir /datacube/ui_results
+chmod 777 /datacube/ui_results
 ```
 
 Additionally, a .pgpass is required for the Data Cube On Demand functionality. Edit the .pgpass in the config directory with your database username and password from above and copy it into the home directory of your local user.
