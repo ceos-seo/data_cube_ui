@@ -8,6 +8,7 @@ sudo a2ensite dc_ui.conf
 sudo service apache2 restart
 
 mkdir /datacube/{ui_results,ui_results_temp}
+sudo chmod 777 /datacube/{ui_results,ui_results_temp}
 
 sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd /etc/init.d/data_cube_ui
 sudo chmod 777 /etc/init.d/data_cube_ui
