@@ -8,8 +8,8 @@ Contents
 
   * [Introduction](#introduction)
   * [Prerequisites](#prerequisites)
-  * [Automated Setup](#automated_setup)
   * [Installation Process](#installation_process)
+  * [Automated Setup](#automated_setup)
   * [Configuring the Server](#configuration)
   * [Initializing the Database](#database_initialization)
   * [Starting Workers](#starting_workers)
@@ -53,18 +53,6 @@ To set up and run our Data Cube UI, the following conditions must be met:
 
 If these requirements are not met, please see the associated documentation. Please take some time to get familiar with the documentation of our core technologies - most of this guide is concerning setup and configuration and is not geared towards teaching about our tools.
 
-<a name="automated_setup"></a> Automated Setup
-=================
-
-We have automated this setup process as much as we could - You will need to edit all the configurations manually, but the rest of the setup is automated. Edit the files in the `config` directory (.datacube.conf, dc_ui.conf) and the project `settings.py` to reflect the user that will be used to run the UI and the database credentials. Examples of this can be found in the later sections. After your credentials are entered and you have replaced instances of 'localuser' with your system user, run:
-
-```
-cd ~/Datacube/data_cube_ui
-bash scripts/ui_setup.sh
-```
-
-This will move the configuration files, do the migrations, and restart everything. This will also daemonize the celery workers. If you want more detail about the setup process or require some additional modifications, follow the entire process below.
-
 <a name="installation_process"></a> Installation Process
 =================
 
@@ -90,29 +78,13 @@ sudo apt-get install -y tmux
 Next, you'll need various Python packages responsible for the entire application:
 
 ```
-pip install django
-pip install redis
-pip install imageio
-pip install django-bootstrap3
-pip install matplotlib
-pip install stringcase
-```
-
-The UI relies on a slightly newer version of Celery that has not yet been pushed to Pypi - This is due to a bug that was fixed a few days after their latest release.
-
-```
-source ~/Datacube/datacube_env/bin/activate
-cd ~/Datacube
-git clone https://github.com/celery/celery.git
-cd celery
-python setup.py install
-```
-
-You will also need to create a base directory structure for results:
-
-```
-mkdir /datacube/ui_results
-chmod 777 /datacube/ui_results
+pip install Django==1.11.6
+pip install redis==2.10.6
+pip install imageio==2.2.0
+pip install django-bootstrap3==9.0.0
+pip install matplotlib==2.1.0
+pip install stringcase==1.2.0
+pip install celery==4.1.1
 ```
 
 The Data Cube UI also sends admin mail, so a mail server is required:
@@ -134,6 +106,18 @@ inet_interfaces = localhost
 and run `sudo service postfix restart`, then `echo "This is the body of the email" | mail -s "This is the subject line" {your_email@mail.com}` to verify the installation.
 
 With all of the packages above installed, you can now move on to the configuration step.
+
+<a name="automated_setup"></a> Automated Setup
+=================
+
+We have automated the rest of the setup process as much as we could - You will need to edit all the configurations manually, but the rest of the setup is automated. Edit the files in the `config` directory (.datacube.conf, dc_ui.conf) and the project `settings.py` to reflect the user that will be used to run the UI and the database credentials. Examples of this can be found in the later sections. After your credentials are entered and you have replaced instances of 'localuser' with your system user, run:
+
+```
+cd ~/Datacube/data_cube_ui
+bash scripts/ui_setup.sh
+```
+
+This will move the configuration files, do the migrations, and restart everything. This will also daemonize the celery workers. If you want more detail about the setup process or require some additional modifications, follow the entire process below.
 
 <a name="configuration"></a> Configuring the Server
 =================
@@ -267,6 +251,13 @@ sudo a2ensite dc_ui.conf
 sudo service apache2 restart
 ```
 
+You will also need to create a base directory structure for results:
+
+```
+mkdir /datacube/{ui_results,ui_results_temp}
+chmod 777 /datacube/{ui_results,ui_results_temp}
+```
+
 Additionally, a .pgpass is required for the Data Cube On Demand functionality. Edit the .pgpass in the config directory with your database username and password from above and copy it into the home directory of your local user.
 
 ```
@@ -350,12 +341,13 @@ sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd 
 sudo chmod 777 /etc/init.d/data_cube_ui
 sudo chmod 644 /etc/default/data_cube_ui
 sudo /etc/init.d/data_cube_ui start
+sudo systemctl enable data_cube_ui
 
 sudo cp config/celerybeat_conf /etc/default/celerybeat && sudo cp config/celerybeat /etc/init.d/celerybeat
 sudo chmod 777 /etc/init.d/celerybeat
 sudo chmod 644 /etc/default/celerybeat
 sudo /etc/init.d/celerybeat start
-
+sudo systemctl enable celerybeat
 ```
 
 This is done in the initial setup script.
@@ -408,7 +400,7 @@ For the Area Id, enter 'general', or whatever area you've named that is prepende
 
 Enter the latitude and longitude bounds in all of the latitude/longitude min/max fields for both the top and the detail fields.
 
-For all of the imagery fields, enter '/static/assets/images/black.png'/static/assets/images/black.png' - this will give a black area, but will still highlight our area.
+For all of the imagery fields, enter '/static/assets/images/black.png' - this will give a black area, but will still highlight our area.
 
 Select LANDSAT_7 in the satellites field and save your new area.
 
