@@ -79,9 +79,9 @@ class Query(BaseQuery):
     foreign keys should define __str__ for a human readable name.
 
     """
-    query_type = models.ForeignKey(ResultType)
-    animated_product = models.ForeignKey(AnimationType)
-    compositor = models.ForeignKey(Compositor)
+    query_type = models.ForeignKey(ResultType, on_delete=models.CASCADE)
+    animated_product = models.ForeignKey(AnimationType, on_delete=models.CASCADE)
+    compositor = models.ForeignKey(Compositor, on_delete=models.CASCADE)
 
     base_result_dir = '/datacube/ui_results/custom_mosaic_tool'
 

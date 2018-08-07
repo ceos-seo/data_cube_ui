@@ -207,7 +207,7 @@ class Application(models.Model):
 
     color_scale = models.CharField(max_length=250, default="", blank=True, null=True)
 
-    application_group = models.ForeignKey('ApplicationGroup', null=True, blank=True)
+    application_group = models.ForeignKey('ApplicationGroup', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.id

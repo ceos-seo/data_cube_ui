@@ -3,3 +3,4 @@ apps/*/__pycache__/
 */__pycache__/
 data_cube_ui/migrations/
 data_cube_ui/__pycache__/
+.idea

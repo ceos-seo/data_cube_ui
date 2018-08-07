@@ -67,8 +67,8 @@ class Query(BaseQuery):
     foreign keys should define __str__ for a human readable name.
 
     """
-    compositor = models.ForeignKey(Compositor)
-    query_type = models.ForeignKey(ResultType)
+    compositor = models.ForeignKey(Compositor, on_delete=models.CASCADE)
+    query_type = models.ForeignKey(ResultType, on_delete=models.CASCADE)
 
     color_scale_path = {
         'ndvi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi',

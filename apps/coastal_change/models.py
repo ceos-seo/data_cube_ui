@@ -72,7 +72,7 @@ class Query(BaseQuery):
     time_end = models.IntegerField()
     time_start = models.IntegerField()
 
-    animated_product = models.ForeignKey(AnimationType)
+    animated_product = models.ForeignKey(AnimationType, on_delete=models.CASCADE)
 
     base_result_dir = '/datacube/ui_results/coastal_change'
 
