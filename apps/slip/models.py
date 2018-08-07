@@ -18,7 +18,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
+from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -74,7 +76,7 @@ class Query(BaseQuery):
     baseline_method = models.ForeignKey(BaselineMethod)
     baseline_length = models.IntegerField(default=10)
 
-    base_result_dir = '/datacube/ui_results/slip'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'slip')
 
     class Meta(BaseQuery.Meta):
         unique_together = (

@@ -18,7 +18,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
+from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -83,7 +85,7 @@ class Query(BaseQuery):
     animated_product = models.ForeignKey(AnimationType)
     compositor = models.ForeignKey(Compositor)
 
-    base_result_dir = '/datacube/ui_results/custom_mosaic_tool'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'custom_mosaic_tool')
 
     class Meta(BaseQuery.Meta):
         unique_together = (

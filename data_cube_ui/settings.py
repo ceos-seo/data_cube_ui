@@ -57,6 +57,8 @@ EMAIL_PORT = '25'
 
 LOCAL_USER = "localuser"
 
+RESULTS_DATA_DIR = "path/to/datacube/data/ui_results"
+
 INSTALLED_APPS = [
     'apps.custom_mosaic_tool',
     'apps.water_detection',
@@ -190,7 +192,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = '/static/'
 
 STATICFILES_DIRS = [
-    '/home/' + LOCAL_USER + '/Datacube/data_cube_ui/static',
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 # CELERY STUFF

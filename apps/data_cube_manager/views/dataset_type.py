@@ -108,7 +108,7 @@ class DatasetTypeView(View):
         #since everything is valid, now create yaml from defs..
         product_def = utils.dataset_type_definition_from_forms(metadata_form, measurement_forms)
 
-        conf_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+        conf_path = os.path.join(os.getenv('HOME'), '.datacube.conf')
         index = index_connect(local_config=conf_path)
         try:
             type_ = index.products.from_doc(product_def)
@@ -154,7 +154,7 @@ class DatasetYamlExport(View):
         #since everything is valid, now create yaml from defs..
         product_def = utils.dataset_type_definition_from_forms(metadata_form, measurement_forms)
         try:
-            os.makedirs('/datacube/ui_results/data_cube_manager/product_defs/')
+            os.makedirs(os.path.join(settings.RESULTS_DATA_DIR, 'data_cube_manager/product_defs/'))
         except:
             pass
 
@@ -163,7 +163,8 @@ class DatasetYamlExport(View):
 
         yaml.SafeDumper.add_representer(OrderedDict, _dict_representer)
 
-        yaml_url = '/datacube/ui_results/data_cube_manager/product_defs/' + str(uuid.uuid4()) + '.yaml'
+        yaml_url = os.path.join(settings.RESULTS_DATA_DIR, 'data_cube_manager/product_defs/') \
+            + str(uuid.uuid4()) + '.yaml'
         with open(yaml_url, 'w') as yaml_file:
             yaml.dump(product_def, yaml_file, Dumper=yaml.SafeDumper, default_flow_style=False, indent=4)
         return JsonResponse({'status': 'OK', 'url': yaml_url})

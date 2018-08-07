@@ -73,9 +73,9 @@ class Query(BaseQuery):
 
     animated_product = models.ForeignKey(AnimationType)
 
-    config_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    config_path = os.path.join(os.getenv('HOME'), '.datacube.conf')
     measurements = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'cf_mask']
-    base_result_dir = '/datacube/ui_results/coastal_change'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'coastal_change')
 
     class Meta(BaseQuery.Meta):
         unique_together = (('platform', 'area_id', 'time_start', 'time_end', 'latitude_max', 'latitude_min', 'longitude_max',

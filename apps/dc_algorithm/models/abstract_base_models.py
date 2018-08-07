@@ -79,7 +79,7 @@ class Query(models.Model):
     #false by default, only change is false-> true
     complete = models.BooleanField(default=False)
 
-    config_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    config_path = os.path.join(os.getenv('HOME'), '.datacube.conf')
 
     class Meta:
         abstract = True
@@ -439,6 +439,22 @@ class Result(models.Model):
         rounded_int = round(percent_complete * 100)
         clamped_int = max(0, min(rounded_int, 100))
         return clamped_int
+
+    def rewrite_pathnames(self):
+        """Rewrites all paths to be stored in the database to something the web server can serve
+
+        Converts the absolute paths of all files created during a task into paths relative
+        to the RESULTS_DATA_DIR configured in the Datacube UI's Django settings. This is done
+        by iterating over all attributes of the task and applying the conversion to those attributes
+        that are of type "str" and have a name ending in "_path".
+        """
+        for attr in dir(self):
+            if attr.endswith("_path") and isinstance(getattr(self, attr), str):
+                path = getattr(self, attr)
+                if path.startswith(settings.RESULTS_DATA_DIR):
+                    stripped_path = path.replace(settings.RESULTS_DATA_DIR, '', 1).lstrip(os.path.sep)
+                    path = os.path.join(os.path.sep, "datacube", "ui_results", stripped_path)
+                    setattr(self, attr, path)
 
 
 class GenericTask(Query, Metadata, Result):

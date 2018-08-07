@@ -18,6 +18,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -103,7 +104,7 @@ class CreateIngestionConfigurationView(View):
         ingestion_def = utils.ingestion_definition_from_forms(metadata_form, storage_form, ingestion_bounds_form,
                                                               measurement_forms)
         try:
-            os.makedirs('/datacube/ui_results/data_cube_manager/ingestion_configurations/')
+            os.makedirs(os.path.join(settings.RESULTS_DATA_DIR, 'data_cube_manager/ingestion_configurations/'))
         except:
             pass
 
@@ -112,7 +113,8 @@ class CreateIngestionConfigurationView(View):
 
         yaml.SafeDumper.add_representer(OrderedDict, _dict_representer)
 
-        yaml_url = '/datacube/ui_results/data_cube_manager/ingestion_configurations/' + str(uuid.uuid4()) + '.yaml'
+        yaml_url = os.path.join(settings.RESULTS_DATA_DIR, 'data_cube_manager/ingestion_configurations/') \
+            + str(uuid.uuid4()) + '.yaml'
         with open(yaml_url, 'w') as yaml_file:
             yaml.dump(ingestion_def, yaml_file, Dumper=yaml.SafeDumper, default_flow_style=False, indent=4)
         return JsonResponse({'status': 'OK', 'url': yaml_url})
@@ -289,7 +291,7 @@ class CreateDataCubeSubset(View):
             'description':
             "Sample subset of {} created for {}".format(dataset_type.name, request.user.username),
             'location':
-            "/datacube/ingested_data/{}".format(request.user.username),
+            os.path.join(os.path.dirname(settings.RESULTS_DATA_DIR), "ingested_data/{}".format(request.user.username)),
             'file_path_template':
             "SAMPLE_CUBE_4326_{tile_index[0]}_{tile_index[1]}_{start_time}.nc",
             'summary':

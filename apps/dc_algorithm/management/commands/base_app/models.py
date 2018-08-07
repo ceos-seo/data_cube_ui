@@ -18,7 +18,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
+from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
 
@@ -92,7 +94,7 @@ class Query(BaseQuery):
     compositor = models.ForeignKey(Compositor)
 
     # TODO: Fill out the configuration paths
-    base_result_dir = '/datacube/ui_results/app_name'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'app_name')
 
     class Meta(BaseQuery.Meta):
         unique_together = (

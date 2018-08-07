@@ -18,6 +18,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -26,6 +27,7 @@ from django.http import HttpResponse, JsonResponse
 from django.forms.models import model_to_dict
 from django.views import View
 from django.apps import apps
+from django.conf import settings
 
 from .models import Application, Satellite, Area
 

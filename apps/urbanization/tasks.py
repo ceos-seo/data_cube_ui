@@ -480,6 +480,7 @@ def create_output_products(data, task_id=None):
             titles="Clean Pixel Percentage Per Acquisition")
 
     logger.info("All products created.")
+    task.rewrite_pathnames()
     # task.update_bounds_from_dataset(dataset)
     task.complete = True
     task.execution_end = datetime.now()
