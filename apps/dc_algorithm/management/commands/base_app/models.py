@@ -87,9 +87,9 @@ class Query(BaseQuery):
     """
 
     # TODO: Are there querytypes, animation types, or compositors that need to be distinguished?
-    query_type = models.ForeignKey(ResultType)
-    animated_product = models.ForeignKey(AnimationType)
-    compositor = models.ForeignKey(Compositor)
+    query_type = models.ForeignKey(ResultType, on_delete=models.CASCADE)
+    animated_product = models.ForeignKey(AnimationType, on_delete=models.CASCADE)
+    compositor = models.ForeignKey(Compositor, on_delete=models.CASCADE)
 
     # TODO: Fill out the configuration paths
     base_result_dir = '/datacube/ui_results/app_name'

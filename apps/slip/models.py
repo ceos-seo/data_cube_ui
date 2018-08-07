@@ -71,7 +71,7 @@ class Query(BaseQuery):
 
     """
 
-    baseline_method = models.ForeignKey(BaselineMethod)
+    baseline_method = models.ForeignKey(BaselineMethod, on_delete=models.CASCADE)
     baseline_length = models.IntegerField(default=10)
 
     base_result_dir = '/datacube/ui_results/slip'

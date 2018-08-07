@@ -281,7 +281,7 @@ def registration(request):
         context = {'title': _("Registration"), 'form': RegistrationForm(),}
         if request.GET:
             next = request.POST.get('next', "/")
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 return redirect(next)
             context['next'] = next
         return render(request, 'registration/registration.html', context)
@@ -337,7 +337,7 @@ def login(request):
         context = {'title': _("Log in"), 'form': LoginForm() }
         if request.GET:
             next = request.GET.get('next', "/")
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 return redirect(next)
             context['next'] = next
         return render(request, 'registration/login.html', context)

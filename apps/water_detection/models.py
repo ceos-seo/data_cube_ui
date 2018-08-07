@@ -76,8 +76,8 @@ class Query(BaseQuery):
 
     """
 
-    query_type = models.ForeignKey(ResultType)
-    animated_product = models.ForeignKey(AnimationType)
+    query_type = models.ForeignKey(ResultType, on_delete=models.CASCADE)
+    animated_product = models.ForeignKey(AnimationType, on_delete=models.CASCADE)
 
     base_result_dir = '/datacube/ui_results/water_detection'
     color_scales = {

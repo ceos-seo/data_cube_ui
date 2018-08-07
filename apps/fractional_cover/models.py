@@ -58,7 +58,7 @@ class Query(BaseQuery):
     foreign keys should define __str__ for a human readable name.
 
     """
-    compositor = models.ForeignKey(Compositor)
+    compositor = models.ForeignKey(Compositor, on_delete=models.CASCADE)
 
     base_result_dir = '/datacube/ui_results/fractional_cover'
 
