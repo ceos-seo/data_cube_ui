@@ -64,7 +64,7 @@ def update_data_cube_details(ingested_only=True):
     dataset_types = DatasetType.objects.using('agdc').filter(
         Q(definition__has_keys=['managed']) & Q(definition__has_keys=['measurements']))
 
-    dc = DataAccessApi(config='/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf')
+    dc = DataAccessApi(config=os.path.join(os.getenv('HOME'), '.datacube.conf'))
 
     for dataset_type in dataset_types:
         ingestion_details, created = IngestionDetails.objects.get_or_create(
@@ -86,7 +86,7 @@ def run_ingestion(ingestion_definition):
     Returns:
         The primary key of the new dataset type.
     """
-    conf_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    conf_path = os.path.join(os.getenv('HOME'), '.datacube.conf')
     index = index_connect(local_config=LocalConfig.find([conf_path]))
 
     source_type, output_type = ingest.make_output_type(index, ingestion_definition)
@@ -104,7 +104,7 @@ def ingestion_work(output_type, source_type, ingestion_definition):
         output_type, source_type: types produced by ingest.make_output_type
         ingestion_definition: dict representing a Data Cube ingestion def produced using the utils func.
     """
-    conf_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    conf_path = os.path.join(os.getenv('HOME'), '.datacube.conf')
     index = index_connect(local_config=LocalConfig.find([conf_path]))
 
     tasks = ingest.create_task_list(index, output_type, None, source_type, ingestion_definition)

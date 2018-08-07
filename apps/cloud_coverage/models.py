@@ -18,6 +18,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -61,8 +62,8 @@ class Query(BaseQuery):
 
     """
 
-    color_scale_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/cloud_coverage'
-    base_result_dir = '/datacube/ui_results/cloud_coverage'
+    color_scale_path = os.path.join(settings.BASE_DIR, 'utils/color_scales/cloud_coverage')
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'cloud_coverage')
 
     class Meta(BaseQuery.Meta):
         unique_together = (('satellite', 'area_id', 'time_start', 'time_end', 'latitude_max', 'latitude_min',

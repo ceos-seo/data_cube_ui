@@ -18,6 +18,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -79,16 +80,16 @@ class Query(BaseQuery):
     query_type = models.ForeignKey(ResultType)
     animated_product = models.ForeignKey(AnimationType)
 
-    base_result_dir = '/datacube/ui_results/water_detection'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'water_detection')
     color_scales = {
         'wofs':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/water_percentage_binned',
+        os.path.join(settings.BASE_DIR, 'utils/color_scales/water_percentage_binned'),
         'normalized_data':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/water_percentage_binned',
+        os.path.join(settings.BASE_DIR, 'utils/color_scales/water_percentage_binned'),
         'total_data':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/water_observations_binned',
+        os.path.join(settings.BASE_DIR, 'utils/color_scales/water_observations_binned'),
         'total_clean':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/clear_observations_binned'
+        os.path.join(settings.BASE_DIR, 'utils/color_scales/clear_observations_binned')
     }
 
     class Meta(BaseQuery.Meta):

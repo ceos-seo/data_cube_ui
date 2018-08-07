@@ -18,6 +18,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
 
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -61,7 +62,7 @@ class Query(BaseQuery):
     """
     compositor = models.ForeignKey(Compositor)
 
-    base_result_dir = '/datacube/ui_results/urbanization'
+    base_result_dir = os.path.join(settings.RESULTS_DATA_DIR, 'urbanization')
 
     class Meta(BaseQuery.Meta):
         unique_together = (('satellite', 'area_id', 'time_start', 'time_end', 'latitude_max', 'latitude_min',
