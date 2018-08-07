@@ -334,9 +334,10 @@ celery -A data_cube_ui beat
 
 To test the workers we will need to add an area and dataset that you have ingested to the UI's database. This will happen in a separate section.
 
-This process can be automated and daemonized with the following snippet:
+This process can be automated and daemonized with the following snippet if your
+system uses Upstart/SysVInit:
 
-```
+```shell
 sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd /etc/init.d/data_cube_ui
 sudo chmod 777 /etc/init.d/data_cube_ui
 sudo chmod 644 /etc/default/data_cube_ui
@@ -351,7 +352,29 @@ sudo /etc/init.d/celerybeat start
 
 This is done in the initial setup script.
 
-You can alias the /etc/init.d/* script as whatever you like - you can start, stop, kill, restart, etc. the workers using this script.
+You can alias the `/etc/init.d/*` script as whatever you like - you can start, stop, kill, restart, etc. the workers using this script.
+
+
+If your Linux uses Systemd (e.g. Debian >= 8, Ubuntu >= 15.04), you can use the
+files provided in `config/systemd` instead (not included in the initial setup script!):
+```shell
+sudo install -vDm644 config/systemd/celery.service /etc/systemd/system/celery.service
+sudo install -vDm644 config/systemd/celery /etc/conf.d/celery
+
+sudo install -vDm644 config/systemd/celery-beat.service /etc/systemd/system/celery-beat.service
+sudo install -vDm644 config/systemd/celery-beat /etc/conf.d/celery-beat
+
+sudo install -vDm644 config/systemd/celery.conf /etc/tmpfiles.d/celery.conf
+sudo systemd-tmpfiles --create
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now celery celery-beat
+```
+
+Starting, Stopping, Restarting etc. is now done with systemctl, e.g.:
+```
+sudo systemctl restart celery
+```
 
 
 <a name="system_overview"></a> Task System Overview

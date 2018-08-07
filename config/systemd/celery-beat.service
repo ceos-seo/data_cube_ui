@@ -1,0 +1,20 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target
+
+[Service]
+User=localuser
+Group=localuser
+EnvironmentFile=/etc/conf.d/celery-beat
+WorkingDirectory=/home/localuser/Datacube/data_cube_ui
+ExecStart=/bin/sh -c '${CELERY_BIN} beat \
+    -A ${CELERY_APP} \
+    --pidfile=${CELERYBEAT_PID_FILE} \
+    --logfile=${CELERYBEAT_LOG_FILE} \
+    --loglevel=${CELERYBEAT_LOG_LEVEL} \
+    --workdir=${CELERYBEAT_WORK_DIR} \
+    ${CELERYBEAT_OPTS}'
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target

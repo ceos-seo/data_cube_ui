@@ -1,0 +1,19 @@
+CELERY_BIN="/home/localuser/Datacube/datacube_env/bin/celery"
+
+CELERY_APP="data_cube_ui"
+DJANGO_SETTINGS_MODULE="data_cube_ui.settings"
+
+# CELERYD_CHDIR: see WorkingDirectory in unit file
+
+# extra command-line arguments for the beat service
+CELERYBEAT_OPTS=""
+
+CELERYBEAT_LOG_LEVEL="INFO"
+
+CELERYBEAT_LOG_FILE="/var/log/celery/celery-beat.log"
+CELERYBEAT_PID_FILE="/var/run/celery/celery-beat.pid"
+
+#CELERY_USER: see User in unit file
+#CELERY_GROUP: see Group in unit file
+
+#CELERY_CREATE_DIRS: ???
