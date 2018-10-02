@@ -43,7 +43,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'j^rq-8z4l+b0cf(h3&+vjbz(bq3(d_-)h@==3vf&pz4wvz%xoh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -51,7 +51,7 @@ MASTER_NODE = '127.0.0.1'
 
 # Application definition
 BASE_HOST = "localhost:8000/"
-ADMIN_EMAIL = "admin@ceos-cube.org"
+ADMIN_EMAIL = "example@your_domain.org"
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = '25'
 
