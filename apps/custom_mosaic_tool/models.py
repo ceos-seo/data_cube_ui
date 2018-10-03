@@ -27,7 +27,7 @@ from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetada
                                       BaseResultType, UserHistory as BaseUserHistory, AnimationType as
                                       BaseAnimationType, ToolInfo as BaseToolInfo)
 from utils.data_cube_utilities.dc_mosaic import (create_mosaic, create_median_mosaic, create_max_ndvi_mosaic,
-                                                 create_min_ndvi_mosaic)
+                                                 create_min_ndvi_mosaic, create_hdmedians_multiple_band_mosaic)
 
 import datetime
 import numpy as np
@@ -132,6 +132,7 @@ class Query(BaseQuery):
             'least_recent': create_mosaic,
             'max_ndvi': create_max_ndvi_mosaic,
             'min_ndvi': create_min_ndvi_mosaic,
+            'geo_median': create_hdmedians_multiple_band_mosaic,
             'median_pixel': create_median_mosaic
         }
 
