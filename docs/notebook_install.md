@@ -1,4 +1,4 @@
-Data Cube Jupyter Notebook Installation Guide
+﻿Data Cube Jupyter Notebook Installation Guide
 =================
 
 This document will guide users through the process of installing and configuring our Jupyter notebook Data Cube examples. In this guide, you will be required to install packages (Python and system level) and start a webserver.
@@ -23,18 +23,10 @@ Jupyter notebooks are extremely useful as a learning tool and as an introductory
 
 To run our Jupyter notebook examples, the following prerequisites must be complete:
 
-The full Data Cube Installation Guide must have been followed and completed before proceeding. This includes:
-* You have a local user that is used to run the Data Cube commands/applications
-* You have a database user that is used to connect to your 'datacube' database
-* The Data Cube is installed and you have successfully run 'datacube system init'
-* All code is checked out and you have a virtual environment in the correct directories: `~/Datacube/{data_cube_ui, data_cube_notebooks, datacube_env, agdc-v2}`
-
-If these requirements are not met, please see the associated documentation.
-
-You can view the notebooks without ingesting any data, but to be able to run notebooks with the sample ingested data, 
-the ingestion guide must have been followed and completed. The steps include:
-* A sample Landsat 7 scene was downloaded and uncompressed in your `/datacube/original_data` directory
-* The ingestion process was completed for that sample Landsat 7 scene
+* The full Data Cube Installation Guide must have been followed and completed. This includes:
+  * You have a local user that is used to run the Data Cube commands/applications
+  * You have a database user that is used to connect to your `datacube database`
+  * The Data Cube is installed and you have successfully run `datacube system check`
 
 <a name="installation_process"></a> Installation Process
 ========  
@@ -45,40 +37,52 @@ You will need to be in the virtual environment for this entire guide. If you hav
 source ~/Datacube/datacube_env/bin/activate
 ```
 
+The Notebook repository can be downloaded as follows:
+```
+cd ~/Datacube
+git clone https://github.com/ceos-seo/data_cube_notebooks.git
+cd data_cube_notebooks
+git submodule init && git submodule update
+```
+
 Now install the following Python packages:
 
 ```
-pip install jupyter matplotlib scipy sklearn lcmap-pyccd folium
+pip install folium hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8 jupyter
 ```
+
+At the time of writing this document, the `ipython` package had a dependency issue.
+Run the following command if the notebook server crashes.
+
+```
+pip install ipython==6.5.0
+``` 
 
 <a name="configuration"></a> Configuration
 ========  
 
-The first step is to generate a notebook configuration file. 
-Ensure that you're in the virtual environment. If not, activate with `source ~/Datacube/datacube_env/bin/activate`.
-Then run the following commands:
+The first step is to generate a notebook configuration file. Run the following commands:
+<b>Note:</b> ensure that you're in the virtual environment. If not, activate it with `source ~/Datacube/datacube_env/bin/activate`
+
 ```
 cd ~/Datacube/data_cube_notebooks
 jupyter notebook --generate-config
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 
-Jupyter will create a configuration file in `~/.jupyter/jupyter_notebook_config.py`. 
-Now set the password and edit the server details. Remember this password for future reference.
+Jupyter will create a configuration file in `~/.jupyter/jupyter_notebook_config.py`. Now set the password and edit the server details.  Remember this for future reference, you will need it later.
 
 ```
 jupyter notebook password
 ```
 
-Now edit the Jupyter notebook configuration file `~/.jupyter/jupyter_notebook_config.py` with your favorite text editor.
-
-Edit the generated configuration file to include relevant details. 
-You'll need to set the relevant entries in the file:
+Edit the generated configuration file (`~/.jupyter/jupyter_notebook_config.py`) to include relevant details. 
+You'll need to find the following entries in the file:
 
 ```
-c.NotebookApp.ip = '*'
+c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.open_browser = False
-c.NotebookApp.port = 8888
+c.NotebookApp.port = 8080
 ```
 
 Save the file and then run the notebook server with the following command.
@@ -90,19 +94,17 @@ cd ~/Datacube/data_cube_notebooks
 jupyter notebook
 ```
 
-Open a web browser and navigate to the notebook URL. If you are running your browser from the same machine that is 
-hosting the notebooks, you can use `localhost:{jupyter_port_num}` as the URL, where `jupyter_port_num` is the port number set for `c.NotebookApp.port` in the configuration file.
-If you are connecting from another machine, you will need to enter the public IP address of the server in the URL (which can be determined by running the `ifconfig` command on the server) in place of `localhost`. 
-You should be greeted with a password field. Enter the password from the previous step.
+Open a web browser and go to `localhost:8080` if your browser is running on the same machine as the server. 
+Otherwise run `ifconfig` on the server to get its IP address and go to {ip}:8080. Once you successfully connect to the notebook server, you will be greeted with a password field. Enter the password from the previous step.
 
 <a name="using_notebooks"></a> Using the Notebooks
 ========  
 
 Now that your notebook server is running and the Data Cube is set up, you can run any of our examples.
 
-Open the notebook titled 'Data_Cube_Test' and run through all of the cells using either the "Run" button on the toolbar or `Shift+Enter`.
+Open the notebook titled `Data_Cube_API_Demo` and run through all of the cells using either the button on the toolbar or CTRL+Enter.
 
-You'll see that a connection to the Data Cube is established, some metadata is queried, and some data is loaded and plotted.
+You'll see that a connection to the Data Cube is established, some metadata is listed, and some data is loaded and plotted. Further down the page, you'll see that we are also demonstrating our API that includes getting acquisition dates, scene metadata, and data.
 
 <a name="next_steps"></a> Next Steps
 ========  
@@ -117,10 +119,6 @@ Q:
  >I’m having trouble connecting to my notebook server from another computer.
 
 A:  
->	There can be a variety of problems that can cause this issue.<br><br>
-    First check the IP and port number in your notebook configuration file.
-    Be sure you are connecting to `localhost:<port>` if your browser is running on the same
-    machine as the Jupyter server, and `<IP>:<port>` otherwise. 
-    Also check that your firewall is not blocking the port that it is running on.
+>	There can be a variety of problems that can cause this issue. Check your notebook configuration file, your network settings, and your firewall settings.
 
----  
+---
