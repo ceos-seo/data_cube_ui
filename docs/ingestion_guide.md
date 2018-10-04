@@ -18,7 +18,7 @@ This document will guide users through the process of indexing and ingesting ARD
 
 The indexing and ingestion workflow is required to add data to the Data Cube and provide access to the data via a Python API. Data is loaded by querying the Data Cube for data that matches certain metadata attributes, such as measurement name, product and platform type, geospatial and temporal extents.
 
-**Read the official ODC documentation on [their readthedocs.io page](http://datacube-core.readthedocs.io/en/stable/ops/config.html)**
+**Read the official ODC documentation on [their readthedocs.io page](https://datacube-core.readthedocs.io/en/latest/ops/indexing.html)**
 
 The ingestion workflow consists of: Creating a product definition for your new dataset, creating a preparation script for your new dataset, generating a .yaml metadata file using the preparation script, indexing the dataset's metadata in the Data cube, and running the ingestion process on indexed datasets. A brief description of these steps can be found below:
 
