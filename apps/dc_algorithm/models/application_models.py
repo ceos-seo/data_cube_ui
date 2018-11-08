@@ -27,7 +27,6 @@ import uuid
 import numpy as np
 
 from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, create_bit_mask)
-from utils.data_cube_utilities.clean_mask import landsat_qa_clean_mask
 
 
 class Satellite(models.Model):
@@ -107,7 +106,7 @@ class Satellite(models.Model):
             return np.full(ds[self.get_measurements()[0]].shape(), True)
 
         options = {
-            'bit_mask': lambda ds: landsat_qa_clean_mask(ds, self.datacube_platform),
+            'bit_mask': lambda ds: create_bit_mask(ds.pixel_qa, [1, 2]),
             'cf_mask': lambda ds: create_cfmask_clean_mask(ds.cf_mask),
             'default': lambda ds: return_all_true
         }

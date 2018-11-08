@@ -56,7 +56,7 @@ Run the following command if the notebook server crashes.
 
 ```
 pip install ipython==6.5.0
-``` 
+```
 
 <a name="configuration"></a> Configuration
 ========  
@@ -76,7 +76,7 @@ Jupyter will create a configuration file in `~/.jupyter/jupyter_notebook_config.
 jupyter notebook password
 ```
 
-Edit the generated configuration file (`~/.jupyter/jupyter_notebook_config.py`) to include relevant details. 
+Edit the generated configuration file (`~/.jupyter/jupyter_notebook_config.py`) to include relevant details.
 You'll need to find the following entries in the file:
 
 ```
@@ -94,7 +94,7 @@ cd ~/Datacube/data_cube_notebooks
 jupyter notebook
 ```
 
-Open a web browser and go to `localhost:8080` if your browser is running on the same machine as the server. 
+Open a web browser and go to `localhost:8080` if your browser is running on the same machine as the server.
 Otherwise run `ifconfig` on the server to get its IP address and go to {ip}:8080. Once you successfully connect to the notebook server, you will be greeted with a password field. Enter the password from the previous step.
 
 <a name="using_notebooks"></a> Using the Notebooks
@@ -121,4 +121,4 @@ Q:
 A:  
 >	There can be a variety of problems that can cause this issue. Check your notebook configuration file, your network settings, and your firewall settings.
 
----
+---  

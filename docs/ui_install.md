@@ -1,6 +1,6 @@
 ﻿# Data Cube UI Installation Guide
 
-<h2 name="doc_description">Document Description</h2> 
+<h2 name="doc_description">Document Description</h2>
 This document will guide users through the process of installing and configuring our Data Cube user interface. Our interface is a full Python web server stack using Django, Celery, PostreSQL, and Boostrap3. In this guide, both Python and system packages will be installed and configured and users will learn how to start asynchronous task processing systems. While this guide provides a manual installation process, we have created scripts that do a lot of the initial setup - these can be found in the section title 'Automated Setup'.
 
 Contents
@@ -19,7 +19,7 @@ Contents
   * [Maintenance, Upgrades, and Debugging](#maintenance)
   * [Common problems/FAQs](#faqs)
 
-<h2 name="system_requirements">System Requirements</h2> 
+<h2 name="system_requirements">System Requirements</h2>
 This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser` however as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
 
 This document is targeted at Ubuntu based development environment. The base requirements can be found below:
@@ -430,11 +430,11 @@ If you are having trouble diagnosing issues with the UI, feel free to contact us
 ========  
 ----  
 
-If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is 
+If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is
 to restart the UI: `sudo service data_cube_ui restart`
 
 
-Q: 	
+Q:
  >I’m getting a “Permission denied error.”  How do I fix this?  
 
 A:  
@@ -467,7 +467,7 @@ A:
 Q:
  > How do I refresh the Data Cube Visualization tool?<br/>
  > My regions are not showing up in the Data Cube Visualization tool.
- 
+
 A:
  > Activate the Data Cube virtual environment:<br/>
  > `source ~/Datacube/datacube_env/bin/activate`<br/>
@@ -477,4 +477,4 @@ A:
  > then run this function, which should update the cache:<br/>
  > `import apps.data_cube_manager.tasks as dcmt`<br/>
  > `dcmt.update_data_cube_details()`
----  
+---
