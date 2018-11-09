@@ -44,7 +44,7 @@ source ~/Datacube/datacube_env/bin/activate
 ##### GDAL Libraries
 Install GDAL's header libraries and other important libraries that the Data Cube will rely on. 
 ```
-sudo apt-get install gdal-bin libgdal1-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
+sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
 ```
 The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`. The next step will require a compatible installation of gdal. Again, as mentioned before, run the following command to see the version gdalinfo currently on the machine:
 ```
@@ -58,8 +58,11 @@ For instance, if 2.2.4 was shown but unable to install, try 2.2.3 and so forth:
 pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.2.3
 ```
 <BR>
+ 
 ##### Specific RasterIO Library
+ 
 The current installation requires and works with rasterio version 1.0.2.
+
 ```
 pip install rasterio==1.0.2
 ```
