@@ -94,7 +94,7 @@ Install <b>PostgreSQL</b> database that will store the metadata that will point 
 sudo apt-get install postgresql-10 postgresql-client-10 postgresql-contrib-10 libhdf5-serial-dev postgresql-doc-10
 ```
 
-In the configuration file `/etc/postgresql/0/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `CLIENT CONNECTION DEFAULTS`. 
+In the configuration file `/etc/postgresql/10/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `CLIENT CONNECTION DEFAULTS`. 
 
 In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, change the `local` line to match the example below - it is one of the last lines in the configuration file.  The spacing matters as well so take care to preserve it.  Below is a more detailed example of both configuration files.
 
