@@ -22,12 +22,6 @@ sudo apt-get install tmux htop python3-dev python3-pip git
 sudo pip3 install --upgrade pip 
 ```
 
-This next section will add <b>NextGIS</b> to the list of source repositories from which the latest version of <b>GDAL</b> can be retrieved.  
-```
-sudo add-apt-repository ppa:nextgis/ppa
-sudo apt-get update --fix-missing
-```
-
 ## Prerequisites
 The following commands will create the directories the Data Cube will require and set their permissions so that all users can read and write data to and from them.
 ```
@@ -48,11 +42,28 @@ source ~/Datacube/datacube_env/bin/activate
 <br>
 
 ##### GDAL Libraries
-Install GDAL's header libraries and other important libraries that the Data Cube will rely on.  The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`
+Install GDAL's header libraries and other important libraries that the Data Cube will rely on. 
 ```
 sudo apt-get install gdal-bin libgdal1-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
 ```
-<br>
+The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`. The next step will require a compatible installation of gdal. Again, as mentioned before, run the following command to see the version gdalinfo currently on the machine:
+```
+gdalinfo --version  
+```
+
+Run the following command where X.X.X is the version from the previous step, or as close to it as possible.
+For instance, if 2.2.4 was shown but unable to install, try 2.2.3 and so forth:
+
+```
+pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.2.3
+```
+<BR>
+##### Specific RasterIO Library
+The current installation requires and works with rasterio version 1.0.2.
+```
+pip install rasterio==1.0.2
+```
+<BR>
 
 ##### Python Dependencies
 Use the following commands to install the requisite Python dependencies.  These packages are required for using the Data Cube, S3 indexing, and the Data Cube notebooks.
@@ -77,12 +88,12 @@ python setup.py develop
 Install <b>PostgreSQL</b> database that will store the metadata that will point to the data location.  Also install prerequisite libraries that will be leveraged by the Data Cube.  
 
 ```
-sudo apt-get install postgresql-9.5 postgresql-client-9.5 postgresql-contrib-9.5 libhdf5-serial-dev postgresql-doc-9.5
+sudo apt-get install postgresql-10 postgresql-client-10 postgresql-contrib-10 libhdf5-serial-dev postgresql-doc-10
 ```
 
-In the configuration file `/etc/postgresql/9.5/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `CLIENT CONNECTION DEFAULTS`. 
+In the configuration file `/etc/postgresql/0/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `CLIENT CONNECTION DEFAULTS`. 
 
-In the configuration file `/etc/postgresql/9.5/main/pg_hba.conf`, change the `local` line to match the example below - it is one of the last lines in the configuration file.  The spacing matters as well so take care to preserve it.  Below is a more detailed example of both configuration files.
+In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, change the `local` line to match the example below - it is one of the last lines in the configuration file.  The spacing matters as well so take care to preserve it.  Below is a more detailed example of both configuration files.
 
 **pg_hba.conf**
 ```
