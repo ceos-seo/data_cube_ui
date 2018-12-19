@@ -98,5 +98,20 @@ class DataSelectionForm(forms.Form):
         area = (cleaned_data.get('latitude_max') - cleaned_data.get('latitude_min')) * (
             cleaned_data.get('longitude_max') - cleaned_data.get('longitude_min'))
 
-        if area > 4.0:
-            self.add_error('latitude_min', 'Tasks over an area greater than four square degrees are not permitted.')
+        # Limit the area allowed.
+        max_area = 1
+        if area > max_area:
+            self.add_error('latitude_min', 'Tasks over an area greater than {} '
+                                           'square degree(s) are not permitted.'.format(max_area))
+
+        # Limit the time range allowed.
+        time_start, time_end = cleaned_data.get('time_start'), cleaned_data.get('time_end')
+        year_diff = time_end.year - time_start.year
+        month_diff = time_end.month - time_start.month
+        day_diff = time_end.day - time_start.day
+        max_num_years = 5
+        if (year_diff > max_num_years) or \
+           (year_diff == max_num_years and month_diff > 0) or \
+           (year_diff == max_num_years and month_diff == 0 and day_diff > 0):
+            self.add_error('time_start', 'Tasks over a time range greater than {} '
+                                         'year(s) are not permitted.'.format(max_num_years))
