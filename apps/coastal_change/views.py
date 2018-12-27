@@ -62,7 +62,7 @@ class CoastalChangeTool(ToolView):
     tool_name = 'coastal_change'
     task_model_name = 'CoastalChangeTask'
 
-    def generate_form_dict(self, satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
             forms[satellite.pk] = {
@@ -70,7 +70,11 @@ class CoastalChangeTool(ToolView):
                 AdditionalOptionsForm(
                     datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
                 'Geospatial Bounds':
-                DataSelectionForm(area=area,
+                DataSelectionForm(
+                    user_id=user_id,
+                    user_history=user_history,
+                    task_model_class=task_model_class,
+                    area=area,
                     time_start=satellite.date_min,
                     time_end=satellite.date_max,
                     auto_id="{}_%s".format(satellite.pk))

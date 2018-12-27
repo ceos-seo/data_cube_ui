@@ -27,6 +27,7 @@ from django.forms.models import model_to_dict
 from django.views import View
 from django.apps import apps
 
+from apps.dc_algorithm.forms import DataSelectionForm
 from .models import Application, Satellite, Area
 
 
@@ -160,16 +161,18 @@ class ToolView(View, ToolClass):
         """
 
         user_id = request.user.id
+
         tool_name = self._get_tool_name()
 
         area = Area.objects.get(id=area_id)
         app = Application.objects.get(id=tool_name)
         satellites = area.satellites.all() & app.satellites.all()
 
-        forms = self.generate_form_dict(satellites, area)
-
         task_model_class = self._get_tool_model(self._get_task_model_name())
+
         user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
+
+        forms = self.generate_form_dict(satellites, area, user_id, user_history, task_model_class)
 
         running_tasks = task_model_class.get_queryset_from_history(user_history, complete=False, area_id=area_id)
 
@@ -186,7 +189,7 @@ class ToolView(View, ToolClass):
 
         return render(request, self.map_tool_template, context)
 
-    def generate_form_dict(satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         """Generate a dictionary of forms keyed by satellite for rendering
 
         Forms are generated for each satellite and dynamically hidden and shown by the UI.
@@ -210,6 +213,12 @@ class ToolView(View, ToolClass):
         Args:
             satellites: QueryDict of Satellite models that forms will need to be generated over.
             area: area model object.
+            user_id: The ID of the user this form is for.
+            user_history: Entries in an app-specific subclass of the UserHistory abstract model
+                          (`apps.dc_algorithm.models.abstract_base_models.UserHistory`), filtered by
+                          `user_id`.
+            task_model_class: The app-specific task model class
+                              (e.g. `apps.custom_mosaic_tool.models.CustomMosaicToolTask`).
 
         Returns
             Dictionary containing all forms and labels for each satellite.
@@ -453,8 +462,12 @@ class SubmitNewRequest(View, ToolClass):
         user_id = request.user.id
 
         response = {'status': "OK"}
-        task_model = self._get_tool_model(self._get_task_model_name())
-        forms = [form(request.POST) for form in self._get_form_list()]
+        task_model_class = self._get_tool_model(self._get_task_model_name())
+        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
+        forms = []
+        for form in self._get_form_list():
+            forms.append(form(request.POST, user_id=user_id, user_history=user_history, task_model_class=task_model_class) if issubclass(form, DataSelectionForm) else
+                         form(request.POST))
         #validate all forms, print any/all errors
         full_parameter_set = {}
         for form in forms:
@@ -464,7 +477,7 @@ class SubmitNewRequest(View, ToolClass):
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set)
+        task, new_task = task_model_class.get_or_create_query_from_post(full_parameter_set)
         #associate task w/ history
         history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         if new_task:
