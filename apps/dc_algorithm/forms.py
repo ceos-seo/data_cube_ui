@@ -53,9 +53,6 @@ class DataSelectionForm(forms.Form):
         time_start = kwargs.pop('time_start', None)
         time_end = kwargs.pop('time_end', None)
         area = kwargs.pop('area', None)
-        self.user_id = kwargs.pop('user_id', None)
-        self.user_history = kwargs.pop('user_history', None)
-        self.task_model_class = kwargs.pop('task_model_class', None)
         super(DataSelectionForm, self).__init__(*args, **kwargs)
         #meant to prevent this routine from running if trying to init from querydict.
         if time_start and time_end:
