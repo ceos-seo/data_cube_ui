@@ -109,15 +109,19 @@ class DataSelectionForm(forms.Form):
 
         # Limit the time range allowed.
         time_start, time_end = cleaned_data.get('time_start'), cleaned_data.get('time_end')
-        year_diff = time_end.year - time_start.year
-        month_diff = time_end.month - time_start.month
-        day_diff = time_end.day - time_start.day
-        max_num_years = 5
-        if (year_diff > max_num_years) or \
-           (year_diff == max_num_years and month_diff > 0) or \
-           (year_diff == max_num_years and month_diff == 0 and day_diff > 0):
-            self.add_error('time_start', 'Tasks over a time range greater than {} '
-                                         'year(s) are not permitted.'.format(max_num_years))
+        # For some apps, the time extent is not relevant to resource consumption
+        # (e.g. if data is only loaded for the first and last years).
+        from apps.coastal_change.models import CoastalChangeTask
+        if self.task_model_class not in [CoastalChangeTask]:
+            year_diff = time_end.year - time_start.year
+            month_diff = time_end.month - time_start.month
+            day_diff = time_end.day - time_start.day
+            max_num_years = 5
+            if (year_diff > max_num_years) or \
+               (year_diff == max_num_years and month_diff > 0) or \
+               (year_diff == max_num_years and month_diff == 0 and day_diff > 0):
+                self.add_error('time_start', 'Tasks over a time range greater than {} '
+                                             'year(s) are not permitted.'.format(max_num_years))
 
         # Limit each user to 1 running task per app.
         num_running_tasks = self.task_model_class.get_queryset_from_history(
