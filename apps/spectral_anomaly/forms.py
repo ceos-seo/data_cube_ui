@@ -45,8 +45,8 @@ class AdditionalOptionsForm(forms.Form):
         queryset=None,
         to_field_name="result_id",
         empty_label=None,
-        help_text='Select the type of image you would like displayed.',
-        label='Result Type (Map view/png):',
+        help_text='Select the spectral index to use.',
+        label='Spectral Index:',
         widget=forms.Select(attrs={'class': 'field-long tooltipped'}))
 
     compositor = forms.ModelChoiceField(
@@ -57,17 +57,20 @@ class AdditionalOptionsForm(forms.Form):
         label="Compositing Method:",
         widget=forms.Select(attrs={'class': 'field-long tooltipped'}))
 
-    animated_product = forms.ModelChoiceField(
-        queryset=None,
-        to_field_name="id",
-        empty_label=None,
-        help_text='Generate a .gif containing either scene data or the cumulative mosaic over time. This is not compatible with median pixel mosaics.',
-        label='Generate Time Series Animation',
-        widget=forms.Select(attrs={'class': 'field-long tooltipped'}))
+    threshold_min = forms.FloatField(
+        label='Min Value',
+        widget=forms.NumberInput(attrs={'class': 'field-divided',
+                                        'step': "any",
+                                        'required': 'required'}))
+
+    threshold_max = forms.FloatField(
+        label='Max Value',
+        widget=forms.NumberInput(attrs={'class': 'field-divided',
+                                        'step': "any",
+                                        'required': 'required'}))
 
     def __init__(self, *args, **kwargs):
         datacube_platform = kwargs.pop('datacube_platform', None)
         super(AdditionalOptionsForm, self).__init__(*args, **kwargs)
         self.fields["query_type"].queryset = ResultType.objects.all()
         self.fields["compositor"].queryset = Compositor.objects.all()
-        self.fields["animated_product"].queryset = AnimationType.objects.all().order_by('pk')

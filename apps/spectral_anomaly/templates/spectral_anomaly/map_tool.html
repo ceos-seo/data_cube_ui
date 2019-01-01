@@ -1,0 +1,28 @@
+{% extends "map_tool.html" %}
+{% load bootstrap3 %}
+
+{% block query_form_sections %}
+{% for label, form in form_collection.items %}
+  <div class="col-lg-12">
+    <div class="page-header"><span class="form-section-header">{{ label }}:</span></div>
+    {% if form.two_column_format %}
+      {% for field in form.visible_fields %}
+        <div class="col-lg-6">
+          {% bootstrap_field field show_help=False%}
+        </div>
+      {% endfor %}
+    {% else %}
+      {% for field in form.visible_fields %}
+        {% if field.name == 'threshold_min' or field.name == 'threshold_max' %}
+          <div class="col-lg-6">{% bootstrap_field field show_help=False %}</div>
+        {% else %}
+          <div class="col-lg-12">{% bootstrap_field field show_help=False %}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% for field in form.hidden_fields %}
+      {{field}}
+    {% endfor %}
+  </div>
+{% endfor %}
+{% endblock %}

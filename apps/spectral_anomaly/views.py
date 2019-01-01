@@ -32,7 +32,7 @@ from datetime import datetime, timedelta
 from apps.dc_algorithm.models import Satellite, Area, Application
 from apps.dc_algorithm.forms import DataSelectionForm
 from .forms import AdditionalOptionsForm
-from .tasks import run  # TODO: Is pixel drilling enabled? if so, import pixel_drill
+from .tasks import run
 
 from collections import OrderedDict
 
@@ -61,6 +61,7 @@ class SpectralAnomalyTool(ToolView):
     See the dc_algorithm.views docstring for more details.
     """
 
+    map_tool_template = 'spectral_anomaly/map_tool.html'
     tool_name = 'spectral_anomaly'
     task_model_name = 'SpectralAnomalyTask'
 
