@@ -159,34 +159,11 @@ class ToolView(View, ToolClass):
             A rendered HTML response based on the map_tool.html template with the context.
         """
 
-        user_id = request.user.id
-        tool_name = self._get_tool_name()
-
-        area = Area.objects.get(id=area_id)
-        app = Application.objects.get(id=tool_name)
-        satellites = area.satellites.all() & app.satellites.all()
-
-        forms = self.generate_form_dict(satellites, area)
-
-        task_model_class = self._get_tool_model(self._get_task_model_name())
-        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
-
-        running_tasks = task_model_class.get_queryset_from_history(user_history, complete=False, area_id=area_id)
-
-        context = {
-            'tool_name': tool_name,
-            'satellites': satellites,
-            'forms': forms,
-            'running_tasks': running_tasks,
-            'area': area,
-            'application': app,
-            'panels': self.panels,
-            'allow_pixel_drilling': self.allow_pixel_drilling
-        }
+        context = self.generate_context(request=request, area_id=area_id)
 
         return render(request, self.map_tool_template, context)
 
-    def generate_form_dict(satellites, area):
+    def generate_form_dict(self, satellites, area):
         """Generate a dictionary of forms keyed by satellite for rendering
 
         Forms are generated for each satellite and dynamically hidden and shown by the UI.
@@ -226,6 +203,33 @@ class ToolView(View, ToolClass):
         raise NotImplementedError(
             "You must define a generate_form_dict(satellites, area) function in child classes of ToolInfo. See the ToolInfo.generate_form_dict docstring for more details."
         )
+
+    def generate_context(self, request, area_id):
+        user_id = request.user.id
+        tool_name = self._get_tool_name()
+
+        area = Area.objects.get(id=area_id)
+        app = Application.objects.get(id=tool_name)
+        satellites = area.satellites.all() & app.satellites.all()
+
+        forms = self.generate_form_dict(satellites, area)
+
+        task_model_class = self._get_tool_model(self._get_task_model_name())
+        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
+
+        running_tasks = task_model_class.get_queryset_from_history(user_history, complete=False, area_id=area_id)
+
+        context = {
+            'tool_name': tool_name,
+            'satellites': satellites,
+            'forms': forms,
+            'running_tasks': running_tasks,
+            'area': area,
+            'application': app,
+            'panels': self.panels,
+            'allow_pixel_drilling': self.allow_pixel_drilling
+        }
+        return context
 
 
 class RegionSelection(View, ToolClass):

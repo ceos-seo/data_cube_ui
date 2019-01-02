@@ -58,17 +58,27 @@ class AdditionalOptionsForm(forms.Form):
         label="Compositing Method:",
         widget=forms.Select(attrs={'class': 'field-long tooltipped'}))
 
-    threshold_min = forms.FloatField(
-        label='Min Value',
+    baseline_threshold_min = forms.FloatField(
+        label='Min Baseline Value',
         widget=forms.NumberInput(attrs={'class': 'field-divided',
                                         'step': "any",
                                         'required': 'required'}))
 
-    threshold_max = forms.FloatField(
-        label='Max Value',
+    baseline_threshold_max = forms.FloatField(
+        label='Max Baseline Value',
         widget=forms.NumberInput(attrs={'class': 'field-divided',
                                         'step': "any",
                                         'required': 'required'}))
+
+    change_threshold_min = forms.FloatField(
+        label='Min Change Value (Optional)',
+        widget=forms.NumberInput(attrs={'class': 'field-divided',
+                                        'step': "any"}))
+
+    change_threshold_max = forms.FloatField(
+        label='Max Change Value (Optional)',
+        widget=forms.NumberInput(attrs={'class': 'field-divided',
+                                        'step': "any"}))
 
     def __init__(self, *args, **kwargs):
         datacube_platform = kwargs.pop('datacube_platform', None)

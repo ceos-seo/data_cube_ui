@@ -81,6 +81,12 @@ class SpectralAnomalyTool(ToolView):
             }
         return forms
 
+    def generate_context(self, request, area_id):
+        context = super(SpectralAnomalyTool, self).generate_context(request, area_id)
+        context['two_column_fields'] = ['baseline_threshold_min', 'baseline_threshold_max',
+                                        'change_threshold_min', 'change_threshold_max']
+        return context
+
 
 class SubmitNewRequest(SubmitNewRequest):
     """
