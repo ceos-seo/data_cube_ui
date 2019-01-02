@@ -30,8 +30,7 @@ import json
 from datetime import datetime, timedelta
 
 from apps.dc_algorithm.models import Satellite, Area, Application
-from apps.dc_algorithm.forms import DataSelectionForm
-from .forms import AdditionalOptionsForm
+from .forms import AdditionalOptionsForm, DataSelectionForm
 from .tasks import run
 
 from collections import OrderedDict
