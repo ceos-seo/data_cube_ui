@@ -80,7 +80,7 @@
         map.set_rectangle_draw();
 
         {% for satellite in satellites %}
-          //jquery to set the end date equal to the start date when its changed.
+          // Set the end date equal to the start date when the start date is changed.
           $("#{{ satellite.pk }}_time_start.datepicker").on("input change", function(e) {
               var date = $("#{{ satellite.pk }}_time_start").datepicker('getDate');
               if(date != null) {
@@ -88,7 +88,12 @@
                 $("#{{ satellite.pk }}_time_end").datepicker('setDate', date);
               }
           })
+
+          // Set the values in the latitude and longitude form fields
+          // based on the bounding box.
           map.set_bb_listeners({min_lat: "{{ satellite.pk }}_latitude_min", max_lat: "{{ satellite.pk }}_latitude_max", min_lon: "{{ satellite.pk }}_longitude_min", max_lon: "{{ satellite.pk }}_longitude_max"})
+          // Change the bounding box based on changes to the
+          // latitude and longitude form fields.
           $("#{{ satellite.pk }}_latitude_min, #{{ satellite.pk }}_latitude_max, #{{ satellite.pk }}_longitude_min, #{{ satellite.pk }}_longitude_max").change(function() {
               map.bounding_box_from_form($("#{{ satellite.pk }}_latitude_min").val(), $("#{{ satellite.pk }}_latitude_max").val(), $("#{{ satellite.pk }}_longitude_min").val(), $(
                   "#{{ satellite.pk }}_longitude_max").val());
