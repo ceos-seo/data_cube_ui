@@ -58,25 +58,27 @@ class AdditionalOptionsForm(forms.Form):
         label="Compositing Method:",
         widget=forms.Select(attrs={'class': 'field-long tooltipped'}))
 
-    baseline_threshold_min = forms.FloatField(
-        label='Min Baseline Value',
+    composite_threshold_min = forms.FloatField(
+        label='Min Composite Value',
+        required=True,
         widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
+                                        'step': "any"}))
 
-    baseline_threshold_max = forms.FloatField(
-        label='Max Baseline Value',
+    composite_threshold_max = forms.FloatField(
+        label='Max Composite Value',
+        required=True,
         widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
+                                        'step': "any"}))
 
     change_threshold_min = forms.FloatField(
         label='Min Change Value (Optional)',
+        required=False,
         widget=forms.NumberInput(attrs={'class': 'field-divided',
                                         'step': "any"}))
 
     change_threshold_max = forms.FloatField(
         label='Max Change Value (Optional)',
+        required=False,
         widget=forms.NumberInput(attrs={'class': 'field-divided',
                                         'step': "any"}))
 

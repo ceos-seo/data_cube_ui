@@ -27,7 +27,7 @@
 {% endfor %}
 {% endblock %}
 
-{% block javascript %}}
+{% block javascript %}
   {{ block.super }}
 <!-- This <script> is for the `spectral_anomaly` app. -->
 <script>
@@ -58,8 +58,8 @@
             min_val = -1; max_val = 1;
             break;
         }
-        $("[id*='baseline_threshold_min']").val(min_val);
-        $("[id*='baseline_threshold_max']").val(max_val);
+        $("[id*='composite_threshold_min']").val(min_val);
+        $("[id*='composite_threshold_max']").val(max_val);
       }
       // Set the min and max filter values based on the initially selected spectral index.
       setMinMaxBaselineValuesBySpectralIndex.call(document.querySelector('[id*="query_type"'));

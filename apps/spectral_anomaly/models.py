@@ -31,8 +31,11 @@ from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetada
 from utils.data_cube_utilities.dc_mosaic import (create_mosaic, create_median_mosaic, create_max_ndvi_mosaic,
                                                  create_min_ndvi_mosaic)
 
-import datetime
+from datetime import datetime, timedelta
 import numpy as np
+
+import logging
+dj_logger = logging.getLogger(__name__)
 
 
 class UserHistory(BaseUserHistory):
@@ -51,7 +54,7 @@ class ToolInfo(BaseToolInfo):
     pass
 
 
-# TODO: Does this app need a result tye? Are there different kinds of outputs that should be distinguished?
+# TODO: Does this app need a result type? Are there different kinds of outputs that should be distinguished?
 class ResultType(BaseResultType):
     """
     extends base result type, adding additional fields required by app.
@@ -66,38 +69,49 @@ class ResultType(BaseResultType):
     pass
 
 
-# TODO: Does this app have an animation that can be generated?
-class AnimationType(BaseAnimationType):
-    """
-    Extends the base animation type, adding additional fields as required by app.
-    See the dc_algorithm.AnimationType docstring for more information.
-    """
-
-    pass
+# # TODO: Does this app have an animation that can be generated?
+# class AnimationType(BaseAnimationType):
+#     """
+#     Extends the base animation type, adding additional fields as required by app.
+#     See the dc_algorithm.AnimationType docstring for more information.
+#     """
+#     pass
 
 
 class Query(BaseQuery):
     """
-
     Extends base query, adds app specific elements. See the dc_algorithm.Query docstring for more information
     Defines the get_or_create_query_from_post as required, adds new fields, recreates the unique together
     field, and resets the abstract property. Functions are added to get human readable names for various properties,
     foreign keys should define __str__ for a human readable name.
-
     """
-
     # TODO: Are there querytypes, animation types, or compositors that need to be distinguished?
     query_type = models.ForeignKey(ResultType)
-    animated_product = models.ForeignKey(AnimationType)
+    # animated_product = models.ForeignKey(AnimationType, blank=True, null=True)
     compositor = models.ForeignKey(Compositor)
+
+    # Time fields
+    baseline_time_start = models.DateField('baseline_time_start', default=datetime.now)
+    baseline_time_end = models.DateField('baseline_time_end', default=datetime.now)
+    analysis_time_start = models.DateField('analysis_time_start', default=datetime.now)
+    analysis_time_end = models.DateField('analysis_time_end', default=datetime.now)
+
+    # Min and max allowed values
+    composite_threshold_min = models.FloatField(default=-1)
+    composite_threshold_max = models.FloatField(default=1)
+    change_threshold_min = models.FloatField(blank=True, null=True)
+    change_threshold_max = models.FloatField(blank=True, null=True)
 
     # TODO: Fill out the configuration paths
     base_result_dir = '/datacube/ui_results/spectral_anomaly'
 
     class Meta(BaseQuery.Meta):
         unique_together = (
-            ('satellite', 'area_id', 'time_start', 'time_end', 'latitude_max', 'latitude_min', 'longitude_max',
-             'longitude_min', 'title', 'description', 'query_type', 'animated_product', 'compositor'))
+            ('satellite', 'area_id', 'time_start', 'time_end', 'latitude_max', 'latitude_min',
+             'longitude_max', 'longitude_min', 'title', 'description', 'query_type',
+             'compositor', 'baseline_time_start', 'baseline_time_end',
+             'analysis_time_start', 'analysis_time_end', 'composite_threshold_min',
+             'composite_threshold_max', 'change_threshold_min', 'change_threshold_max'))
         abstract = True
 
     def get_fields_with_labels(self, labels, field_names):
@@ -112,9 +126,10 @@ class Query(BaseQuery):
         See the base query class docstring for more information.
 
         """
-        if not self.compositor.is_iterative():
-            return {'time': None, 'geographic': 0.005}
-        return {'time': 25, 'geographic': 0.5}
+        return {'time': None, 'geographic': 0.01}
+        # if not self.compositor.is_iterative():
+        #     return {'time': None, 'geographic': 0.005}
+        # return {'time': 25, 'geographic': 0.5}
 
     # TODO: Is this app iterative over the time dimension, or does all time data need to be loaded at once?
     def get_iterative(self):
@@ -196,11 +211,11 @@ class Metadata(BaseMetadata):
 
     # TODO: Enter any additional metadata fields - if they are comma seperated fields e.g. per acquisition data, enter them in zipped_metadata_fields
 
-    # TODO: If this is not a multisensory app, remove satellite list from here and zipped_metadata_fields
-    satellite_list = models.CharField(max_length=100000, default="")
-    zipped_metadata_fields = [
-        'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition', 'satellite_list'
-    ]
+    # # TODO: If this is not a multisensory app, remove satellite list from here and zipped_metadata_fields
+    # satellite_list = models.CharField(max_length=100000, default="")
+    # zipped_metadata_fields = [
+    #     'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition', 'satellite_list'
+    # ]
 
     class Meta(BaseMetadata.Meta):
         abstract = True
@@ -218,9 +233,9 @@ class Metadata(BaseMetadata):
                 metadata[time] = {}
                 metadata[time]['clean_pixels'] = 0
                 # TODO: If this is not a multisensory app, remove the satellite field.
-                metadata[time]['satellite'] = parameters['platforms'][np.unique(
-                    dataset.satellite.isel(time=metadata_index).values)[0]] if np.unique(
-                        dataset.satellite.isel(time=metadata_index).values)[0] > -1 else "NODATA"
+                # metadata[time]['satellite'] = parameters['platforms'][np.unique(
+                #     dataset.satellite.isel(time=metadata_index).values)[0]] if np.unique(
+                #         dataset.satellite.isel(time=metadata_index).values)[0] > -1 else "NODATA"
             metadata[time]['clean_pixels'] += clean_pixels
         return metadata
 
@@ -263,7 +278,7 @@ class Metadata(BaseMetadata):
         self.scenes_processed = len(dates)
         self.acquisition_list = ",".join([date.strftime("%m/%d/%Y") for date in dates])
         # TODO: If this is not a multisensory app remove this line.
-        self.satellite_list = ",".join([metadata_dict[date]['satellite'] for date in dates])
+        # self.satellite_list = ",".join([metadata_dict[date]['satellite'] for date in dates])
         self.clean_pixels_per_acquisition = ",".join([str(metadata_dict[date]['clean_pixels']) for date in dates])
         self.clean_pixel_percentages_per_acquisition = ",".join(
             [str((metadata_dict[date]['clean_pixels'] * 100) / self.pixel_count) for date in dates])
@@ -275,14 +290,13 @@ class Result(BaseResult):
     Extends base result, adding additional fields and adding abstract=True
     See the dc_algorithm.Result docstring for more information
     """
-
     # TODO: Add or remove any paths that you need to store results.
     # the base path is 'result_path' - any additional go here.
-    result_filled_path = models.CharField(max_length=250, default="")
-    plot_path = models.CharField(max_length=250, default="")
-    animation_path = models.CharField(max_length=250, default="None")
+    # result_filled_path = models.CharField(max_length=250, default="")
+    # plot_path = models.CharField(max_length=250, default="")
+    # animation_path = models.CharField(max_length=250, default="None")
     data_path = models.CharField(max_length=250, default="")
-    data_netcdf_path = models.CharField(max_length=250, default="")
+    # data_netcdf_path = models.CharField(max_length=250, default="")
 
     class Meta(BaseResult.Meta):
         abstract = True

@@ -29,6 +29,8 @@ from django.apps import apps
 
 from .models import Application, Satellite, Area
 
+import logging
+dj_logger = logging.getLogger(__name__)
 
 class ToolClass:
     """Base class for all Tool related classes
@@ -460,15 +462,16 @@ class SubmitNewRequest(View, ToolClass):
         task_model = self._get_tool_model(self._get_task_model_name())
         forms = [form(request.POST) for form in self._get_form_list()]
         #validate all forms, print any/all errors
-        full_parameter_set = {}
+        parameter_set = {}
         for form in forms:
             if form.is_valid():
-                full_parameter_set.update(form.cleaned_data)
+                parameter_set.update(form.cleaned_data)
             else:
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
+        self.get_missing_parameters(parameter_set)
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set)
+        task, new_task = task_model.get_or_create_query_from_post(parameter_set)
         #associate task w/ history
         history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         if new_task:
@@ -476,6 +479,13 @@ class SubmitNewRequest(View, ToolClass):
         response.update(model_to_dict(task))
 
         return JsonResponse(response)
+
+    def get_missing_parameters(self, parameter_set):
+        """
+        Used to get parameters that aren't directly set by an app's form.
+        This modifies its `parameter_set` argument, which is a dictionary.
+        """
+        return None # In dc_algorithm, nothing more needs to be done.
 
     def _get_celery_task_func(self):
         """Gets the celery task function and raises an error if it is not defined.
@@ -553,15 +563,15 @@ class SubmitPixelDrillRequest(View, ToolClass):
         task_model = self._get_tool_model(self._get_task_model_name())
         forms = [form(request.POST) for form in self._get_form_list()]
         #validate all forms, print any/all errors
-        full_parameter_set = {}
+        parameter_set = {}
         for form in forms:
             if form.is_valid():
-                full_parameter_set.update(form.cleaned_data)
+                parameter_set.update(form.cleaned_data)
             else:
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set, pixel_drill=True)
+        task, new_task = task_model.get_or_create_query_from_post(parameter_set, pixel_drill=True)
         #associate task w/ history
         history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         try:

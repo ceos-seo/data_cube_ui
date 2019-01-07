@@ -83,7 +83,7 @@ class SpectralAnomalyTool(ToolView):
 
     def generate_context(self, request, area_id):
         context = super(SpectralAnomalyTool, self).generate_context(request, area_id)
-        context['two_column_fields'] = ['baseline_threshold_min', 'baseline_threshold_max',
+        context['two_column_fields'] = ['composite_threshold_min', 'composite_threshold_max',
                                         'change_threshold_min', 'change_threshold_max']
         return context
 
@@ -106,6 +106,16 @@ class SubmitNewRequest(SubmitNewRequest):
     # TODO: Ensure that this list contains all the forms used to create your model
     form_list = [DataSelectionForm, AdditionalOptionsForm]
 
+    def get_missing_parameters(self, parameter_set):
+        """
+        See the corresponding function docstring in dc_algorithm.views.
+        """
+        date_list = \
+            [parameter_set['baseline_time_start'], parameter_set['baseline_time_end'],
+             parameter_set['analysis_time_start'], parameter_set['analysis_time_end']]
+
+        parameter_set['time_start'] = min(date_list)
+        parameter_set['time_end'] = max(date_list)
 
 # TODO: Is pixel drilling enabled? If so uncomment this block and fill in the rest of the TODOs.
 # class SubmitPixelDrillRequest(SubmitPixelDrillRequest):

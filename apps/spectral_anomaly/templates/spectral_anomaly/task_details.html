@@ -74,10 +74,6 @@ under the License.
       <dd><a href={{task.data_netcdf_path}}>Download nc</a></dd>
       <dt>GeoTIFF Path</dt>
       <dd><a href={{task.data_path}}>Download tif</a></dd>
-      {% if task.animated_product.animation_id != "None" %}
-      <dt>Animation Path</dt>
-      <dd><a href="{{task.animation_path}}">Download .gif</a></dd>
-      {% endif %}
     </dl>
     {% else %}
       <p>Please log in to download data products.</p>
