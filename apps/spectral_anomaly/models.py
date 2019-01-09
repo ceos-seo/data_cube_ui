@@ -213,9 +213,9 @@ class Metadata(BaseMetadata):
 
     # # TODO: If this is not a multisensory app, remove satellite list from here and zipped_metadata_fields
     # satellite_list = models.CharField(max_length=100000, default="")
-    # zipped_metadata_fields = [
-    #     'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition', 'satellite_list'
-    # ]
+    zipped_metadata_fields = [
+        'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition'
+    ]
 
     class Meta(BaseMetadata.Meta):
         abstract = True

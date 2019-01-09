@@ -18,14 +18,22 @@ from .models import SpectralAnomalyTask
 from apps.dc_algorithm.models import Satellite
 from apps.dc_algorithm.tasks import DCAlgorithmBase
 
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
 from utils.data_cube_utilities.dc_ndvi_anomaly import NDVI, EVI
 from utils.data_cube_utilities.dc_water_classifier import wofs_classify
 from utils.data_cube_utilities.urbanization import NDBI
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
-spectral_indices_map = {
+spectral_indices_function_map = {
     'ndvi': NDVI, 'ndwi': wofs_classify,
     'ndbi': NDBI, 'evi': EVI,
     'fractional_cover': frac_coverage_classify
+}
+spectral_indices_range_map = {
+    'ndvi': (-1, 1), 'ndwi': (0, 1),
+    'ndbi': (-1, 1), 'evi': (-1, 1),
+    'fractional_cover': (-1, 1) # TODO: What is the range for fractional cover?
 }
 
 from celery.utils.log import get_task_logger
@@ -274,9 +282,12 @@ def processing_task(task_id=None,
     composites = {}
     composites_out_of_range = {}
     for composite_name in ['baseline', 'analysis']:
+        # Use the corresponding time range for the baseline and analysis data.
+        updated_params['time'] = \
+            updated_params['baseline_time' if composite_name == 'baseline' else 'analysis_time']
         logger.info("composite_name: {}".format(composite_name))
         time_column_data = dc.get_dataset_by_extent(**updated_params)
-        time_column_data[spectral_index] = spectral_indices_map[spectral_index](time_column_data)
+        time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](time_column_data)
         logger.info("time_column_data: {}".format(time_column_data))
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
         logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
@@ -291,6 +302,7 @@ def processing_task(task_id=None,
             xr_or(composite[spectral_index] < task.composite_threshold_min,
                   task.composite_threshold_max < composite[spectral_index])
         logger.info("composite_out_of_range: {}".format(composites_out_of_range[composite_name]))
+        # TODO: Record where the composite is no-data?
     dc.close()
     # Find where either the baseline or analysis composite was out of range for a pixel.
     composite_out_of_range = xr_or(*composites_out_of_range.values())
@@ -352,7 +364,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
 
 
 @task(name="spectral_anomaly.create_output_products", base=BaseTask)
-def create_output_products(data, task_id=None):
+def create_output_products(diff_data, task_id=None):
     """Create the final output products for this algorithm.
 
     Open the final dataset and metadata and generate all remaining metadata.
@@ -360,20 +372,24 @@ def create_output_products(data, task_id=None):
     Update status and exit.
 
     Args:
-        data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
+        diff_data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
 
     """
     logger.info("CREATE_OUTPUT")
-    logger.info("create_ouput_products - data: {}".format(data))
-    full_metadata = data[2]
+    logger.info("create_ouput_products - diff_data: {}".format(diff_data))
+    full_metadata = diff_data[2]
     logger.info("full_metadata: {}".format(full_metadata))
-    composite = xr.open_dataset(data[0], autoclose=True)
-    composite_out_of_range = xr.open_dataset(data[1], autoclose=True)
+    diff_composite = xr.open_dataset(diff_data[0], autoclose=True)
+    # TODO: Use the `composite_out_of_range` mask to create the output PNG.
+    # This should indicate where either the baseline or analysis composites
+    # were outside the corresponding user-specified range.
+    orig_composite_out_of_range = xr.open_dataset(diff_data[1], autoclose=True)
+    logger.info("orig_composite_out_of_range: {}".format(orig_composite_out_of_range))
     task = SpectralAnomalyTask.objects.get(pk=task_id)
 
     task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
     task.data_path = os.path.join(task.get_result_path(), "data_tif.tif")
-    task.final_metadata_from_dataset(composite)
+    task.final_metadata_from_dataset(diff_composite)
     task.metadata_from_dict(full_metadata)
 
     spectral_index = task.query_type.result_id
@@ -381,14 +397,82 @@ def create_output_products(data, task_id=None):
 
     # logger.info("bands: {}".format(bands))
 
-    # Save the spectral index net change as a GeoTIFF.
-    write_geotiff_from_xr(task.data_path, composite.astype('float32'), bands=[spectral_index], no_data=task.satellite.no_data_value)
-    # Create a PNG of the spectral index net change.
-    write_png_from_xr(task.result_path, composite,
-        bands=[spectral_index, spectral_index, spectral_index],
-        # png_filled_path=task.result_filled_path,
-        # fill_color=task.query_type.fill,
-        no_data=task.satellite.no_data_value)
+    # 1. Save the spectral index net change as a GeoTIFF.
+    write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'), bands=[spectral_index], no_data=task.satellite.no_data_value)
+    # TODO: 2. Create a PNG of the spectral index change composite.
+    from utils.data_cube_utilities.plotter_utils import convert_name_rgb_255
+    # cmap =
+
+    # 2.1. Find the min and max possible difference for the selected spectral index.
+    spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
+    diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
+    # im = plt.imshow(composite[spectral_index].values, vmin=vmin, vmax=vmax)
+    # plt.imsave(task.result_path, composite[spectral_index].values, vmin=vmin, vmax=vmax)
+
+    diff_data = diff_composite[spectral_index].values
+    logger.info("diff_data min/mean/max: {}, {}, {}"
+                .format(diff_data.min(), diff_data.mean(), diff_data.max()))
+    # TODO: (performance) Is `nanmax` required here?
+    logger.info("Number of NaN elements in diff_data: {}"
+                .format(np.sum(np.isnan(diff_data))))
+    logger.info("Number of nodata elements in diff_data: {}"
+                .format(np.sum(diff_data == task.satellite.no_data_value)))
+    # diff_data = (diff_data * 255/np.nanmax(diff_data)).astype(np.uint8)
+    # Mask out the no-diff_data values.
+    # data_no_data_masked = np.ma.array(diff_data, mask=(diff_data==task.satellite.no_data_value))
+    # no_data_mask = diff_data==task.satellite.no_data_value
+    # logger.info("After masking no_data values, diff_data: {}"
+    #             .format(data_no_data_masked.min(), data_no_data_masked.max()))
+    # 2.2. Scale the difference composite to the range [0, 1] for plotting.
+    image_data = np.interp(diff_data, (diff_min_possible, diff_max_possible), (0, 1))
+    logger.info("type(image_data): {}".format(type(image_data)))
+    logger.info("image_data (after np.interp()): {}".format(image_data))
+    logger.info("image_data min/mean/max: {}, {}, {}"
+                .format(image_data.min(), image_data.mean(), image_data.max()))
+    # image_data = np.empty((*composite.shape, 3), dtype=np.uint8)
+    # TODO: Scale the difference composite to the range [-1, 1] so the optional
+    # TODO: user-specified change value range must always be within [-1, 1].
+    # TODO: Without this, the bounds are dependent on the spectral index range -
+    # TODO: more specifically, the bounds are (min-max, max-min) for a given spectral index.
+    # TODO: For example, without this the bounds on the user-specified change value
+    # TODO: range for NDVI is [-2, 2].
+    # diff_data = np.interp(diff_data, (diff_min_possible, diff_max_possible), (-1, 1))
+    # 2.3. Color by region.
+    # 2.3.1. First, color by change with a red-green gradient.
+    cmap = plt.get_cmap('RdYlGn')
+    # Select only the rgb components of the rgba array.
+    image_data = cmap(image_data)
+    logger.info("image_data (after cmap): {}".format(image_data))
+    logger.info("image_data.shape (after cmap): {}".format(image_data.shape))
+    logger.info("image_data (after cmap) min/mean/max: {}, {}, {}"
+                .format(image_data.min(), image_data.mean(), image_data.max()))
+    # 2.3.2. Second, color regions in which the change was outside
+    #        the optional user-specified change value range.
+    change_out_of_range_color = mpl.colors.to_rgba('black')
+    logger.info("change_out_of_range_color: {}".format(change_out_of_range_color))
+    cng_min, cng_max = task.change_threshold_min, task.change_threshold_max
+    if cng_min is not None and cng_max is not None:
+        diff_composite_out_of_range = (diff_data < cng_min) ^ (cng_max < diff_data)
+        logger.info("diff_composite_out_of_range.sum(): {}"
+                    .format(diff_composite_out_of_range.sum()))
+        image_data[diff_composite_out_of_range] = change_out_of_range_color
+        logger.info("image_data[diff_composite_out_of_range]: {}"
+                    .format(image_data[diff_composite_out_of_range]))
+        logger.info("image_data[diff_composite_out_of_range].shape: {}"
+                    .format(image_data[diff_composite_out_of_range].shape))
+    # TODO: 2.3.3. Third, color regions in which either the baseline or analysis
+    # TODO:        composites were outside the user-specified composite value range.
+    # composite_out_of_range_color = mpl.colors.to_rgba('white')
+    # TODO: 2.3.4. (shouldn't the spectral index be a float, so use NaN
+    # TODO:         instead of no_data?) Fourth, color regions in which
+    # TODO:        either the baseline or analysis composites were no_data values.
+
+    plt.imsave(task.result_path, image_data)
+
+    # write_png_from_xr(task.result_path, composite,
+    #     bands=[spectral_index, spectral_index, spectral_index],
+    #     scale=spectral_indices_range_map[spectral_index],
+    #     no_data=task.satellite.no_data_value)
     # write_single_band_png_from_xr(task.result_path, composite, band=spectral_index,
     #     #png_filled_path=task.result_filled_path,
     #     #fill_color=task.query_type.fill,
