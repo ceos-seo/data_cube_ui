@@ -287,7 +287,11 @@ def processing_task(task_id=None,
         logger.info("composite_name: {}".format(composite_name))
         time_column_data = dc.get_dataset_by_extent(**updated_params)
         time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](time_column_data)
+        # Obtain the clean mask for the satellite.
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
+        # Also mask out data points with the no_data value.
+        no_data_mask = time_column_data[spectral_index].values == task.satellite.no_data_value
+        time_column_clean_mask = time_column_clean_mask ^ no_data_mask
         logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
         # Drop unneeded data variables.
         measurements_list = task.satellite.measurements.replace(" ", "").split(",")
