@@ -111,7 +111,6 @@ def validate_parameters(parameters, task_id=None):
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     dc = DataAccessApi(config=task.config_path)
 
-    # TODO: if this is not a multisensory app, replace list_combined_acquisition_dates with list_acquisition_dates
     baseline_parameters = parameters.copy()
     baseline_parameters['time'] = parameters['baseline_time']
     baseline_acquisitions = dc.list_acquisition_dates(**baseline_parameters)
@@ -288,34 +287,45 @@ def processing_task(task_id=None,
         logger.info("composite_name: {}".format(composite_name))
         time_column_data = dc.get_dataset_by_extent(**updated_params)
         time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](time_column_data)
-        logger.info("time_column_data: {}".format(time_column_data))
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
         logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
+        # Drop unneeded data variables.
+        measurements_list = task.satellite.measurements.replace(" ", "").split(",")
+        # logger.info("measurements_list: {}".format(measurements_list))
+        time_column_data = time_column_data.drop(measurements_list)
+        logger.info("time_column_data: {}".format(time_column_data))
         metadata = task.metadata_from_dataset(metadata, time_column_data,
                                               time_column_clean_mask, parameters)
+        # Obtain the composite.
         composite = task.get_processing_method()(time_column_data,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
         composites[composite_name] = composite
+        # Determine where the composite is out of range.
         composites_out_of_range[composite_name] = \
             xr_or(composite[spectral_index] < task.composite_threshold_min,
                   task.composite_threshold_max < composite[spectral_index])
         logger.info("composite_out_of_range: {}".format(composites_out_of_range[composite_name]))
-        # TODO: Record where the composite is no-data?
     dc.close()
-    # Find where either the baseline or analysis composite was out of range for a pixel.
-    composite_out_of_range = xr_or(*composites_out_of_range.values())
-    logger.info("composite_out_of_range: {}".format(composite_out_of_range))
     # Create a difference composite.
     diff_composite = composites['analysis'] - composites['baseline']
     logger.info("diff_composite: {}".format(diff_composite))
+    # Find where either the baseline or analysis composite was out of range for a pixel.
+    composite_out_of_range = xr_or(*composites_out_of_range.values())
+    logger.info("composite_out_of_range: {}".format(composite_out_of_range))
+    # Find where either the baseline or analysis composite was no_data.
+    composite_no_data = \
+        xr_or(composites['baseline'][spectral_index] == task.satellite.no_data_value,
+              composites['analysis'][spectral_index] == task.satellite.no_data_value)
 
     composite_path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
     diff_composite.to_netcdf(composite_path)
     composite_out_of_range_path = os.path.join(task.get_temp_path(), chunk_id + "_out_of_range.nc")
     composite_out_of_range.to_netcdf(composite_out_of_range_path)
+    composite_no_data_path = os.path.join(task.get_temp_path(), chunk_id + "_no_data.nc")
+    composite_no_data.to_netcdf(composite_no_data_path)
     logger.info("Done with chunk: " + chunk_id)
-    return composite_path, composite_out_of_range_path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
+    return composite_path, composite_out_of_range_path, composite_no_data_path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
 
 @task(name="spectral_anomaly.recombine_geographic_chunks", base=BaseTask)
@@ -340,30 +350,35 @@ def recombine_geographic_chunks(chunks, task_id=None):
 
     composite_chunk_data = []
     out_of_range_chunk_data = []
+    no_data_chunk_data = []
 
     for index, chunk in enumerate(total_chunks):
-        logger.info("chunk: {}".format(chunk))
-        metadata = task.combine_metadata(metadata, chunk[2])
+        metadata = task.combine_metadata(metadata, chunk[3])
         composite_chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
         out_of_range_chunk_data.append(xr.open_dataset(chunk[1], autoclose=True))
+        no_data_chunk_data.append(xr.open_dataset(chunk[2], autoclose=True))
 
     combined_composite_data = combine_geographic_chunks(composite_chunk_data)
     combined_out_of_range_data = combine_geographic_chunks(out_of_range_chunk_data)
+    combined_no_data = combine_geographic_chunks(no_data_chunk_data)
 
     logger.info("combined_composite_data: {}".format(combined_composite_data))
     logger.info("combined_out_of_range_data: {}".format(combined_out_of_range_data))
+    logger.info("combined_no_data: {}".format(combined_no_data))
 
     composite_path = os.path.join(task.get_temp_path(), "full_composite.nc")
     combined_composite_data.to_netcdf(composite_path)
     composite_out_of_range_path = os.path.join(task.get_temp_path(), "full_composite_out_of_range.nc")
     combined_out_of_range_data.to_netcdf(composite_out_of_range_path)
+    no_data_path = os.path.join(task.get_temp_path(), "full_composite_no_data.nc")
+    combined_no_data.to_netcdf(no_data_path)
     # logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     logger.info("Done combining geographic chunks.")
-    return composite_path, composite_out_of_range_path, metadata#, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
+    return composite_path, composite_out_of_range_path, no_data_path, metadata#, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
 
 @task(name="spectral_anomaly.create_output_products", base=BaseTask)
-def create_output_products(diff_data, task_id=None):
+def create_output_products(data, task_id=None):
     """Create the final output products for this algorithm.
 
     Open the final dataset and metadata and generate all remaining metadata.
@@ -375,20 +390,26 @@ def create_output_products(diff_data, task_id=None):
 
     """
     logger.info("CREATE_OUTPUT")
-    logger.info("create_ouput_products - diff_data: {}".format(diff_data))
-    full_metadata = diff_data[2]
+    # logger.info("create_ouput_products - data: {}".format(data))
+    full_metadata = data[3]
     logger.info("full_metadata: {}".format(full_metadata))
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     spectral_index = task.query_type.result_id
 
-    diff_composite = xr.open_dataset(diff_data[0], autoclose=True)
-    # This should indicate where either the baseline or analysis composites
-    # were outside the corresponding user-specified range.
-    orig_composite_out_of_range = xr.open_dataset(diff_data[1], autoclose=True)\
+    # This is the difference (or "change") composite.
+    diff_composite = xr.open_dataset(data[0], autoclose=True)
+    # This indicates where either the baseline or analysis composite
+    # was outside the corresponding user-specified range.
+    orig_composite_out_of_range = xr.open_dataset(data[1], autoclose=True)\
                                   [spectral_index].astype(np.bool).values
     logger.info("orig_composite_out_of_range: {}".format(orig_composite_out_of_range))
     logger.info("orig_composite_out_of_range sum, size: {} {}"\
                 .format(orig_composite_out_of_range.sum(), orig_composite_out_of_range.size))
+    # This indicates where either the baseline or analysis composite
+    # was the no_data value.
+    composite_no_data = xr.open_dataset(data[2], autoclose=True)\
+                        [spectral_index].astype(np.bool).values
+    logger.info("composite_no_data: {}".format(composite_no_data))
 
     task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
     task.data_path = os.path.join(task.get_result_path(), "data_tif.tif")
@@ -407,12 +428,10 @@ def create_output_products(diff_data, task_id=None):
     diff_data = diff_composite[spectral_index].values
     logger.info("diff_data min/mean/max: {}, {}, {}"
                 .format(diff_data.min(), diff_data.mean(), diff_data.max()))
-    # TODO: (performance) Is `nanmax` required here?
     logger.info("Number of NaN elements in diff_data: {}"
                 .format(np.sum(np.isnan(diff_data))))
     logger.info("Number of nodata elements in diff_data: {}"
                 .format(np.sum(diff_data == task.satellite.no_data_value)))
-    # diff_data = (diff_data * 255/np.nanmax(diff_data)).astype(np.uint8)
     # Mask out the no-diff_data values.
     # data_no_data_masked = np.ma.array(diff_data, mask=(diff_data==task.satellite.no_data_value))
     # no_data_mask = diff_data==task.satellite.no_data_value
@@ -458,28 +477,21 @@ def create_output_products(diff_data, task_id=None):
         logger.info("image_data[diff_composite_out_of_range].shape: {}"
                     .format(image_data[diff_composite_out_of_range].shape))
     logger.info("image_data after coloring change region: {}".format(image_data))
-    # TODO: 2.3.3. Third, color regions in which either the baseline or analysis
-    # TODO:        composites were outside the user-specified composite value range.
+    # 2.3.3. Third, color regions in which either the baseline or analysis
+    #        composite was outside the user-specified composite value range.
     composite_out_of_range_color = mpl.colors.to_rgba('white')
     logger.info("composite_out_of_range_color: {}".format(composite_out_of_range_color))
     logger.info("orig_composite_out_of_range.shape: {}"
                 .format(orig_composite_out_of_range.shape))
     image_data[orig_composite_out_of_range] = composite_out_of_range_color
-    # TODO: 2.3.4. (shouldn't the spectral index be a float, so use NaN
-    # TODO:         instead of no_data?) Fourth, color regions in which
-    # TODO:        either the baseline or analysis composites were no_data values.
+    #  2.3.4. Fourth, color regions in which either the baseline or analysis
+    #         composite was the no_data value as transparent.
+    composite_no_data_color = np.array([0.,0.,0.,0.])
+    image_data[composite_no_data] = composite_no_data_color
 
     logger.info("image_data before plot: {}".format(image_data))
     plt.imsave(task.result_path, image_data)
 
-    # write_png_from_xr(task.result_path, composite,
-    #     bands=[spectral_index, spectral_index, spectral_index],
-    #     scale=spectral_indices_range_map[spectral_index],
-    #     no_data=task.satellite.no_data_value)
-    # write_single_band_png_from_xr(task.result_path, composite, band=spectral_index,
-    #     #png_filled_path=task.result_filled_path,
-    #     #fill_color=task.query_type.fill,
-    #     no_data=task.satellite.no_data_value)
     # Plot metadata.
     dates = list(map(lambda x: datetime.strptime(x, "%m/%d/%Y"), task._get_field_as_list('acquisition_list')))
     if len(dates) > 1:
