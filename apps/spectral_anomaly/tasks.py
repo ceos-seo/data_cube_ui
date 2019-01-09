@@ -296,7 +296,6 @@ def processing_task(task_id=None,
         composite = task.get_processing_method()(time_column_data,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
-        logger.info("composite: {}".format(composite))
         composites[composite_name] = composite
         composites_out_of_range[composite_name] = \
             xr_or(composite[spectral_index] < task.composite_threshold_min,
@@ -379,30 +378,26 @@ def create_output_products(diff_data, task_id=None):
     logger.info("create_ouput_products - diff_data: {}".format(diff_data))
     full_metadata = diff_data[2]
     logger.info("full_metadata: {}".format(full_metadata))
+    task = SpectralAnomalyTask.objects.get(pk=task_id)
+    spectral_index = task.query_type.result_id
+
     diff_composite = xr.open_dataset(diff_data[0], autoclose=True)
-    # TODO: Use the `composite_out_of_range` mask to create the output PNG.
     # This should indicate where either the baseline or analysis composites
     # were outside the corresponding user-specified range.
-    orig_composite_out_of_range = xr.open_dataset(diff_data[1], autoclose=True)
+    orig_composite_out_of_range = xr.open_dataset(diff_data[1], autoclose=True)\
+                                  [spectral_index].astype(np.bool).values
     logger.info("orig_composite_out_of_range: {}".format(orig_composite_out_of_range))
-    task = SpectralAnomalyTask.objects.get(pk=task_id)
+    logger.info("orig_composite_out_of_range sum, size: {} {}"\
+                .format(orig_composite_out_of_range.sum(), orig_composite_out_of_range.size))
 
     task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
     task.data_path = os.path.join(task.get_result_path(), "data_tif.tif")
     task.final_metadata_from_dataset(diff_composite)
     task.metadata_from_dict(full_metadata)
 
-    spectral_index = task.query_type.result_id
-    # bands = [spectral_index, spectral_index, spectral_index]
-
-    # logger.info("bands: {}".format(bands))
-
     # 1. Save the spectral index net change as a GeoTIFF.
     write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'), bands=[spectral_index], no_data=task.satellite.no_data_value)
     # TODO: 2. Create a PNG of the spectral index change composite.
-    from utils.data_cube_utilities.plotter_utils import convert_name_rgb_255
-    # cmap =
-
     # 2.1. Find the min and max possible difference for the selected spectral index.
     spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
     diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
@@ -455,18 +450,26 @@ def create_output_products(diff_data, task_id=None):
         diff_composite_out_of_range = (diff_data < cng_min) ^ (cng_max < diff_data)
         logger.info("diff_composite_out_of_range.sum(): {}"
                     .format(diff_composite_out_of_range.sum()))
+        logger.info("diff_composite_out_of_range.shape: {}"
+                    .format(diff_composite_out_of_range.shape))
         image_data[diff_composite_out_of_range] = change_out_of_range_color
         logger.info("image_data[diff_composite_out_of_range]: {}"
                     .format(image_data[diff_composite_out_of_range]))
         logger.info("image_data[diff_composite_out_of_range].shape: {}"
                     .format(image_data[diff_composite_out_of_range].shape))
+    logger.info("image_data after coloring change region: {}".format(image_data))
     # TODO: 2.3.3. Third, color regions in which either the baseline or analysis
     # TODO:        composites were outside the user-specified composite value range.
-    # composite_out_of_range_color = mpl.colors.to_rgba('white')
+    composite_out_of_range_color = mpl.colors.to_rgba('white')
+    logger.info("composite_out_of_range_color: {}".format(composite_out_of_range_color))
+    logger.info("orig_composite_out_of_range.shape: {}"
+                .format(orig_composite_out_of_range.shape))
+    image_data[orig_composite_out_of_range] = composite_out_of_range_color
     # TODO: 2.3.4. (shouldn't the spectral index be a float, so use NaN
     # TODO:         instead of no_data?) Fourth, color regions in which
     # TODO:        either the baseline or analysis composites were no_data values.
 
+    logger.info("image_data before plot: {}".format(image_data))
     plt.imsave(task.result_path, image_data)
 
     # write_png_from_xr(task.result_path, composite,
