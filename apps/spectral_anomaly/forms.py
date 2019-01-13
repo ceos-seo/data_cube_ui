@@ -88,6 +88,61 @@ class AdditionalOptionsForm(forms.Form):
         self.fields["query_type"].queryset = ResultType.objects.all()
         self.fields["compositor"].queryset = Compositor.objects.all()
 
+    def clean(self):
+        query_type = self.cleaned_data['query_type'].result_id
+        composite_threshold_min = self.cleaned_data['composite_threshold_min']
+        composite_threshold_max = self.cleaned_data['composite_threshold_max']
+        change_threshold_min = self.cleaned_data['change_threshold_min']
+        change_threshold_max = self.cleaned_data['change_threshold_max']
+
+        # Determine possible value ranges.
+        composite_allow_min, composite_allow_max = None, None
+        if query_type in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+            composite_allow_min, composite_allow_max = -1.0, 1.0
+        else: # TODO: Determine the bounds of fractional coverage.
+            composite_allow_min, composite_allow_max = -1.0, 1.0
+        change_allow_min = composite_allow_min - composite_allow_max
+        change_allow_max = composite_allow_max - composite_allow_min
+        # self.add_error(None, 'change_allow_min, change_threshold_min, '
+        #     'change_threshold_max, change_allow_max: {}, {}, {}, {}'
+        #     .format(change_allow_min, change_threshold_min, change_threshold_max,
+        #             change_allow_max))
+        # return
+
+        # 1. Handle the composite value range fields.
+        # 1.1. Ensure the composite value range fields are within
+        #      the possible range for the selected spectral index.
+        composite_out_of_range_message = \
+            'The min and max composite values must be in the range [{}, {}]'\
+            .format(composite_allow_min, composite_allow_max)
+        if not composite_allow_min <= composite_threshold_min <= composite_allow_max:
+            self.add_error('composite_threshold_min', composite_out_of_range_message)
+        if not composite_allow_min <= composite_threshold_max <= composite_allow_max:
+            self.add_error('composite_threshold_max', composite_out_of_range_message)
+        # 1.2. Ensure the minimum is less than the maximum.
+        if not composite_threshold_min < composite_threshold_max:
+            self.add_error('composite_threshold_min',
+                           'The min composite value must be less than the max composite value.')
+        # 2. Handle the change value range fields.
+        if change_threshold_min is not None and change_threshold_max is not None:
+            # 2.1. Ensure the change value range fields are within
+            #      the possible range for the selected spectral index.
+            change_out_of_range_message = \
+                'The min and max change values must be in the range [{}, {}]'\
+                .format(change_allow_min, change_allow_max)
+            if not change_allow_min <= change_threshold_min <= change_allow_max:
+                self.add_error('change_threshold_min', change_out_of_range_message)
+            if not change_allow_min <= change_threshold_max <= change_allow_max:
+                self.add_error('change_threshold_max', change_out_of_range_message)
+            # 2.2. Ensure the minimum is less than the maximum.
+            if not change_threshold_min < change_threshold_max:
+                self.add_error('change_threshold_min',
+                               'The min change value must be less than the max change value.')
+        elif (change_threshold_min is not None) ^ (change_threshold_max is not None):
+            self.add_error('change_threshold_min', 'Either neither or both the min and max '
+                                                    'change value fields may be specified.')
+
+
 class DataSelectionForm(forms.Form):
     two_column_format = True
 

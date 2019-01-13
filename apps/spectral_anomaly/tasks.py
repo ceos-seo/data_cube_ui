@@ -22,16 +22,16 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 from utils.data_cube_utilities.dc_ndvi_anomaly import NDVI, EVI
-from utils.data_cube_utilities.dc_water_classifier import wofs_classify
+from utils.data_cube_utilities.dc_water_classifier import NDWI
 from utils.data_cube_utilities.urbanization import NDBI
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
 spectral_indices_function_map = {
-    'ndvi': NDVI, 'ndwi': wofs_classify,
+    'ndvi': NDVI, 'ndwi': NDWI,
     'ndbi': NDBI, 'evi': EVI,
     'fractional_cover': frac_coverage_classify
 }
 spectral_indices_range_map = {
-    'ndvi': (-1, 1), 'ndwi': (0, 1),
+    'ndvi': (-1, 1), 'ndwi': (-1, 1),
     'ndbi': (-1, 1), 'evi': (-1, 1),
     'fractional_cover': (-1, 1) # TODO: What is the range for fractional cover?
 }
@@ -280,36 +280,65 @@ def processing_task(task_id=None,
     logger.info("spectral_index: {}".format(spectral_index))
     composites = {}
     composites_out_of_range = {}
+    no_data_value = task.satellite.no_data_value
     for composite_name in ['baseline', 'analysis']:
         # Use the corresponding time range for the baseline and analysis data.
         updated_params['time'] = \
             updated_params['baseline_time' if composite_name == 'baseline' else 'analysis_time']
         logger.info("composite_name: {}".format(composite_name))
         time_column_data = dc.get_dataset_by_extent(**updated_params)
-        time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](time_column_data)
+
         # Obtain the clean mask for the satellite.
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
-        # Also mask out data points with the no_data value.
-        no_data_mask = time_column_data[spectral_index].values == task.satellite.no_data_value
+        measurements_list = task.satellite.measurements.replace(" ", "").split(",")
+        # Also exclude data points with the no_data value via the compositing mask.
+        no_data_mask = time_column_data[measurements_list[0]].values != no_data_value
         time_column_clean_mask = time_column_clean_mask ^ no_data_mask
         logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
+
+        # TODO: Remove these statements when done testing.
+        spec_ind_params = dict()
+        if spectral_index == 'evi':
+            spec_ind_params = dict(no_data=no_data_value)
+        if spectral_index == 'fractional_cover':
+            spec_ind_params = dict(clean_mask=time_column_clean_mask, no_data=no_data_value)
+        spec_ind_func_result = spectral_indices_function_map[spectral_index](
+            time_column_data, **spec_ind_params)
+        logger.info("spec_ind_func_result: {}".format(spec_ind_func_result))
+
+        # Calculate the spectral index.
+        time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](
+            time_column_data, clean_mask=time_column_clean_mask, no_data=no_data_value)
         # Drop unneeded data variables.
-        measurements_list = task.satellite.measurements.replace(" ", "").split(",")
-        # logger.info("measurements_list: {}".format(measurements_list))
         time_column_data = time_column_data.drop(measurements_list)
         logger.info("time_column_data: {}".format(time_column_data))
-        metadata = task.metadata_from_dataset(metadata, time_column_data,
-                                              time_column_clean_mask, parameters)
+
         # Obtain the composite.
         composite = task.get_processing_method()(time_column_data,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
         composites[composite_name] = composite
+
+        # TODO: Remove these statements when done testing.
+        logger.info("composite shape: {}".format(composite[spectral_index].values.shape))
+        logger.info("time_column_clean_mask shape: {}".format(time_column_clean_mask.shape))
+        logger.info("composite mask shape: {}".format(np.all(time_column_clean_mask, axis=0).shape))
+        # composite_minus_no_data = composite.where(np.any(time_column_clean_mask, axis=0))[spectral_index].values
+        composite_minus_no_data = composite.values[np.abs(composite.values - task.satellite.no_data_value)<=1]
+        logger.info("composite min/mean/max: {}, {}, {}"
+                    .format(np.nanmin(composite_minus_no_data), np.nanmean(composite_minus_no_data),
+                            np.nanmax(composite_minus_no_data)))
+
         # Determine where the composite is out of range.
         composites_out_of_range[composite_name] = \
             xr_or(composite[spectral_index] < task.composite_threshold_min,
                   task.composite_threshold_max < composite[spectral_index])
         logger.info("composite_out_of_range: {}".format(composites_out_of_range[composite_name]))
+
+        # Update the metadata with the current data (baseline or analysis).
+        metadata = task.metadata_from_dataset(metadata, time_column_data,
+                                              time_column_clean_mask, parameters)
+        #
     dc.close()
     # Create a difference composite.
     diff_composite = composites['analysis'] - composites['baseline']
@@ -415,6 +444,17 @@ def create_output_products(data, task_id=None):
                         [spectral_index].astype(np.bool).values
     logger.info("composite_no_data: {}".format(composite_no_data))
 
+    # TODO: Remove these statements when done testing.
+    diff_comp_np_arr = diff_composite[spectral_index].values
+    logger.info("result 1: {}".format(np.round(diff_comp_np_arr) < task.satellite.no_data_value))
+    logger.info("result 2: {}".format(np.round(diff_comp_np_arr) == task.satellite.no_data_value))
+    # (np.round(diff_comp_np_arr) < no_data_value) |
+    # (np.round(diff_comp_np_arr) == no_data_value)
+    diff_comp_np_arr[composite_no_data] = np.nan
+    logger.info("diff_composite min/mean/max: {}, {}, {}".format(
+        np.nanmin(diff_comp_np_arr), np.nanmean(diff_comp_np_arr),
+        np.nanmax(diff_comp_np_arr)))
+
     task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
     task.data_path = os.path.join(task.get_result_path(), "data_tif.tif")
     task.final_metadata_from_dataset(diff_composite)
@@ -422,7 +462,7 @@ def create_output_products(data, task_id=None):
 
     # 1. Save the spectral index net change as a GeoTIFF.
     write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'), bands=[spectral_index], no_data=task.satellite.no_data_value)
-    # TODO: 2. Create a PNG of the spectral index change composite.
+    # 2. Create a PNG of the spectral index change composite.
     # 2.1. Find the min and max possible difference for the selected spectral index.
     spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
     diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
@@ -437,8 +477,8 @@ def create_output_products(data, task_id=None):
     logger.info("Number of nodata elements in diff_data: {}"
                 .format(np.sum(diff_data == task.satellite.no_data_value)))
     # Mask out the no-diff_data values.
-    # data_no_data_masked = np.ma.array(diff_data, mask=(diff_data==task.satellite.no_data_value))
-    # no_data_mask = diff_data==task.satellite.no_data_value
+    # data_no_data_masked = np.ma.array(diff_data, mask=(diff_data==no_data_value))
+    # no_data_mask = diff_data==no_data_value
     # logger.info("After masking no_data values, diff_data: {}"
     #             .format(data_no_data_masked.min(), data_no_data_masked.max()))
     # 2.2. Scale the difference composite to the range [0, 1] for plotting.
@@ -456,10 +496,16 @@ def create_output_products(data, task_id=None):
     # TODO: range for NDVI is [-2, 2].
     # diff_data = np.interp(diff_data, (diff_min_possible, diff_max_possible), (-1, 1))
     # 2.3. Color by region.
-    # 2.3.1. First, color by change with a red-green gradient.
-    cmap = plt.get_cmap('RdYlGn')
-    # Select only the rgb components of the rgba array.
-    image_data = cmap(image_data)
+    # 2.3.1. First, color by change.
+    # If the user specified a change value range, the product is binary -
+    # denoting which pixels fall within the net change threshold.
+    cng_min, cng_max = task.change_threshold_min, task.change_threshold_max
+    if cng_min is not None and cng_max is not None:
+        image_data = np.empty((*image_data.shape, 4), dtype=image_data.dtype)
+        image_data[:,:] = mpl.colors.to_rgba('red')
+    else: # otherwise, use a red-green gradient.
+        cmap = plt.get_cmap('RdYlGn')
+        image_data = cmap(image_data)
     logger.info("image_data (after cmap): {}".format(image_data))
     logger.info("image_data.shape (after cmap): {}".format(image_data.shape))
     logger.info("image_data (after cmap) min/mean/max: {}, {}, {}"
@@ -468,7 +514,6 @@ def create_output_products(data, task_id=None):
     #        the optional user-specified change value range.
     change_out_of_range_color = mpl.colors.to_rgba('black')
     logger.info("change_out_of_range_color: {}".format(change_out_of_range_color))
-    cng_min, cng_max = task.change_threshold_min, task.change_threshold_max
     if cng_min is not None and cng_max is not None:
         diff_composite_out_of_range = (diff_data < cng_min) ^ (cng_max < diff_data)
         logger.info("diff_composite_out_of_range.sum(): {}"
