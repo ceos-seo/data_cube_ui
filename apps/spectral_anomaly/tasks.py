@@ -5,6 +5,8 @@ import shutil
 import xarray as xr
 import numpy as np
 from xarray.ufuncs import logical_or as xr_or
+from xarray.ufuncs import logical_and as xr_and
+from xarray.ufuncs import logical_not as xr_not
 import os
 
 from utils.data_cube_utilities.data_access_api import DataAccessApi
@@ -12,6 +14,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     write_png_from_xr, add_timestamp_data_to_xr, clear_attrs)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
+from utils.data_cube_utilities.clean_mask import landsat_clean_mask_invalid
 from apps.dc_algorithm.utils import create_2d_plot
 
 from .models import SpectralAnomalyTask
@@ -25,6 +28,7 @@ from utils.data_cube_utilities.dc_ndvi_anomaly import NDVI, EVI
 from utils.data_cube_utilities.dc_water_classifier import NDWI
 from utils.data_cube_utilities.urbanization import NDBI
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
+
 spectral_indices_function_map = {
     'ndvi': NDVI, 'ndwi': NDWI,
     'ndbi': NDBI, 'evi': EVI,
@@ -33,11 +37,13 @@ spectral_indices_function_map = {
 spectral_indices_range_map = {
     'ndvi': (-1, 1), 'ndwi': (-1, 1),
     'ndbi': (-1, 1), 'evi': (-1, 1),
-    'fractional_cover': (-1, 1) # TODO: What is the range for fractional cover?
+    'fractional_cover': (0, 100)
 }
 
 from celery.utils.log import get_task_logger
+
 logger = get_task_logger(__name__)
+
 
 class BaseTask(DCAlgorithmBase):
     app_name = 'spectral_anomaly'
@@ -290,56 +296,112 @@ def processing_task(task_id=None,
 
         # Obtain the clean mask for the satellite.
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
+        logger.info("time_column_clean_mask (init): {}".format(time_column_clean_mask))
         measurements_list = task.satellite.measurements.replace(" ", "").split(",")
-        # Also exclude data points with the no_data value via the compositing mask.
+        # Obtain the mask for valid Landsat values.
+        time_column_invalid_mask = landsat_clean_mask_invalid(time_column_data).values
+        logger.info("time_column_invalid_mask: {}".format(time_column_invalid_mask))
+        # Also exclude data points with the no_data value.
         no_data_mask = time_column_data[measurements_list[0]].values != no_data_value
-        time_column_clean_mask = time_column_clean_mask ^ no_data_mask
-        logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
-
-        # TODO: Remove these statements when done testing.
-        spec_ind_params = dict()
-        if spectral_index == 'evi':
-            spec_ind_params = dict(no_data=no_data_value)
-        if spectral_index == 'fractional_cover':
-            spec_ind_params = dict(clean_mask=time_column_clean_mask, no_data=no_data_value)
-        spec_ind_func_result = spectral_indices_function_map[spectral_index](
-            time_column_data, **spec_ind_params)
-        logger.info("spec_ind_func_result: {}".format(spec_ind_func_result))
+        # logger.info("no_data_mask: {}".format(no_data_mask))
+        # Combine the clean masks.
+        time_column_clean_mask = time_column_clean_mask | time_column_invalid_mask | no_data_mask
+        # logger.info("time_column_clean_mask: {}".format(time_column_clean_mask))
 
         # Calculate the spectral index.
-        time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](
-            time_column_data, clean_mask=time_column_clean_mask, no_data=no_data_value)
+        # time_column_data[spectral_index] = spectral_indices_function_map[spectral_index](
+        #     time_column_data, clean_mask=time_column_clean_mask, no_data=no_data_value)
         # Drop unneeded data variables.
-        time_column_data = time_column_data.drop(measurements_list)
-        logger.info("time_column_data: {}".format(time_column_data))
+        # time_column_data = time_column_data.drop(measurements_list)
+        # logger.info("time_column_data: {}".format(time_column_data))
 
         # Obtain the composite.
         composite = task.get_processing_method()(time_column_data,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
-        composites[composite_name] = composite
+
+        # Obtain the clean mask for the satellite.
+        # time_column_clean_mask = task.satellite.get_clean_mask_func()(composite)
+        # measurements_list = task.satellite.measurements.replace(" ", "").split(",")
+        # Obtain the mask for valid Landsat values.
+        composite_invalid_mask = landsat_clean_mask_invalid(composite).values
+        logger.info("composite_invalid_mask: {}".format(composite_invalid_mask))
+        # Also exclude data points with the no_data value via the compositing mask.
+        composite_no_data_mask = composite[measurements_list[0]].values != no_data_value
+        composite_clean_mask = composite_invalid_mask | composite_no_data_mask
+        logger.info("composite_clean_mask: {}".format(composite_clean_mask))
 
         # TODO: Remove these statements when done testing.
-        logger.info("composite shape: {}".format(composite[spectral_index].values.shape))
-        logger.info("time_column_clean_mask shape: {}".format(time_column_clean_mask.shape))
-        logger.info("composite mask shape: {}".format(np.all(time_column_clean_mask, axis=0).shape))
+        logger.info("composite: {}".format(composite))
+        # logger.info("composite shape: {}".format(composite[spectral_index].values.shape))
+        # logger.info("time_column_clean_mask shape: {}".format(time_column_clean_mask.shape))
+        # logger.info("composite mask shape: {}".format(np.all(time_column_clean_mask, axis=0).shape))
         # composite_minus_no_data = composite.where(np.any(time_column_clean_mask, axis=0))[spectral_index].values
-        composite_minus_no_data = composite.values[np.abs(composite.values - task.satellite.no_data_value)<=1]
-        logger.info("composite min/mean/max: {}, {}, {}"
-                    .format(np.nanmin(composite_minus_no_data), np.nanmean(composite_minus_no_data),
-                            np.nanmax(composite_minus_no_data)))
+        # composite_minus_no_data = composite[spectral_index].values[np.abs(composite.values - task.satellite.no_data_value)<=1]
+        logger.info("composite min/mean/std/max: {}, {}, {}, {}"
+                    .format(composite.where(composite_clean_mask).min(),
+                            composite.where(composite_clean_mask).mean(),
+                            composite.where(composite_clean_mask).std(),
+                            composite.where(composite_clean_mask).max()))
+
+        # Compute the spectral index for the composite.
+        spec_ind_params = dict()
+        if spectral_index == 'fractional_cover':
+            spec_ind_params = dict(clean_mask=composite_clean_mask, no_data=no_data_value)
+        spec_ind_result = spectral_indices_function_map[spectral_index](composite,**spec_ind_params)
+        logger.info("spec_ind_result: {}".format(spec_ind_result))
+        if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+            composite[spectral_index] = spec_ind_result
+        else: # Fractional Cover
+            composite = xr.merge([composite, spec_ind_result])
+            # Fractional Cover is supposed to have a range of [0, 100], with its bands -
+            # 'bs', 'pv', and 'npv' - summing to 100. However, the function we use
+            # can have the sum of those bands as high as 106.
+            # frac_cov_min, frac_cov_max = spectral_indices_range_map[spectral_index]
+            frac_cov_min, frac_cov_max = 0, 106
+            # logger.info("composite[['bs','pv','npv']]: {}".format(composite[['bs','pv','npv']]))
+            for band in ['bs', 'pv', 'npv']:
+                composite[band].values = \
+                    np.interp(composite[band].values, (frac_cov_min, frac_cov_max),
+                              spectral_indices_range_map[spectral_index])
+                # comp_band_arr = composite[band].values
+                # comp_band_arr[comp_band_arr<frac_cov_min] = 0
+                # comp_band_arr[frac_cov_max<comp_band_arr] = 100
+            # frac_cov_comp = composite[['bs', 'pv', 'npv']]
+            # composite[['bs', 'pv', 'npv']] = frac_cov_comp.where(xr_not(frac_cov_comp<frac_cov_min), frac_cov_min)
+            # composite[['bs', 'pv', 'npv']] = frac_cov_comp.where(xr_not(frac_cov_max<frac_cov_comp), frac_cov_max)
+
+            # composite.values[composite<frac_cov_min] = frac_cov_min
+            # composite.values[frac_cov_max<composite] = frac_cov_max
+
+        composites[composite_name] = composite
 
         # Determine where the composite is out of range.
-        composites_out_of_range[composite_name] = \
-            xr_or(composite[spectral_index] < task.composite_threshold_min,
-                  task.composite_threshold_max < composite[spectral_index])
+        # We rename the resulting xarray.DataArray because calling to_netcdf()
+        # on it at the end of this function will save it as a Dataset
+        # with one data variable with the same name as the DataArray.
+        if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+            composites_out_of_range[composite_name] = \
+                xr_or(composite[spectral_index] < task.composite_threshold_min,
+                      task.composite_threshold_max < composite[spectral_index]).rename(spectral_index)
+        else:  # Fractional Cover
+            # For fractional cover, a composite pixel is out of range if any of its
+            # fractional cover bands are out of range.
+            composites_out_of_range[composite_name] = xr_or(
+                xr_or(xr_or(composite['bs'] < task.composite_threshold_min,
+                            task.composite_threshold_max < composite['bs']),
+                      xr_or(composite['pv'] < task.composite_threshold_min,
+                            task.composite_threshold_max < composite['pv'])),
+                xr_or(composite['npv'] < task.composite_threshold_min,
+                      task.composite_threshold_max < composite['npv'])
+            ).rename(spectral_index)
         logger.info("composite_out_of_range: {}".format(composites_out_of_range[composite_name]))
 
         # Update the metadata with the current data (baseline or analysis).
         metadata = task.metadata_from_dataset(metadata, time_column_data,
                                               time_column_clean_mask, parameters)
-        #
     dc.close()
+
     # Create a difference composite.
     diff_composite = composites['analysis'] - composites['baseline']
     logger.info("diff_composite: {}".format(diff_composite))
@@ -347,9 +409,44 @@ def processing_task(task_id=None,
     composite_out_of_range = xr_or(*composites_out_of_range.values())
     logger.info("composite_out_of_range: {}".format(composite_out_of_range))
     # Find where either the baseline or analysis composite was no_data.
-    composite_no_data = \
-        xr_or(composites['baseline'][spectral_index] == task.satellite.no_data_value,
-              composites['analysis'][spectral_index] == task.satellite.no_data_value)
+    # composite_no_data = xr_or(composites['baseline'][measurements_list[0]] == no_data_value,
+    #                           composites['analysis'][measurements_list[0]] == no_data_value).rename(spectral_index)
+    if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+        composite_no_data = xr_or(composites['baseline'][measurements_list[0]] == no_data_value,
+                                  composites['analysis'][measurements_list[0]] == no_data_value)
+        if spectral_index == 'evi': # EVI returns no_data for values outside [-1,1].
+            composite_no_data = xr_or(
+                composite_no_data,
+                xr_or(composites['baseline'][spectral_index] == no_data_value,
+                      composites['analysis'][spectral_index] == no_data_value)
+            )
+    else: # Fractional Cover
+        composite_no_data = xr_or(
+            xr_or(xr_or(composites['baseline']['bs'] == no_data_value,
+                        composites['baseline']['pv'] == no_data_value),
+                  composites['baseline']['npv'] == no_data_value),
+            xr_or(xr_or(composites['baseline']['bs'] == no_data_value,
+                        composites['baseline']['pv'] == no_data_value),
+                  composites['baseline']['npv'] == no_data_value)
+        )
+    composite_no_data = composite_no_data.rename(spectral_index)
+    logger.info("composite_no_data: {}".format(composite_no_data))
+    # if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+    #     composite_no_data = \
+    #         xr_or(composites['baseline'][spectral_index] == no_data_value,
+    #               composites['analysis'][spectral_index] == no_data_value)
+    # else:  # Fractional Cover
+    #     composite_no_data = xr_or(
+    #         xr_or(xr_or(composites['baseline']['bs'] == no_data_value,
+    #                     composites['baseline']['pv'] == no_data_value),
+    #               xr_or(composites['baseline']['npv'] == no_data_value)),
+    #         xr_or(xr_or(composites['analysis']['bs'] == no_data_value,
+    #                     composites['analysis']['pv'] == no_data_value),
+    #               xr_or(composites['analysis']['npv'] == no_data_value))
+    #     )
+
+    # Drop unneeded data variables.
+    diff_composite = diff_composite.drop(measurements_list)
 
     composite_path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
     diff_composite.to_netcdf(composite_path)
@@ -358,7 +455,8 @@ def processing_task(task_id=None,
     composite_no_data_path = os.path.join(task.get_temp_path(), chunk_id + "_no_data.nc")
     composite_no_data.to_netcdf(composite_no_data_path)
     logger.info("Done with chunk: " + chunk_id)
-    return composite_path, composite_out_of_range_path, composite_no_data_path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
+    return composite_path, composite_out_of_range_path, composite_no_data_path, \
+           metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
 
 @task(name="spectral_anomaly.recombine_geographic_chunks", base=BaseTask)
@@ -407,7 +505,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
     combined_no_data.to_netcdf(no_data_path)
     # logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     logger.info("Done combining geographic chunks.")
-    return composite_path, composite_out_of_range_path, no_data_path, metadata#, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
+    return composite_path, composite_out_of_range_path, no_data_path, metadata  # , {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
 
 @task(name="spectral_anomaly.create_output_products", base=BaseTask)
@@ -419,7 +517,7 @@ def create_output_products(data, task_id=None):
     Update status and exit.
 
     Args:
-        diff_data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
+        data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
 
     """
     logger.info("CREATE_OUTPUT")
@@ -431,26 +529,40 @@ def create_output_products(data, task_id=None):
 
     # This is the difference (or "change") composite.
     diff_composite = xr.open_dataset(data[0], autoclose=True)
+    logger.info("final diff_composite: {}".format(diff_composite))
     # This indicates where either the baseline or analysis composite
     # was outside the corresponding user-specified range.
-    orig_composite_out_of_range = xr.open_dataset(data[1], autoclose=True)\
-                                  [spectral_index].astype(np.bool).values
+    # if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+    # logger.info("orig_composite_out_of_range: {}"
+    #             .format(xr.open_dataset(data[1], autoclose=True)))
+    orig_composite_out_of_range = xr.open_dataset(data[1], autoclose=True) \
+        [spectral_index].astype(np.bool).values
     logger.info("orig_composite_out_of_range: {}".format(orig_composite_out_of_range))
-    logger.info("orig_composite_out_of_range sum, size: {} {}"\
+    logger.info("orig_composite_out_of_range sum, size: {} {}" \
                 .format(orig_composite_out_of_range.sum(), orig_composite_out_of_range.size))
     # This indicates where either the baseline or analysis composite
     # was the no_data value.
-    composite_no_data = xr.open_dataset(data[2], autoclose=True)\
-                        [spectral_index].astype(np.bool).values
+    composite_no_data = xr.open_dataset(data[2], autoclose=True) \
+        [spectral_index].astype(np.bool).values
     logger.info("composite_no_data: {}".format(composite_no_data))
 
-    # TODO: Remove these statements when done testing.
-    diff_comp_np_arr = diff_composite[spectral_index].values
-    logger.info("result 1: {}".format(np.round(diff_comp_np_arr) < task.satellite.no_data_value))
-    logger.info("result 2: {}".format(np.round(diff_comp_np_arr) == task.satellite.no_data_value))
-    # (np.round(diff_comp_np_arr) < no_data_value) |
-    # (np.round(diff_comp_np_arr) == no_data_value)
+    # Obtain a NumPy array of the data to create a plot later.
+    if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+        diff_comp_np_arr = diff_composite[spectral_index].values
+        # logger.info("result 1: {}".format(np.round(diff_comp_np_arr) < task.satellite.no_data_value))
+        # logger.info("result 2: {}".format(np.round(diff_comp_np_arr) == task.satellite.no_data_value))
+        # (np.round(diff_comp_np_arr) < no_data_value) |
+        # (np.round(diff_comp_np_arr) == no_data_value)
+    else: # Fractional Cover
+        diff_comp_np_arr = diff_composite['pv'].values
+        # max_change = xr_max(diff_composite['bs'], diff_composite['pv'], diff_composite['npv'])
+        # bs_arr = diff_composite['bs'].values;   bs_arr[composite_no_data] = np.nan
+        # pv_arr = diff_composite['pv'].values;   pv_arr[composite_no_data] = np.nan
+        # npv_arr = diff_composite['npv'].values; npv_arr[composite_no_data] = np.nan
+        # diff_comp_np_arr = np.stack([bs_arr, pv_arr, npv_arr], axis=-1)
     diff_comp_np_arr[composite_no_data] = np.nan
+    logger.info("diff_comp_np_arr: {}".format(diff_comp_np_arr))
+    logger.info("diff_comp_np_arr.shape: {}".format(diff_comp_np_arr.shape))
     logger.info("diff_composite min/mean/max: {}, {}, {}".format(
         np.nanmin(diff_comp_np_arr), np.nanmean(diff_comp_np_arr),
         np.nanmax(diff_comp_np_arr)))
@@ -461,40 +573,45 @@ def create_output_products(data, task_id=None):
     task.metadata_from_dict(full_metadata)
 
     # 1. Save the spectral index net change as a GeoTIFF.
-    write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'), bands=[spectral_index], no_data=task.satellite.no_data_value)
+    if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+        bands = [spectral_index]
+    else: # Fractional Coverage
+        bands = ['bs', 'pv', 'npv']
+    write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'),
+                          bands=bands, no_data=task.satellite.no_data_value)
     # 2. Create a PNG of the spectral index change composite.
     # 2.1. Find the min and max possible difference for the selected spectral index.
+    # TODO: The bounds of the user-specified min/max composite values should always be [0,1].
     spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
     diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
     # im = plt.imshow(composite[spectral_index].values, vmin=vmin, vmax=vmax)
     # plt.imsave(task.result_path, composite[spectral_index].values, vmin=vmin, vmax=vmax)
-
-    diff_data = diff_composite[spectral_index].values
-    logger.info("diff_data min/mean/max: {}, {}, {}"
-                .format(diff_data.min(), diff_data.mean(), diff_data.max()))
-    logger.info("Number of NaN elements in diff_data: {}"
-                .format(np.sum(np.isnan(diff_data))))
-    logger.info("Number of nodata elements in diff_data: {}"
-                .format(np.sum(diff_data == task.satellite.no_data_value)))
-    # Mask out the no-diff_data values.
-    # data_no_data_masked = np.ma.array(diff_data, mask=(diff_data==no_data_value))
-    # no_data_mask = diff_data==no_data_value
-    # logger.info("After masking no_data values, diff_data: {}"
+    logger.info("diff_comp_np_arr min/mean/max: {}, {}, {}"
+                .format(diff_comp_np_arr.min(), diff_comp_np_arr.mean(), diff_comp_np_arr.max()))
+    logger.info("Number of NaN elements in diff_comp_np_arr: {}"
+                .format(np.sum(np.isnan(diff_comp_np_arr))))
+    logger.info("Number of nodata elements in diff_comp_np_arr: {}"
+                .format(np.sum(diff_comp_np_arr == task.satellite.no_data_value)))
+    # Mask out the no-data values.
+    # data_no_data_masked = np.ma.array(diff_comp_np_arr, mask=(diff_comp_np_arr==no_data_value))
+    # no_data_mask = diff_comp_np_arr==no_data_value
+    # logger.info("After masking no_data values, diff_comp_np_arr: {}"
     #             .format(data_no_data_masked.min(), data_no_data_masked.max()))
     # 2.2. Scale the difference composite to the range [0, 1] for plotting.
-    image_data = np.interp(diff_data, (diff_min_possible, diff_max_possible), (0, 1))
+    image_data = np.interp(diff_comp_np_arr, (diff_min_possible, diff_max_possible), (0, 1))
     logger.info("type(image_data): {}".format(type(image_data)))
     logger.info("image_data (after np.interp()): {}".format(image_data))
     logger.info("image_data min/mean/max: {}, {}, {}"
                 .format(image_data.min(), image_data.mean(), image_data.max()))
     # image_data = np.empty((*composite.shape, 3), dtype=np.uint8)
+    # TODO: (Handled by scaling the baseline and analysis composites to [0,1])
     # TODO: Scale the difference composite to the range [-1, 1] so the optional
     # TODO: user-specified change value range must always be within [-1, 1].
     # TODO: Without this, the bounds are dependent on the spectral index range -
     # TODO: more specifically, the bounds are (min-max, max-min) for a given spectral index.
     # TODO: For example, without this the bounds on the user-specified change value
     # TODO: range for NDVI is [-2, 2].
-    # diff_data = np.interp(diff_data, (diff_min_possible, diff_max_possible), (-1, 1))
+    # diff_comp_np_arr = np.interp(diff_comp_np_arr, (diff_min_possible, diff_max_possible), (-1, 1))
     # 2.3. Color by region.
     # 2.3.1. First, color by change.
     # If the user specified a change value range, the product is binary -
@@ -502,8 +619,8 @@ def create_output_products(data, task_id=None):
     cng_min, cng_max = task.change_threshold_min, task.change_threshold_max
     if cng_min is not None and cng_max is not None:
         image_data = np.empty((*image_data.shape, 4), dtype=image_data.dtype)
-        image_data[:,:] = mpl.colors.to_rgba('red')
-    else: # otherwise, use a red-green gradient.
+        image_data[:, :] = mpl.colors.to_rgba('red')
+    else:  # otherwise, use a red-green gradient.
         cmap = plt.get_cmap('RdYlGn')
         image_data = cmap(image_data)
     logger.info("image_data (after cmap): {}".format(image_data))
@@ -515,7 +632,7 @@ def create_output_products(data, task_id=None):
     change_out_of_range_color = mpl.colors.to_rgba('black')
     logger.info("change_out_of_range_color: {}".format(change_out_of_range_color))
     if cng_min is not None and cng_max is not None:
-        diff_composite_out_of_range = (diff_data < cng_min) ^ (cng_max < diff_data)
+        diff_composite_out_of_range = (diff_comp_np_arr < cng_min) | (cng_max < diff_comp_np_arr)
         logger.info("diff_composite_out_of_range.sum(): {}"
                     .format(diff_composite_out_of_range.sum()))
         logger.info("diff_composite_out_of_range.shape: {}"
@@ -535,7 +652,7 @@ def create_output_products(data, task_id=None):
     image_data[orig_composite_out_of_range] = composite_out_of_range_color
     #  2.3.4. Fourth, color regions in which either the baseline or analysis
     #         composite was the no_data value as transparent.
-    composite_no_data_color = np.array([0.,0.,0.,0.])
+    composite_no_data_color = np.array([0., 0., 0., 0.])
     image_data[composite_no_data] = composite_no_data_color
 
     logger.info("image_data before plot: {}".format(image_data))

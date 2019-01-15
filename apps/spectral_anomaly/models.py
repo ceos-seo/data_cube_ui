@@ -126,7 +126,7 @@ class Query(BaseQuery):
         See the base query class docstring for more information.
 
         """
-        return {'time': None, 'geographic': 0.01}
+        return {'time': None, 'geographic': 0.005}
         # if not self.compositor.is_iterative():
         #     return {'time': None, 'geographic': 0.005}
         # return {'time': 25, 'geographic': 0.5}
