@@ -23,6 +23,7 @@ from django import forms
 
 from .models import ResultType, Satellite
 from apps.dc_algorithm.models import Compositor
+from .tasks import spectral_indices_range_map
 
 import logging
 dj_logger = logging.getLogger(__name__)
@@ -37,11 +38,6 @@ class AdditionalOptionsForm(forms.Form):
         description
     Init function to initialize dynamic forms.
     """
-    # TODO: Add/remove/modify fields that are used to create your query here.
-    # e.g. if there is no type, anim, or compositor, remove everything here.
-    #if you need a property on the Task model called Color Scale, create that here.
-
-    #these are done in the init funct.
     query_type = forms.ModelChoiceField(
         queryset=None,
         to_field_name="result_id",
@@ -97,17 +93,13 @@ class AdditionalOptionsForm(forms.Form):
 
         # Determine possible value ranges.
         composite_allow_min, composite_allow_max = None, None
-        if query_type in ['ndvi', 'ndbi', 'ndwi', 'evi']:
-            composite_allow_min, composite_allow_max = -1.0, 1.0
-        else: # TODO: Determine the bounds of fractional coverage.
-            composite_allow_min, composite_allow_max = -1.0, 1.0
+        composite_allow_min, composite_allow_max = spectral_indices_range_map[query_type]
+        # if query_type in ['ndvi', 'ndbi', 'ndwi', 'evi']:
+        #     composite_allow_min, composite_allow_max = -1.0, 1.0
+        # else: # TODO: Determine the bounds of fractional coverage.
+        #     composite_allow_min, composite_allow_max = -1.0, 1.0
         change_allow_min = composite_allow_min - composite_allow_max
         change_allow_max = composite_allow_max - composite_allow_min
-        # self.add_error(None, 'change_allow_min, change_threshold_min, '
-        #     'change_threshold_max, change_allow_max: {}, {}, {}, {}'
-        #     .format(change_allow_min, change_threshold_min, change_threshold_max,
-        #             change_allow_max))
-        # return
 
         # 1. Handle the composite value range fields.
         # 1.1. Ensure the composite value range fields are within
