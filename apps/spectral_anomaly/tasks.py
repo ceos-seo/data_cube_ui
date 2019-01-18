@@ -293,6 +293,7 @@ def processing_task(task_id=None,
             updated_params['baseline_time' if composite_name == 'baseline' else 'analysis_time']
         logger.info("composite_name: {}".format(composite_name))
         time_column_data = dc.get_dataset_by_extent(**updated_params)
+        logger.info("time_column_data: {}".format(time_column_data))
 
         # Obtain the clean mask for the satellite.
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
