@@ -92,7 +92,6 @@ class AdditionalOptionsForm(forms.Form):
         change_threshold_max = self.cleaned_data['change_threshold_max']
 
         # Determine possible value ranges.
-        composite_allow_min, composite_allow_max = None, None
         composite_allow_min, composite_allow_max = spectral_indices_range_map[query_type]
         # if query_type in ['ndvi', 'ndbi', 'ndwi', 'evi']:
         #     composite_allow_min, composite_allow_max = -1.0, 1.0
