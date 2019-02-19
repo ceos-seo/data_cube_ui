@@ -20,7 +20,6 @@
 # under the License.
 
 from django.db import models
-from django.core.exceptions import ValidationError
 
 from apps.dc_algorithm.models import Area, Compositor, Satellite
 from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetadata, Result as BaseResult, ResultType as
@@ -29,7 +28,6 @@ from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetada
 from utils.data_cube_utilities.dc_mosaic import (create_mosaic, create_median_mosaic, create_max_ndvi_mosaic,
                                                  create_min_ndvi_mosaic)
 
-import datetime
 import numpy as np
 
 
@@ -51,12 +49,10 @@ class ToolInfo(BaseToolInfo):
 
 class Query(BaseQuery):
     """
-
     Extends base query, adds app specific elements. See the dc_algorithm.Query docstring for more information
     Defines the get_or_create_query_from_post as required, adds new fields, recreates the unique together
     field, and resets the abstract property. Functions are added to get human readable names for various properties,
     foreign keys should define __str__ for a human readable name.
-
     """
     compositor = models.ForeignKey(Compositor)
 
@@ -75,7 +71,6 @@ class Query(BaseQuery):
         """Implements get_chunk_size as required by the base class
 
         See the base query class docstring for more information.
-
         """
         if not self.compositor.is_iterative():
             return {'time': None, 'geographic': 0.01}
@@ -85,7 +80,6 @@ class Query(BaseQuery):
         """implements get_iterative as required by the base class
 
         See the base query class docstring for more information.
-
         """
         return self.compositor.id != "median_pixel"
 
@@ -93,7 +87,6 @@ class Query(BaseQuery):
         """implements get_reverse_time as required by the base class
 
         See the base query class docstring for more information.
-
         """
         return self.compositor.id == "most_recent"
 
@@ -101,7 +94,6 @@ class Query(BaseQuery):
         """implements get_processing_method as required by the base class
 
         See the base query class docstring for more information.
-
         """
         processing_methods = {
             'most_recent': create_mosaic,
@@ -125,7 +117,6 @@ class Query(BaseQuery):
 
         Returns:
             Tuple containing the query model and a boolean value signifying if it was created or loaded.
-
         """
         query_data = form_data
         query_data['title'] = "Fractional Cover Query" if 'title' not in form_data or form_data[
@@ -153,7 +144,6 @@ class Metadata(BaseMetadata):
 
     See the dc_algorithm.Metadata docstring for more information
     """
-
     satellite_list = models.CharField(max_length=100000, default="")
     zipped_metadata_fields = [
         'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition', 'satellite_list'
@@ -166,7 +156,6 @@ class Metadata(BaseMetadata):
         """implements metadata_from_dataset as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         for metadata_index, time in enumerate(dataset.time.values.astype('M8[ms]').tolist()):
             clean_pixels = np.sum(clear_mask[metadata_index, :, :] == True)
@@ -183,7 +172,6 @@ class Metadata(BaseMetadata):
         """implements combine_metadata as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         for key in new:
             if key in old:
@@ -196,7 +184,6 @@ class Metadata(BaseMetadata):
         """implements final_metadata_from_dataset as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         self.pixel_count = len(dataset.latitude) * len(dataset.longitude)
         self.clean_pixel_count = np.sum(dataset[list(dataset.data_vars)[0]].values != -9999)
@@ -207,11 +194,9 @@ class Metadata(BaseMetadata):
         """implements metadata_from_dict as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         dates = list(metadata_dict.keys())
         dates.sort(reverse=True)
-
         self.total_scenes = len(dates)
         self.scenes_processed = len(dates)
         self.acquisition_list = ",".join([date.strftime("%m/%d/%Y") for date in dates])
@@ -227,7 +212,6 @@ class Result(BaseResult):
     Extends base result, adding additional fields and adding abstract=True
     See the dc_algorithm.Result docstring for more information
     """
-
     # result path + other data. More to come.
     mosaic_path = models.CharField(max_length=250, default="")
     plot_path = models.CharField(max_length=250, default="")
