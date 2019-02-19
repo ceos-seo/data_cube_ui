@@ -138,8 +138,6 @@ def validate_parameters(parameters, task_id=None):
         task.update_status("ERROR", "Animations cannot be generated for median pixel operations.")
         return None
 
-    # logger.info('task.compositor.id: ' + str(task.compositor.id))
-    # logger.info('task.compositor.name: ' + str(task.compositor.name))
     if not (task.compositor.is_iterative() or task.pixel_drill_task) and (task.time_end - task.time_start).days > 367:
         task.complete = True
         task.update_status("ERROR", "Median pixel operations are only supported for single year time periods.")
@@ -192,10 +190,6 @@ def perform_task_chunking(parameters, task_id=None):
     time_chunks = create_time_chunks(
         dates, _reversed=task.get_reverse_time(), time_chunk_size=task_chunk_sizing['time'])
     logger.info("Time chunks: {}, Geo chunks: {}".format(len(time_chunks), len(geographic_chunks)))
-    # logger.info('dates: ' + str(dates))
-    # logger.info('task_chunk_sizing: ' + str(task_chunk_sizing))
-    # logger.info('geographic_chunks: ' + str(geographic_chunks))
-    # logger.info('time_chunks: ' + str(time_chunks))
 
     dc.close()
     task.update_status("WAIT", "Chunked parameter set.")
@@ -303,35 +297,15 @@ def processing_task(task_id=None,
             continue
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
-        # from utils.data_cube_utilities.clean_mask  import landsat_qa_clean_mask
-        # clear_mask_alt = landsat_qa_clean_mask(data,task.satellite.datacube_platform)
-        # num_data_points = np.prod(list(data.dims.values()))
-        # logger.info("# points in data", num_data_points)
-        # logger.info("clear_mask same as clear_mask_alt:",
-        #             str((clear_mask==clear_mask_alt).sum()==num_data_points))
         add_timestamp_data_to_xr(data)
 
         metadata = task.metadata_from_dataset(metadata, data, clear_mask, updated_params)
 
-        # bands = list(data.data_vars)
-        # data_to_mosaic = data.drop([band for band in bands if band in ['satellite', 'timestamp', 'date']])
-        # logger.info('data:' + str(data))
-        # logger.info("sum of data no_data: " + str(data.where(data == -9999).sum()))
-        # logger.info('task.satellite.datacube_platform:' + str(task.satellite.datacube_platform))
-        # logger.info('clear_mask:' + str(clear_mask))
-        # logger.info('iteration_data:' + str(iteration_data))
-        # logger.info('task.satellite.no_data_value:' + str(task.satellite.no_data_value))
-        # logger.info('task.get_reverse_time():' + str(task.get_reverse_time()))
-        log_strs = []
         iteration_data = task.get_processing_method()(data,
                                                       clean_mask=clear_mask,
                                                       intermediate_product=iteration_data,
                                                       no_data=task.satellite.no_data_value,
-                                                      reverse_time=task.get_reverse_time(),
-                                                      log_strs=log_strs)
-        # [logger.info(log_str) for log_str in log_strs]
-        # logger.info("iteration_data.coords:" + str(iteration_data.coords))
-        # logger.info("iteration_data.attrs:" + str(iteration_data.attrs))
+                                                      reverse_time=task.get_reverse_time())
         if task.animated_product.animation_id != "none":
             path = os.path.join(task.get_temp_path(),
                                 "animation_{}_{}.nc".format(str(geo_chunk_id), str(base_index + time_index)))
@@ -349,10 +323,6 @@ def processing_task(task_id=None,
 
     if iteration_data is None:
         return None
-    # logger.info("iteration_data: " + str(iteration_data))
-    # logger.info("sum of iteration_data no_data: " +
-    #             str(iteration_data.where(iteration_data == -9999).sum()))
-    # logger.info("Writing iteration_data to netcdf.")
     iteration_data.to_netcdf(path)
 
     dc.close()
@@ -467,17 +437,14 @@ def recombine_time_chunks(chunks, task_id=None):
                 generate_animation(index, combined_data)
             combined_data = data
             continue
-        #give time an indice to keep mosaicking from breaking.
+        #give time an index to keep compositing from breaking.
         data = xr.concat([data], 'time')
         data['time'] = [0]
         clear_mask = task.satellite.get_clean_mask_func()(data)
-        log_strs = []
         combined_data = task.get_processing_method()(data,
                                                      clean_mask=clear_mask,
                                                      intermediate_product=combined_data,
-                                                     no_data=task.satellite.no_data_value,
-                                                     log_strs=log_strs)
-        # [logger.info(log_str) for log_str in log_strs]
+                                                     no_data=task.satellite.no_data_value)
         # if we're animating, combine it all and save to disk.
         if task.animated_product.animation_id != "none":
             generate_animation(index, combined_data)
@@ -485,12 +452,6 @@ def recombine_time_chunks(chunks, task_id=None):
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
     combined_data.to_netcdf(path)
     logger.info("Done combining time chunks for geo: " + str(geo_chunk_id))
-    # logger.info("data:" + str(data))
-    # logger.info("sum of data no_data: " +
-    #             str(data.where(data == -9999).sum()))
-    # logger.info("combined_data:" + str(combined_data))
-    # logger.info("sum of combined_data no_data: " +
-    #             str(combined_data.where(combined_data == -9999).sum()))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
 
@@ -524,20 +485,7 @@ def create_output_products(data, task_id=None):
     png_bands = [task.query_type.red, task.query_type.green, task.query_type.blue]
 
     dataset.to_netcdf(task.data_netcdf_path)
-    # logger.info('GeoTIFF path:' + str(task.data_path))
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
-    # logger.info('Before write_png_from_xr! Args:')
-    # logger.info("png_path:" + str(task.result_path))
-    # logger.info("operation:" + str(task.compositor.id))
-    # logger.info("dataset.dims:" + str(dataset.dims))
-    # logger.info("dataset: " + str(dataset))
-    # logger.info("dataset.mean(): " + str(dataset.mean()))
-    # logger.info("sum of dataset no_data: " + str(dataset.where(dataset== -9999).sum()))
-    # logger.info("bands: " + str(png_bands))
-    # logger.info("png_filled_path: " + str(task.result_filled_path))
-    # logger.info("fill_color: " + str(task.query_type.fill) + str(type(task.query_type.fill)))
-    # logger.info("scale: " + str(task.satellite.get_scale()))
-    # logger.info("no_data: " + str(task.satellite.no_data_value))
     write_png_from_xr(
         task.result_path,
         dataset,
@@ -547,7 +495,6 @@ def create_output_products(data, task_id=None):
         scale=task.satellite.get_scale(),
         low_res=True,
         no_data=task.satellite.no_data_value)
-    # logger.info('After write_png_from_xr!')
 
     if task.animated_product.animation_id != "none":
         with imageio.get_writer(task.animation_path, mode='I', duration=1.0) as writer:
