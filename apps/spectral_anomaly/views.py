@@ -64,20 +64,22 @@ class SpectralAnomalyTool(ToolView):
     tool_name = 'spectral_anomaly'
     task_model_name = 'SpectralAnomalyTask'
 
-    # TODO: Ensure that this function creates all the forms required for your model.
-    def generate_form_dict(self, satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
             forms[satellite.pk] = {
                 'Data Selection':
-                AdditionalOptionsForm(
-                    datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
+                    AdditionalOptionsForm(
+                        datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
                 'Geospatial Bounds':
-                DataSelectionForm(
-                    area=area,
-                    time_start=satellite.date_min,
-                    time_end=satellite.date_max,
-                    auto_id="{}_%s".format(satellite.pk))
+                    DataSelectionForm(
+                        user_id=user_id,
+                        user_history=user_history,
+                        task_model_class=task_model_class,
+                        area=area,
+                        time_start=satellite.date_min,
+                        time_end=satellite.date_max,
+                        auto_id="{}_%s".format(satellite.pk))
             }
         return forms
 
@@ -101,9 +103,7 @@ class SubmitNewRequest(SubmitNewRequest):
     """
     tool_name = 'spectral_anomaly'
     task_model_name = 'SpectralAnomalyTask'
-    #celery_task_func = create_cloudfree_mosaic
     celery_task_func = run
-    # TODO: Ensure that this list contains all the forms used to create your model
     form_list = [DataSelectionForm, AdditionalOptionsForm]
 
     def get_missing_parameters(self, parameter_set):
@@ -116,25 +116,6 @@ class SubmitNewRequest(SubmitNewRequest):
 
         parameter_set['time_start'] = min(date_list)
         parameter_set['time_end'] = max(date_list)
-
-# TODO: Is pixel drilling enabled? If so uncomment this block and fill in the rest of the TODOs.
-# class SubmitPixelDrillRequest(SubmitPixelDrillRequest):
-#     """
-#     Submit pixel_drill request REST API Endpoint
-#     Extends the SubmitNewRequest abstract class - required attributes are the tool_name,
-#     task_model_name, form_list, and celery_task_func
-#
-#     Note:
-#         celery_task_func should be callable with .delay() and take a single argument of a TaskModel pk.
-#
-#     See the dc_algorithm.views docstrings for more information.
-#     """
-#     tool_name = 'spectral_anomaly'
-#     task_model_name = 'SpectralAnomalyTask'
-#     #celery_task_func = create_cloudfree_mosaic
-#     celery_task_func = pixel_drill
-#     # TODO: Ensure that this list contains all the forms used to create your model
-#     form_list = [DataSelectionForm, AdditionalOptionsForm]
 
 
 class GetTaskResult(GetTaskResult):
@@ -162,8 +143,6 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
 
     celery_task_func = run
 
-    # TODO: Ensure that your task_model_update_func works as expected - does this app support
-    # single requests?
     def task_model_update_func(self, task_model, **kwargs):
         """
         Basic funct that updates a task model with kwargs. In this case only the date

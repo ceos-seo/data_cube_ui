@@ -2,7 +2,6 @@ from django import forms
 
 from .models import Satellite
 
-
 class DataSelectionForm(forms.Form):
     two_column_format = True
 
@@ -74,9 +73,6 @@ class DataSelectionForm(forms.Form):
     def clean(self):
         cleaned_data = super(DataSelectionForm, self).clean()
 
-        if not self.is_valid():
-            return
-
         if cleaned_data.get('latitude_min') >= cleaned_data.get('latitude_max'):
             self.add_error(
                 'latitude_min',
@@ -87,15 +83,15 @@ class DataSelectionForm(forms.Form):
                 'longitude_min',
                 "Please enter a valid pair of longitude values where the lower bound is less than the upper bound.")
 
-        if cleaned_data.get('time_start') >= cleaned_data.get('time_end'):
+        # The start and end time fields are removed in some apps (e.g. spectral_anomaly),
+        # so we may not perform checks on these fields.
+        time_start, time_end = cleaned_data.get('time_start'), cleaned_data.get('time_end')
+        if time_start is not None and time_end is not None and (time_start >= time_end):
             self.add_error('time_start',
                            "Please enter a valid start and end time range where the start is before the end.")
 
-        if not self.is_valid():
-            return
-
         area = (cleaned_data.get('latitude_max') - cleaned_data.get('latitude_min')) * (
-            cleaned_data.get('longitude_max') - cleaned_data.get('longitude_min'))
+                cleaned_data.get('longitude_max') - cleaned_data.get('longitude_min'))
 
         # Limit the area allowed.
         max_area = 1
@@ -104,23 +100,38 @@ class DataSelectionForm(forms.Form):
                                            'square degree(s) are not permitted.'.format(max_area))
 
         # Limit the time range allowed.
-        time_start, time_end = cleaned_data.get('time_start'), cleaned_data.get('time_end')
-        # For some apps, the time extent is not relevant to resource consumption
-        # (e.g. if data is only loaded for the first and last years).
-        from apps.coastal_change.models import CoastalChangeTask
-        if self.task_model_class not in [CoastalChangeTask]:
-            year_diff = time_end.year - time_start.year
-            month_diff = time_end.month - time_start.month
-            day_diff = time_end.day - time_start.day
-            max_num_years = 5
-            if (year_diff > max_num_years) or \
-               (year_diff == max_num_years and month_diff > 0) or \
-               (year_diff == max_num_years and month_diff == 0 and day_diff > 0):
-                self.add_error('time_start', 'Tasks over a time range greater than {} '
-                                             'year(s) are not permitted.'.format(max_num_years))
+        if time_start is not None and time_end is not None:
+            # For some apps, the time extent is not relevant to resource consumption
+            # (e.g. if data is only loaded for the first and last years).
+            from apps.coastal_change.models import CoastalChangeTask
+            if self.task_model_class not in [CoastalChangeTask]:
+                max_num_years = 5
+                if self.check_time_range(time_start, time_end, max_num_years):
+                    self.add_error('time_start', 'Tasks over a time range greater than {} '
+                                                 'year(s) are not permitted.'.format(max_num_years))
 
         # Limit each user to 1 running task per app.
         num_running_tasks = self.task_model_class.get_queryset_from_history(
             self.user_history, complete=False).count()
         if num_running_tasks > 0:
             self.add_error(None, 'You may only run one task at a time.')
+
+        return cleaned_data
+
+    def check_time_range(self, time_start, time_end, max_num_years=5):
+        """
+        Determines if the time range [time_start, time_end] exceeds an upper bound.
+        If so, returns `True`.
+
+        Parameters
+        ----------
+        time_start, time_end: datetime.date
+        max_num_years: float (default 5)
+            The maximum number of years the time range can have.
+        """
+        year_diff = time_end.year - time_start.year
+        month_diff = time_end.month - time_start.month
+        day_diff = time_end.day - time_start.day
+        return (year_diff > max_num_years) or \
+               (year_diff == max_num_years and month_diff > 0) or \
+               (year_diff == max_num_years and month_diff == 0 and day_diff > 0)

@@ -24,9 +24,7 @@ from django import forms
 from .models import ResultType, Satellite
 from apps.dc_algorithm.models import Compositor
 from .tasks import spectral_indices_range_map
-
-import logging
-dj_logger = logging.getLogger(__name__)
+from apps.dc_algorithm.forms import DataSelectionForm as DataSelectionFormBase
 
 
 class AdditionalOptionsForm(forms.Form):
@@ -93,10 +91,6 @@ class AdditionalOptionsForm(forms.Form):
 
         # Determine possible value ranges.
         composite_allow_min, composite_allow_max = spectral_indices_range_map[query_type]
-        # if query_type in ['ndvi', 'ndbi', 'ndwi', 'evi']:
-        #     composite_allow_min, composite_allow_max = -1.0, 1.0
-        # else: # TODO: Determine the bounds of fractional coverage.
-        #     composite_allow_min, composite_allow_max = -1.0, 1.0
         change_allow_min = composite_allow_min - composite_allow_max
         change_allow_max = composite_allow_max - composite_allow_min
 
@@ -134,36 +128,7 @@ class AdditionalOptionsForm(forms.Form):
                                                     'change value fields may be specified.')
 
 
-class DataSelectionForm(forms.Form):
-    two_column_format = True
-
-    title = forms.CharField(required=False, widget=forms.HiddenInput(attrs={'class': 'hidden_form_title'}))
-    description = forms.CharField(required=False,
-                                  widget=forms.HiddenInput(attrs={'class': 'hidden_form_description'}))
-    satellite = forms.ModelChoiceField(
-        queryset=Satellite.objects.all(), widget=forms.HiddenInput(attrs={'class': 'hidden_form_satellite'}))
-    area_id = forms.CharField(widget=forms.HiddenInput(attrs={'class': 'hidden_form_id'}))
-
-    latitude_min = forms.FloatField(
-        label='Min Latitude',
-        widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
-    latitude_max = forms.FloatField(
-        label='Max Latitude',
-        widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
-    longitude_min = forms.FloatField(
-        label='Min Longitude',
-        widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
-    longitude_max = forms.FloatField(
-        label='Max Longitude',
-        widget=forms.NumberInput(attrs={'class': 'field-divided',
-                                        'step': "any",
-                                        'required': 'required'}))
+class DataSelectionForm(DataSelectionFormBase):
     baseline_time_start = forms.DateField(
         label='Baseline Start Date',
         widget=forms.DateInput(
@@ -190,10 +155,11 @@ class DataSelectionForm(forms.Form):
                    'required': 'required'}))
 
     def __init__(self, *args, **kwargs):
-        time_start = kwargs.pop('time_start', None)
-        time_end = kwargs.pop('time_end', None)
-        area = kwargs.pop('area', None)
+        time_start = kwargs.get('time_start')
+        time_end = kwargs.get('time_end')
         super(DataSelectionForm, self).__init__(*args, **kwargs)
+        # Remove undesired fields from the superclass form.
+        self.fields.pop('time_start'); self.fields.pop('time_end')
         # meant to prevent this routine from running if trying to init from querydict.
         if time_start and time_end:
             self.fields['baseline_time_start'] = forms.DateField(
@@ -216,43 +182,33 @@ class DataSelectionForm(forms.Form):
                 label='Analysis End Date',
                 widget=forms.DateInput(attrs={'class': 'datepicker field-divided',
                                               'required': 'required'}))
-        if area:
-            self.fields['latitude_min'].widget.attrs.update({'min': area.latitude_min, 'max': area.latitude_max})
-            self.fields['latitude_max'].widget.attrs.update({'min': area.latitude_min, 'max': area.latitude_max})
-            self.fields['longitude_min'].widget.attrs.update({'min': area.longitude_min, 'max': area.longitude_max})
-            self.fields['longitude_max'].widget.attrs.update({'min': area.longitude_min, 'max': area.longitude_max})
-
     def clean(self):
         cleaned_data = super(DataSelectionForm, self).clean()
 
-        if not self.is_valid():
-            return
-
-        if cleaned_data.get('latitude_min') >= cleaned_data.get('latitude_max'):
-            self.add_error(
-                'latitude_min',
-                "Please enter a valid pair of latitude values where the lower bound is less than the upper bound.")
-
-        if cleaned_data.get('longitude_min') >= cleaned_data.get('longitude_max'):
-            self.add_error(
-                'longitude_min',
-                "Please enter a valid pair of longitude values where the lower bound is less than the upper bound.")
-
-        if cleaned_data.get('baseline_time_start') >= cleaned_data.get('baseline_time_end'):
+        baseline_time_start = cleaned_data.get('baseline_time_start')
+        baseline_time_end = cleaned_data.get('baseline_time_end')
+        if baseline_time_start >= baseline_time_end:
             self.add_error('baseline_time_start',
                            "Please enter a valid start and end time for the baseline "
                            "time range where the start is before the end.")
 
-        if cleaned_data.get('analysis_time_start') >= cleaned_data.get('analysis_time_end'):
+        analysis_time_start = cleaned_data.get('analysis_time_start')
+        analysis_time_end = cleaned_data.get('analysis_time_end')
+        if analysis_time_start >= analysis_time_end:
             self.add_error('analysis_time_start',
                            "Please enter a valid start and end time for the analysis "
                            "time range where the start is before the end.")
 
-        if not self.is_valid():
-            return
+        # Limit the time range allowed.
+        max_num_years = 5
+        time_range_err_fmt = \
+            'Tasks over a time range greater than {} year(s) are not permitted. ' \
+            'The {} time range is too large.'.format(max_num_years, "{}")
+        if self.check_time_range(baseline_time_start, baseline_time_end, max_num_years):
+            self.add_error('baseline_time_start',
+                           time_range_err_fmt.format('baseline'))
+        if self.check_time_range(analysis_time_start, analysis_time_end, max_num_years):
+            self.add_error('baseline_time_start',
+                           time_range_err_fmt.format('analysis'))
 
-        area = (cleaned_data.get('latitude_max') - cleaned_data.get('latitude_min')) * (
-                cleaned_data.get('longitude_max') - cleaned_data.get('longitude_min'))
-
-        if area > 4.0:
-            self.add_error('latitude_min', 'Tasks over an area greater than four square degrees are not permitted.')
+        return cleaned_data

@@ -22,7 +22,6 @@
 from django.contrib import admin
 from . import models
 
-# TODO: Register any models that actually exist here.
 admin.site.register(models.SpectralAnomalyTask)
 admin.site.register(models.UserHistory)
 admin.site.register(models.ToolInfo)
