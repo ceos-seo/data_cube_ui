@@ -30,14 +30,14 @@ import json
 from datetime import datetime, timedelta
 
 from apps.dc_algorithm.models import Satellite, Area, Application
-from apps.dc_algorithm.forms import DataSelectionForm
-from .forms import AdditionalOptionsForm
-from .tasks import run, get_acquisition_list
+from .forms import AdditionalOptionsForm, DataSelectionForm
+from .tasks import run
 
 from collections import OrderedDict
 
-from apps.dc_algorithm.views import (ToolView, SubmitNewRequest, GetTaskResult, SubmitNewSubsetRequest, CancelRequest,
-                                     UserHistory, ResultList, OutputList, RegionSelection, TaskDetails)
+from apps.dc_algorithm.views import (ToolView, SubmitNewRequest, SubmitPixelDrillRequest, SubmitPixelDrillRequest,
+                                     GetTaskResult, SubmitNewSubsetRequest, CancelRequest, UserHistory, ResultList,
+                                     OutputList, RegionSelection, TaskDetails)
 
 
 class RegionSelection(RegionSelection):
@@ -48,10 +48,10 @@ class RegionSelection(RegionSelection):
 
     See the dc_algorithm.views docstring for more information
     """
-    tool_name = 'slip'
+    tool_name = 'spectral_anomaly'
 
 
-class SlipTool(ToolView):
+class SpectralAnomalyTool(ToolView):
     """Creates the main view for the custom mosaic tool by extending the ToolView class
 
     Extends the ToolView abstract class - required attributes are the tool_name and the
@@ -60,27 +60,34 @@ class SlipTool(ToolView):
     See the dc_algorithm.views docstring for more details.
     """
 
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    map_tool_template = 'spectral_anomaly/map_tool.html'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
     def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
             forms[satellite.pk] = {
                 'Data Selection':
-                AdditionalOptionsForm(
-                    datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
+                    AdditionalOptionsForm(
+                        datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
                 'Geospatial Bounds':
-                DataSelectionForm(
-                    user_id=user_id,
-                    user_history=user_history,
-                    task_model_class=task_model_class,
-                    area=area,
-                    time_start=satellite.date_min,
-                    time_end=satellite.date_max,
-                    auto_id="{}_%s".format(satellite.pk))
+                    DataSelectionForm(
+                        user_id=user_id,
+                        user_history=user_history,
+                        task_model_class=task_model_class,
+                        area=area,
+                        time_start=satellite.date_min,
+                        time_end=satellite.date_max,
+                        auto_id="{}_%s".format(satellite.pk))
             }
         return forms
+
+    def generate_context(self, request, area_id):
+        context = super(SpectralAnomalyTool, self).generate_context(request, area_id)
+        context['two_column_fields'] = ['composite_threshold_min', 'composite_threshold_max',
+                                        'change_threshold_min', 'change_threshold_max']
+        return context
 
 
 class SubmitNewRequest(SubmitNewRequest):
@@ -94,12 +101,21 @@ class SubmitNewRequest(SubmitNewRequest):
 
     See the dc_algorithm.views docstrings for more information.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
-    #celery_task_func = create_cloudfree_mosaic
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
     celery_task_func = run
-    # TODO: Ensure that this list contains all the forms used to create your model
     form_list = [DataSelectionForm, AdditionalOptionsForm]
+
+    def get_missing_parameters(self, parameter_set):
+        """
+        See the corresponding function docstring in dc_algorithm.views.
+        """
+        date_list = \
+            [parameter_set['baseline_time_start'], parameter_set['baseline_time_end'],
+             parameter_set['analysis_time_start'], parameter_set['analysis_time_end']]
+
+        parameter_set['time_start'] = min(date_list)
+        parameter_set['time_end'] = max(date_list)
 
 
 class GetTaskResult(GetTaskResult):
@@ -110,8 +126,8 @@ class GetTaskResult(GetTaskResult):
 
     See the dc_algorithm.views docstrings for more information.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
 
 class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
@@ -122,8 +138,8 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
 
     See the dc_algorithm.views docstrings for more information.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
     celery_task_func = run
 
@@ -133,11 +149,8 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
         needs to be changed, and results reset.
         """
         date = kwargs.get('date')[0]
-        date_datetime_format = datetime.strptime(date, '%m/%d/%Y') + timedelta(days=1)
-        acquisition_dates = get_acquisition_list(task_model, task_model.area_id, task_model.satellite,
-                                                 date_datetime_format)
-        task_model.time_start = acquisition_dates[-1 * (task_model.baseline_length + 1)]
-        task_model.time_end = date_datetime_format
+        task_model.time_start = datetime.strptime(date, '%m/%d/%Y')
+        task_model.time_end = task_model.time_start + timedelta(days=1)
         task_model.complete = False
         task_model.scenes_processed = 0
         task_model.total_scenes = 0
@@ -152,8 +165,8 @@ class CancelRequest(CancelRequest):
     name and task model name. This will not kill running queries, but will
     disassociate it from the user's history.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
 
 class UserHistory(UserHistory):
@@ -163,8 +176,8 @@ class UserHistory(UserHistory):
     name and task model name. This will list all queries that are complete, have a
     OK status, and are registered to the user.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
 
 class ResultList(ResultList):
@@ -174,8 +187,8 @@ class ResultList(ResultList):
     name and task model name. This will list all queries that are complete, have a
     OK status, and are registered to the user.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
 
 class OutputList(OutputList):
@@ -185,8 +198,8 @@ class OutputList(OutputList):
     name and task model name. This will list all queries that are complete, have a
     OK status, and are registered to the user.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'
 
 
 class TaskDetails(TaskDetails):
@@ -196,5 +209,5 @@ class TaskDetails(TaskDetails):
     Extends the TaskDetails abstract class, required attributes are the tool
     name and task model name.
     """
-    tool_name = 'slip'
-    task_model_name = 'SlipTask'
+    tool_name = 'spectral_anomaly'
+    task_model_name = 'SpectralAnomalyTask'

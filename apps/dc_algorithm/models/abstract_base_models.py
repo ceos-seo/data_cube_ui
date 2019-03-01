@@ -459,9 +459,6 @@ class GenericTask(Query, Metadata, Result):
         Attributes should NOT be added to this class - add them to the inherited classes
 
     """
-
-    pass
-
     class Meta:
         abstract = True
 

@@ -10,7 +10,6 @@ This document is targeted at Ubuntu based development environment. The base requ
 * **Local Storage**: 50GiB
 * **Python Version**: Python 3
 
-
 <!--* **Create your base directory structure to hold all of the relevant codebases**: We create everything in a directory 'Datacube' in the local user's directory. We also create a base directory structure for raw data and the ingested data in the root directory '/datacube/\*'-->
 <!--* **Create a virtual environment named 'datacube_env' in the ~/Datacube directory**: We use a single virtual environment for all of our Data Cube related packages/modules. To set this up, you must install virtualenv for Python3 and initialize the environment.-->
 
@@ -69,10 +68,14 @@ pip install rasterio==1.0.2
 <BR>
 
 ##### Python Dependencies
-Use the following commands to install the requisite Python dependencies.  These packages are required for using the Data Cube, S3 indexing, and the Data Cube notebooks.
+Use the following commands to install the requisite Python dependencies. 
+These packages are required for using the Data Cube, S3 indexing, and the Data Cube notebooks.
+Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
+the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 ```
 pip install numpy
 pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
+pip install sqlalchemy==1.2.18
 ```
 
 ## Core

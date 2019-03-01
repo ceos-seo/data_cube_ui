@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'apps.urbanization',
     'apps.cloud_coverage',
     'apps.spectral_indices',
+    'apps.spectral_anomaly',
     'apps.dc_algorithm',
     'apps.pages',
     'apps.accounts',

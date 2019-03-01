@@ -1,0 +1,70 @@
+{% extends "map_tool.html" %}
+{% load bootstrap3 %}
+
+{% block query_form_sections %}
+{% for label, form in form_collection.items %}
+  <div class="col-lg-12">
+    <div class="page-header"><span class="form-section-header">{{ label }}:</span></div>
+    {% if form.two_column_format %}
+      {% for field in form.visible_fields %}
+        <div class="col-lg-6">
+          {% bootstrap_field field show_help=False%}
+        </div>
+      {% endfor %}
+    {% else %}
+      {% for field in form.visible_fields %}
+        {% if field.name in two_column_fields %}
+          <div class="col-lg-6">{% bootstrap_field field show_help=False %}</div>
+        {% else %}
+          <div class="col-lg-12">{% bootstrap_field field show_help=False %}</div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% for field in form.hidden_fields %}
+      {{field}}
+    {% endfor %}
+  </div>
+{% endfor %}
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+<!-- This <script> is for the `spectral_anomaly` app. -->
+<script>
+    $(function() {
+      // Function to set the min and max baseline values based on the spectral index.
+      function setMinMaxBaselineValuesBySpectralIndex() {
+        var index_name = this.options[this.selectedIndex].text
+        // Set the min and max filter values for the selected index.
+        var min_val = null;
+        var max_val = null;
+        switch (index_name) {
+                // The bands used for the indices are assumed to have
+                // the same ranges, which is true for Landsat.
+          case "NDVI":
+            min_val = -1; max_val = 1;
+            break;
+          case "NDBI":
+            min_val = -1; max_val = 1;
+            break;
+          case "NDWI":
+            min_val = -1; max_val = 1;
+            break;
+          case "EVI":
+            min_val = -1; max_val = 1;
+            break;
+          case "Fractional Cover":
+            // TODO: What is the appropriate range here?
+            min_val = -1; max_val = 1;
+            break;
+        }
+        $("[id*='composite_threshold_min']").val(min_val);
+        $("[id*='composite_threshold_max']").val(max_val);
+      }
+      // Set the min and max filter values based on the initially selected spectral index.
+      setMinMaxBaselineValuesBySpectralIndex.call(document.querySelector('[id*="query_type"'));
+      // Set the min and max filter values when the selected spectral index changes.
+      $("[id*='query_type']").change(setMinMaxBaselineValuesBySpectralIndex);
+    })
+  </script>
+{% endblock %}
