@@ -47,7 +47,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-MASTER_NODE = os.environ.get('DC_HOSTNAME', '127.0.0.1')
+MASTER_NODE = '127.0.0.1'
 
 # Application definition
 BASE_HOST = "localhost:8000/"
@@ -157,7 +157,7 @@ DATABASES = {
         },
         'NAME': db_name,
         'USER': db_user,
-        'PASSWORD': db_password,
+        'PASSWORD': db_pass,
     },
 }
 
