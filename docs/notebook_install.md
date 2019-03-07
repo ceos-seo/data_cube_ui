@@ -1,4 +1,4 @@
-Data Cube Jupyter Notebook Installation Guide
+﻿Data Cube Jupyter Notebook Installation Guide
 =================
 
 This document will guide users through the process of installing and configuring our Jupyter notebook Data Cube examples. In this guide, you will be required to install packages (Python and system level) and start a webserver.
@@ -23,18 +23,10 @@ Jupyter notebooks are extremely useful as a learning tool and as an introductory
 
 To run our Jupyter notebook examples, the following prerequisites must be complete:
 
-The full Data Cube Installation Guide must have been followed and completed before proceeding. This includes:
-* You have a local user that is used to run the Data Cube commands/applications
-* You have a database user that is used to connect to your 'datacube' database
-* The Data Cube is installed and you have successfully run 'datacube system init'
-* All code is checked out and you have a virtual environment in the correct directories: `~/Datacube/{data_cube_ui, data_cube_notebooks, datacube_env, agdc-v2}`
-
-If these requirements are not met, please see the associated documentation.
-
-You can view the notebooks without ingesting any data, but to be able to run notebooks with the sample ingested data, 
-the ingestion guide must have been followed and completed. The steps include:
-* A sample Landsat 7 scene was downloaded and uncompressed in your `/datacube/original_data` directory
-* The ingestion process was completed for that sample Landsat 7 scene
+* The full Data Cube Installation Guide must have been followed and completed. This includes:
+  * You have a local user that is used to run the Data Cube commands/applications.
+  * You have a database user that is used to connect to your 'datacube' database.
+  * The Data Cube is installed and you have successfully run `datacube system check`.
 
 <a name="installation_process"></a> Installation Process
 ========  
@@ -45,10 +37,18 @@ You will need to be in the virtual environment for this entire guide. If you hav
 source ~/Datacube/datacube_env/bin/activate
 ```
 
+The Notebook repository can be downloaded as follows:
+```
+cd ~/Datacube
+git clone https://github.com/ceos-seo/data_cube_notebooks.git
+cd data_cube_notebooks
+git submodule init && git submodule update
+```
+
 Now install the following Python packages:
 
 ```
-pip install jupyter matplotlib scipy sklearn lcmap-pyccd folium
+pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8
 ```
 
 <a name="configuration"></a> Configuration
@@ -70,15 +70,12 @@ Now set the password and edit the server details. Remember this password for fut
 jupyter notebook password
 ```
 
-Now edit the Jupyter notebook configuration file `~/.jupyter/jupyter_notebook_config.py` with your favorite text editor.
-
-Edit the generated configuration file to include relevant details. 
-You'll need to set the relevant entries in the file:
+Now edit the Jupyter notebook configuration file at `~/.jupyter/jupyter_notebook_config.py` to include these relevant details:
 
 ```
-c.NotebookApp.ip = '*'
+c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.open_browser = False
-c.NotebookApp.port = 8888
+c.NotebookApp.port = 8080
 ```
 
 Save the file and then run the notebook server with the following command.
@@ -100,9 +97,10 @@ You should be greeted with a password field. Enter the password from the previou
 
 Now that your notebook server is running and the Data Cube is set up, you can run any of our examples.
 
-Open the notebook titled 'Data_Cube_Test' and run through all of the cells using either the "Run" button on the toolbar or `Shift+Enter`.
+Open the notebook titled `Demo_Notebook`, change the `product` variable in the "Pick a product" cell near the beginning of the notebook to a product that you have, 
+and run through all of the cells using either the "Run" button on the toolbar or `Shift+Enter` with the top cell selected.
 
-You'll see that a connection to the Data Cube is established, some metadata is queried, and some data is loaded and plotted.
+You'll see that a connection to the Data Cube is established, some product metadata is queried, and some data is loaded and plotted.
 
 <a name="next_steps"></a> Next Steps
 ========  
