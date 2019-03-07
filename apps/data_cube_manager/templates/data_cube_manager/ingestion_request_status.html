@@ -77,13 +77,13 @@ under the License.
             <hr>
             <h3>Downloading Storage Units</h3>
             You will need to run the bulk downloader script from within the virtual environment that the Data Cube is installed in.
-            If you do not have the Data Cube installed, please refer to our documentation <a href="https://github.com/ceos-seo/data_cube_ui/blob/master/docs/datacube_install.md">here</a>.<br>
+            If you do not have the Data Cube installed, please refer to our documentation <a href="https://github.com/ceos-seo/data_cube_ui/blob/master/docs/open_data_cube_install.md">here</a>.<br>
             Ensure that you are running Python 3 and are properly within the virtual environment, then run the script as seen in the image: 'python bulk_downloader.py'
             You will need the path '/datacube' to exist and be writeable by the user. If this is not the case, the program will exit with an error message.
             <hr>
             <h3>Initializing Your Sample Cube</h3>
             When all files are downloaded, you should see the window resembling the image. The next steps are to import the database dump and to ensure that the Data Cube is initialized properly.<br>
-            Ensure that the Data Cube database has been created and initialized according to our documentation <a href="https://github.com/ceos-seo/data_cube_ui/blob/master/docs/datacube_install.md">here</a>.
+            Ensure that the Data Cube database has been created and initialized according to our documentation <a href="https://github.com/ceos-seo/data_cube_ui/blob/master/docs/open_data_cube_install.md">here</a>.
             The database named 'datacube' will need to exist, and a role 'dc_user' must also exist and have write access to the database.
             Import the database by running 'psql -U dc_user datacube < /datacube/ingested_data/{username}/datacube_dump'. If you have any issues, you can run "psql -U dc_user datacube -c 'DROP SCHEMA agdc CASCADE;'"
             and then rerun the import statement. You can then run 'datacube product list' to ensure that your datasets have been added.
