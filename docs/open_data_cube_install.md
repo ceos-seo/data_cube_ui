@@ -65,7 +65,7 @@ The current installation requires and works with rasterio version 1.0.2.
 ```
 pip install rasterio==1.0.2
 ```
-<BR>
+<br>
 
 ##### Python Dependencies
 Use the following commands to install the requisite Python dependencies. 
@@ -76,6 +76,7 @@ the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 pip install numpy
 pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
 pip install sqlalchemy==1.2.18
+pip install psycopg2-binary
 ```
 
 ## Core
