@@ -111,10 +111,14 @@ class DataSelectionForm(forms.Form):
                                                  'year(s) are not permitted.'.format(max_num_years))
 
         # Limit each user to 1 running task per app.
-        num_running_tasks = self.task_model_class.get_queryset_from_history(
-            self.user_history, complete=False).count()
-        if num_running_tasks > 0:
-            self.add_error(None, 'You may only run one task at a time.')
+        # This is the maximum number of tasks per user across all apps.
+        # A value of `None` indicates no limit.
+        MAX_NUM_TASKS_PER_USER = None
+        if MAX_NUM_TASKS_PER_USER is not None:
+            num_running_tasks = self.task_model_class.get_queryset_from_history(
+                self.user_history, complete=False).count()
+            if num_running_tasks >= MAX_NUM_TASKS_PER_USER:
+                self.add_error(None, 'You may only run {} task(s) at a time.'.format(MAX_NUM_TASKS_PER_USER))
 
         return cleaned_data
 
