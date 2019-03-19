@@ -114,6 +114,7 @@ def task_clean_up(*args, **kwargs):
     from apps.fractional_cover.models import FractionalCoverTask
     from apps.ndvi_anomaly.models import NdviAnomalyTask
     from apps.slip.models import SlipTask
+    from apps.spectral_anomaly.models import SpectralAnomalyTask
     from apps.spectral_indices.models import SpectralIndicesTask
     from apps.tsm.models import TsmTask
     from apps.urbanization.models import UrbanizationTask
