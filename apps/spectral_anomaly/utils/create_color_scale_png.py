@@ -2,7 +2,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-from .tasks import spectral_indices_range_map, spectral_indices_name_map
+from apps.spectral_anomaly.tasks import spectral_indices_range_map, spectral_indices_name_map
 
 num_spec_inds = len(spectral_indices_name_map)
 
