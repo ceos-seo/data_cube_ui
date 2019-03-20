@@ -2,6 +2,12 @@ from django import forms
 
 from .models import Satellite
 
+# This is the maximum number of tasks per user across all apps.
+# A value of `None` indicates no limit.
+MAX_NUM_TASKS_PER_USER = None
+# This is the maximum number of years in a query.
+MAX_NUM_YEARS = 5
+
 class DataSelectionForm(forms.Form):
     two_column_format = True
 
@@ -105,15 +111,11 @@ class DataSelectionForm(forms.Form):
             # (e.g. if data is only loaded for the first and last years).
             from apps.coastal_change.models import CoastalChangeTask
             if self.task_model_class not in [CoastalChangeTask]:
-                max_num_years = 5
-                if self.check_time_range(time_start, time_end, max_num_years):
+                if self.check_time_range(time_start, time_end, MAX_NUM_YEARS):
                     self.add_error('time_start', 'Tasks over a time range greater than {} '
-                                                 'year(s) are not permitted.'.format(max_num_years))
+                                                 'year(s) are not permitted.'.format(MAX_NUM_YEARS))
 
-        # Limit each user to 1 running task per app.
-        # This is the maximum number of tasks per user across all apps.
-        # A value of `None` indicates no limit.
-        MAX_NUM_TASKS_PER_USER = None
+        # Limit each user to some number of queued tasks across all apps.
         if MAX_NUM_TASKS_PER_USER is not None:
             num_running_tasks = self.task_model_class.get_queryset_from_history(
                 self.user_history, complete=False).count()

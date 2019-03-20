@@ -27,7 +27,7 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 
 import json
-from datetime import datetime, timedelta
+import datetime
 
 from apps.dc_algorithm.models import Satellite, Area, Application
 from apps.dc_algorithm.forms import DataSelectionForm
@@ -40,6 +40,7 @@ from apps.dc_algorithm.views import (ToolView, SubmitNewRequest, SubmitPixelDril
                                      SubmitNewSubsetRequest, CancelRequest, UserHistory, ResultList, OutputList,
                                      RegionSelection, TaskDetails)
 
+from apps.dc_algorithm.forms import MAX_NUM_YEARS
 
 class RegionSelection(RegionSelection):
     """Creates the region selection page for the tool by extending the RegionSelection class
@@ -68,6 +69,9 @@ class TsmTool(ToolView):
     def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
+            time_end = satellite.date_max
+            earliest_allowed_time = datetime.date(time_end.year - MAX_NUM_YEARS, time_end.month, time_end.day)
+            time_start = max(satellite.date_min, earliest_allowed_time)
             forms[satellite.pk] = {
                 'Data Selection':
                 AdditionalOptionsForm(
@@ -78,8 +82,8 @@ class TsmTool(ToolView):
                     user_history=user_history,
                     task_model_class=task_model_class,
                     area=area,
-                    time_start=satellite.date_min,
-                    time_end=satellite.date_max,
+                    time_start=time_start,
+                    time_end=time_end,
                     auto_id="{}_%s".format(satellite.pk))
             }
         return forms
@@ -100,7 +104,6 @@ class SubmitNewRequest(SubmitNewRequest):
     task_model_name = 'TsmTask'
     #celery_task_func = create_cloudfree_mosaic
     celery_task_func = run
-    # TODO: Ensure that this list contains all the forms used to create your model
     form_list = [DataSelectionForm, AdditionalOptionsForm]
 
 
@@ -147,8 +150,6 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
 
     celery_task_func = run
 
-    # TODO: Ensure that your task_model_update_func works as expected - does this app support
-    # single requests?
     def task_model_update_func(self, task_model, **kwargs):
         """
         Basic funct that updates a task model with kwargs. In this case only the date
@@ -156,7 +157,7 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
         """
         date = kwargs.get('date')[0]
         task_model.time_start = datetime.strptime(date, '%m/%d/%Y')
-        task_model.time_end = task_model.time_start + timedelta(days=1)
+        task_model.time_end = task_model.time_start + datetime.timedelta(days=1)
         task_model.complete = False
         task_model.scenes_processed = 0
         task_model.total_scenes = 0
