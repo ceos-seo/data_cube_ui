@@ -27,15 +27,11 @@ from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetada
                                       BaseResultType, UserHistory as BaseUserHistory, AnimationType as
                                       BaseAnimationType, ToolInfo as BaseToolInfo)
 
-# TODO: Fill in any required algorithm imports here. Remove mosaic if unused
 from utils.data_cube_utilities.dc_mosaic import (create_mosaic, create_median_mosaic, create_max_ndvi_mosaic,
                                                  create_min_ndvi_mosaic)
 
 from datetime import datetime, timedelta
 import numpy as np
-
-import logging
-dj_logger = logging.getLogger(__name__)
 
 
 class UserHistory(BaseUserHistory):
@@ -54,7 +50,6 @@ class ToolInfo(BaseToolInfo):
     pass
 
 
-# TODO: Does this app need a result type? Are there different kinds of outputs that should be distinguished?
 class ResultType(BaseResultType):
     """
     extends base result type, adding additional fields required by app.
@@ -69,15 +64,6 @@ class ResultType(BaseResultType):
     pass
 
 
-# # TODO: Does this app have an animation that can be generated?
-# class AnimationType(BaseAnimationType):
-#     """
-#     Extends the base animation type, adding additional fields as required by app.
-#     See the dc_algorithm.AnimationType docstring for more information.
-#     """
-#     pass
-
-
 class Query(BaseQuery):
     """
     Extends base query, adds app specific elements. See the dc_algorithm.Query docstring for more information
@@ -85,7 +71,6 @@ class Query(BaseQuery):
     field, and resets the abstract property. Functions are added to get human readable names for various properties,
     foreign keys should define __str__ for a human readable name.
     """
-    # TODO: Are there querytypes, animation types, or compositors that need to be distinguished?
     query_type = models.ForeignKey(ResultType)
     # animated_product = models.ForeignKey(AnimationType, blank=True, null=True)
     compositor = models.ForeignKey(Compositor)
@@ -102,7 +87,6 @@ class Query(BaseQuery):
     change_threshold_min = models.FloatField(blank=True, null=True)
     change_threshold_max = models.FloatField(blank=True, null=True)
 
-    # TODO: Fill out the configuration paths
     base_result_dir = '/datacube/ui_results/spectral_anomaly'
 
     class Meta(BaseQuery.Meta):
@@ -118,7 +102,6 @@ class Query(BaseQuery):
         for idx, label in enumerate(labels):
             yield [label, getattr(self, field_names[idx])]
 
-    # TODO: What geographic and time chunking settings work best? For iterative processes, time: 10 and geo: 0.5 work.
     # if you need to load all data at once, use None for the setting.
     def get_chunk_size(self):
         """Implements get_chunk_size as required by the base class
@@ -131,7 +114,6 @@ class Query(BaseQuery):
         #     return {'time': None, 'geographic': 0.005}
         # return {'time': 25, 'geographic': 0.5}
 
-    # TODO: Is this app iterative over the time dimension, or does all time data need to be loaded at once?
     def get_iterative(self):
         """implements get_iterative as required by the base class
 
@@ -140,7 +122,6 @@ class Query(BaseQuery):
         """
         return self.compositor.id != "median_pixel"
 
-    # TODO: Does the time index need to be processed in order from most recent to least recent?
     # Time is generally loaded and processed least recent (earliest) to most recent (latest) - True reverses that.
     def get_reverse_time(self):
         """implements get_reverse_time as required by the base class
@@ -150,8 +131,6 @@ class Query(BaseQuery):
         """
         return self.compositor.id == "most_recent"
 
-    # TODO: Map the processing method imported at the top of this file to some case
-    # if there is only one result type/execution path, this can just be a static return.
     def get_processing_method(self):
         """implements get_processing_method as required by the base class
 
@@ -209,10 +188,6 @@ class Metadata(BaseMetadata):
     See the dc_algorithm.Metadata docstring for more information
     """
 
-    # TODO: Enter any additional metadata fields - if they are comma seperated fields e.g. per acquisition data, enter them in zipped_metadata_fields
-
-    # # TODO: If this is not a multisensory app, remove satellite list from here and zipped_metadata_fields
-    # satellite_list = models.CharField(max_length=100000, default="")
     zipped_metadata_fields = [
         'acquisition_list', 'clean_pixels_per_acquisition', 'clean_pixel_percentages_per_acquisition'
     ]
@@ -220,7 +195,6 @@ class Metadata(BaseMetadata):
     class Meta(BaseMetadata.Meta):
         abstract = True
 
-    # TODO: Enter any additional metadata fields that you want to collect from a dataset here.
     def metadata_from_dataset(self, metadata, dataset, clear_mask, parameters):
         """implements metadata_from_dataset as required by the base class
 
@@ -232,10 +206,6 @@ class Metadata(BaseMetadata):
             if time not in metadata:
                 metadata[time] = {}
                 metadata[time]['clean_pixels'] = 0
-                # TODO: If this is not a multisensory app, remove the satellite field.
-                # metadata[time]['satellite'] = parameters['platforms'][np.unique(
-                #     dataset.satellite.isel(time=metadata_index).values)[0]] if np.unique(
-                #         dataset.satellite.isel(time=metadata_index).values)[0] > -1 else "NODATA"
             metadata[time]['clean_pixels'] += clean_pixels
         return metadata
 
@@ -247,7 +217,6 @@ class Metadata(BaseMetadata):
         """
         for key in new:
             if key in old:
-                # TODO: Combine any 'cumulative' fields here
                 old[key]['clean_pixels'] += new[key]['clean_pixels']
                 continue
             old[key] = new[key]
@@ -259,7 +228,6 @@ class Metadata(BaseMetadata):
         See the base metadata class docstring for more information.
 
         """
-        # TODO: Are there any more statistics that you can pull from the final dataset?
         self.pixel_count = len(dataset.latitude) * len(dataset.longitude)
         self.clean_pixel_count = np.sum(dataset[list(dataset.data_vars)[0]].values != -9999)
         self.percentage_clean_pixels = (self.clean_pixel_count / self.pixel_count) * 100
@@ -273,12 +241,9 @@ class Metadata(BaseMetadata):
         """
         dates = list(metadata_dict.keys())
         dates.sort(reverse=True)
-        # TODO: Create your comma seperated lists from metadata dict here.
         self.total_scenes = len(dates)
         self.scenes_processed = len(dates)
         self.acquisition_list = ",".join([date.strftime("%m/%d/%Y") for date in dates])
-        # TODO: If this is not a multisensory app remove this line.
-        # self.satellite_list = ",".join([metadata_dict[date]['satellite'] for date in dates])
         self.clean_pixels_per_acquisition = ",".join([str(metadata_dict[date]['clean_pixels']) for date in dates])
         self.clean_pixel_percentages_per_acquisition = ",".join(
             [str((metadata_dict[date]['clean_pixels'] * 100) / self.pixel_count) for date in dates])
@@ -290,13 +255,7 @@ class Result(BaseResult):
     Extends base result, adding additional fields and adding abstract=True
     See the dc_algorithm.Result docstring for more information
     """
-    # TODO: Add or remove any paths that you need to store results.
-    # the base path is 'result_path' - any additional go here.
-    # result_filled_path = models.CharField(max_length=250, default="")
-    # plot_path = models.CharField(max_length=250, default="")
-    # animation_path = models.CharField(max_length=250, default="None")
     data_path = models.CharField(max_length=250, default="")
-    # data_netcdf_path = models.CharField(max_length=250, default="")
 
     class Meta(BaseResult.Meta):
         abstract = True
