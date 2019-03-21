@@ -140,7 +140,6 @@ def perform_task_chunking(self, parameters, task_id=None):
 
     time_chunks = create_time_chunks(
         dates, _reversed=task.get_reverse_time(), time_chunk_size=task_chunk_sizing['time'])
-    logger.info("Time chunks: {}, Geo chunks: {}".format(len(time_chunks), len(geographic_chunks)))
 
     dc.close()
     if check_cancel_task(self, task): return
@@ -172,6 +171,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                                                                      if task.get_chunk_size()['time'] is not None else
                                                                      len(time_chunks[0]))
     task.scenes_processed = 0
+    task.save()
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
