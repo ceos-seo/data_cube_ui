@@ -148,7 +148,6 @@ def perform_task_chunking(self, parameters, task_id=None):
     else:
         initial_year = grouped_dates.pop(task.time_start)
         time_chunks = [[initial_year, grouped_dates[year]] for year in grouped_dates]
-    logger.info("Time chunks: {}, Geo chunks: {}".format(len(time_chunks), len(geographic_chunks)))
 
     dc.close()
     if check_cancel_task(self, task): return
@@ -177,10 +176,13 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     task = CoastalChangeTask.objects.get(pk=task_id)
 
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+    # This calculation does not account for time chunking because this app
+    # does not support time chunking.
+    num_times_fst_lst_yrs = len(time_chunks[0][0]) + len(time_chunks[0][1])
+    task.total_scenes = len(geographic_chunks) * len(time_chunks) * num_times_fst_lst_yrs
     task.scenes_processed = 0
+    task.save()
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -239,6 +241,7 @@ def processing_task(self,
 
     starting_year = _get_datetime_range_containing(*time_chunk[0])
     comparison_year = _get_datetime_range_containing(*time_chunk[1])
+
     if check_cancel_task(self, task): return
 
     dc = DataAccessApi(config=task.config_path)
@@ -257,10 +260,17 @@ def processing_task(self,
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
         metadata = task.metadata_from_dataset({}, data, clear_mask, updated_params)
-        return task.get_processing_method()(data, clean_mask=clear_mask, no_data=task.satellite.no_data_value), metadata
+        return task.get_processing_method()(data, clean_mask=clear_mask, no_data=task.satellite.no_data_value), \
+               metadata, len(data['time'])
 
-    old_mosaic, old_metadata = _compute_mosaic(starting_year)
-    new_mosaic, new_metadata = _compute_mosaic(comparison_year)
+    old_mosaic, old_metadata, num_scenes_old = _compute_mosaic(starting_year)
+    task.scenes_processed = F('scenes_processed') + num_scenes_old
+    # Avoid overwriting the task's status if it is cancelled.
+    task.save(update_fields=['scenes_processed'])
+    new_mosaic, new_metadata, num_scenes_new = _compute_mosaic(comparison_year)
+    task.scenes_processed = F('scenes_processed') + num_scenes_new
+    task.save(update_fields=['scenes_processed'])
+
     if check_cancel_task(self, task): return
 
     if old_mosaic is None or new_mosaic is None:
@@ -271,10 +281,6 @@ def processing_task(self,
     output_product = compute_coastal_change(old_mosaic, new_mosaic, no_data=task.satellite.no_data_value)
 
     if check_cancel_task(self, task): return
-
-    task.scenes_processed = F('scenes_processed') + 1
-    # Avoid overwriting the task's status if it is cancelled.
-    task.save(update_fields=['scenes_processed'])
 
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
     output_product.to_netcdf(path)
