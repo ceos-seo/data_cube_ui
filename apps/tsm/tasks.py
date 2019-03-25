@@ -129,6 +129,7 @@ def validate_parameters(self, parameters, task_id=None):
     dc = DataAccessApi(config=task.config_path)
 
     acquisitions = dc.list_combined_acquisition_dates(**parameters)
+
     if len(acquisitions) < 1:
         task.complete = True
         task.update_status("ERROR", "There are no acquistions for this parameter set.")
@@ -206,9 +207,21 @@ def start_chunk_processing(self, chunk_details, task_id=None):
     time_chunks = chunk_details.get('time_chunks')
 
     task = TsmTask.objects.get(pk=task_id)
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time'] if
-                                                                     task.get_chunk_size()['time'] is not None else 1)
+
+    # Get an estimate of the amount of work to be done: the number of scenes
+    # to process, also considering intermediate chunks to be combined.
+    num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
+    logger.info("num_scenes: {}".format(num_scenes))
+    # recombine_geographic_chunks() scenes:
+    # num_scn_per_chk * len(time_chunks) * len(geographic_chunks)
+    num_scn_per_chk = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
+    # Scene processing progress is tracked in processing_task() and recombine_geographic_chunks().
+    task.total_scenes = 2 * num_scenes
+    logger.info("task.total_scenes: {}"
+                .format(task.total_scenes))
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -223,7 +236,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 geographic_chunk=geographic_chunk,
                 time_chunk=time_chunk,
                 **parameters) for geo_index, geographic_chunk in enumerate(geographic_chunks)
-        ]) | recombine_geographic_chunks.s(task_id=task_id) for time_index, time_chunk in enumerate(time_chunks)
+        ]) | recombine_geographic_chunks.s(task_id=task_id, num_scn_per_chk=num_scn_per_chk)
+        for time_index, time_chunk in enumerate(time_chunks)
     ]) | recombine_time_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
        | task_clean_up.si(task_id=task_id, task_model='TsmTask')).apply_async()
 
@@ -328,7 +342,7 @@ def processing_task(self,
 
 
 @task(name="tsm.recombine_geographic_chunks", base=BaseTask, bind=True)
-def recombine_geographic_chunks(self, chunks, task_id=None):
+def recombine_geographic_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
     """Recombine processed data over the geographic indices
 
     For each geographic chunk process spawned by the main task, open the resulting dataset
@@ -336,6 +350,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
 
     Args:
         chunks: list of the return from the processing_task function - path, metadata, and {chunk ids}
+        num_scn_per_chk: The number of scenes per chunk. Used to determine task progress.
 
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
@@ -353,6 +368,8 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
         chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        task.scenes_processed = F('scenes_processed') + num_scn_per_chk
+        task.save(update_fields=['scenes_processed'])
     combined_data = combine_geographic_chunks(chunk_data)
 
     if task.animated_product.animation_id != "none":
