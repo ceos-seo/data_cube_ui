@@ -1,3 +1,4 @@
+from django.db.models import F
 from celery.task import task
 from celery import chain, group, chord
 from datetime import datetime, timedelta
@@ -179,14 +180,13 @@ def perform_task_chunking(self, parameters, task_id=None):
         latitude=parameters['latitude'],
         geographic_chunk_size=task_chunk_sizing['geographic'])
 
-    time_chunks = create_time_chunks(
-        dates, _reversed=task.get_reverse_time(), time_chunk_size=task_chunk_sizing['time'])
+    # This app does not currently support time chunking.
 
     dc.close()
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Chunked parameter set.")
 
-    return {'parameters': parameters, 'geographic_chunks': geographic_chunks, 'time_chunks': time_chunks}
+    return {'parameters': parameters, 'geographic_chunks': geographic_chunks}
 
 
 @task(name="spectral_anomaly.start_chunk_processing", base=BaseTask, bind=True)
@@ -205,28 +205,47 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     parameters = chunk_details.get('parameters')
     geographic_chunks = chunk_details.get('geographic_chunks')
-    time_chunks = chunk_details.get('time_chunks')
 
     task = SpectralAnomalyTask.objects.get(pk=task_id)
 
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+    dc = DataAccessApi(config=task.config_path)
+
+    # Get an estimate of the amount of work to be done: the number of scenes
+    # to process, also considering intermediate chunks to be combined.
+    # Determine the number of scenes for the baseline and analysis extents.
+    num_scenes = {}
+    params_temp = parameters.copy()
+    for composite_name in ['baseline', 'analysis']:
+        num_scenes[composite_name] = 0
+        for geographic_chunk in geographic_chunks:
+            params_temp.update(geographic_chunk)
+            params_temp['measurements'] = []
+            # Use the corresponding time range for the baseline and analysis data.
+            params_temp['time'] = \
+                params_temp['baseline_time' if composite_name == 'baseline' else 'analysis_time']
+            params_temp_clean = params_temp.copy()
+            del params_temp_clean['baseline_time'], params_temp_clean['analysis_time'], \
+                params_temp_clean['composite_range'], params_temp_clean['change_range']
+            num_scenes[composite_name] += len(dc.dc.load(**params_temp_clean).time)
+    # The number of scenes per geographic chunk for baseline and analysis extents.
+    num_scn_per_chk_geo = {k: round(v/len(geographic_chunks)) for k, v in num_scenes.items()}
+    # Scene processing progress is tracked in processing_task(), which
+    # tracks progress in 2 stages.
+    task.total_scenes = 2 * sum(num_scenes.values())
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
     processing_pipeline = (group([
-        group([
             processing_task.s(
                 task_id=task_id,
                 geo_chunk_id=geo_index,
-                time_chunk_id=time_index,
                 geographic_chunk=geographic_chunk,
-                time_chunk=time_chunk,
-                **parameters) for time_index, time_chunk in enumerate(time_chunks)
-        ]) for geo_index, geographic_chunk in enumerate(geographic_chunks)
-    ]) | recombine_geographic_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
+                num_scn_per_chk=num_scn_per_chk_geo,
+                **parameters) for geo_index, geographic_chunk in enumerate(geographic_chunks)
+    ]) | recombine_geographic_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id) \
        | task_clean_up.si(task_id=task_id, task_model='SpectralAnomalyTask')).apply_async()
 
     return True
@@ -236,9 +255,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 def processing_task(self,
                     task_id=None,
                     geo_chunk_id=None,
-                    time_chunk_id=None,
                     geographic_chunk=None,
-                    time_chunk=None,
+                    num_scn_per_chk=None,
                     **parameters):
     """Process a parameter set and save the results to disk.
 
@@ -248,15 +266,16 @@ def processing_task(self,
     is iterative or if all data needs to be loaded at once.
 
     Args:
-        task_id, geo_chunk_id, time_chunk_id: identification for the main task and what chunk this is processing
+        task_id, geo_chunk_id: identification for the main task and what chunk this is processing
         geographic_chunk: range of latitude and longitude to load - dict with keys latitude, longitude
-        time_chunk: list of acquisition dates
+        num_scn_per_chk: A dictionary of the number of scenes per chunk for the baseline
+                         and analysis extents. Used to determine task progress.
         parameters: all required kwargs to load data.
 
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
-    chunk_id = "_".join([str(geo_chunk_id), str(time_chunk_id)])
+    chunk_id = str(geo_chunk_id)
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
@@ -299,7 +318,6 @@ def processing_task(self,
         composite = task.get_processing_method()(time_column_data,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
-
         # Obtain the mask for valid Landsat values.
         composite_invalid_mask = landsat_clean_mask_invalid(composite).values
         # Also exclude data points with the no_data value via the compositing mask.
@@ -350,6 +368,10 @@ def processing_task(self,
         # Update the metadata with the current data (baseline or analysis).
         metadata = task.metadata_from_dataset(metadata, time_column_data,
                                               time_column_clean_mask, parameters)
+        # Record task progress (baseline and analysis composites
+        # and out-of-range masks created).
+        task.scenes_processed = F('scenes_processed') + num_scn_per_chk[composite_name]
+        task.save(update_fields=['scenes_processed'])
     dc.close()
 
     if check_cancel_task(self, task): return
@@ -389,8 +411,11 @@ def processing_task(self,
     composite_out_of_range.to_netcdf(composite_out_of_range_path)
     composite_no_data_path = os.path.join(task.get_temp_path(), chunk_id + "_no_data.nc")
     composite_no_data.to_netcdf(composite_no_data_path)
+    # Record task progress (all data obtained - only recombining remains).
+    task.scenes_processed = F('scenes_processed') + sum(num_scn_per_chk.values())
+    task.save(update_fields=['scenes_processed'])
     return composite_path, composite_out_of_range_path, composite_no_data_path, \
-           metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
+           metadata, {'geo_chunk_id': geo_chunk_id}
 
 
 @task(name="spectral_anomaly.recombine_geographic_chunks", base=BaseTask, bind=True)
@@ -406,6 +431,9 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
+    import time
+    time.sleep(10)
+
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
 
@@ -440,7 +468,7 @@ def create_output_products(self, data, task_id=None):
     """Create the final output products for this algorithm.
 
     Open the final dataset and metadata and generate all remaining metadata.
-    Convert and write the dataset to variuos formats and register all values in the task model
+    Convert and write the dataset to various formats and register all values in the task model
     Update status and exit.
 
     Args:
