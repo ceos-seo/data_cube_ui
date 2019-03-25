@@ -74,7 +74,7 @@ class Query(BaseQuery):
         """
         if not self.compositor.is_iterative():
             return {'time': None, 'geographic': 0.01}
-        return {'time': 25, 'geographic': 0.1}
+        return {'time': 50, 'geographic': 0.02}
 
     def get_iterative(self):
         """implements get_iterative as required by the base class

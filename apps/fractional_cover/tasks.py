@@ -228,10 +228,35 @@ def start_chunk_processing(self, chunk_details, task_id=None):
     time_chunks = chunk_details.get('time_chunks')
 
     task = FractionalCoverTask.objects.get(pk=task_id)
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+
+    # Get an estimate of the amount of work to be done: the number of scenes
+    # to process, also considering intermediate chunks to be combined.
+    logger.info("geographic_chunks: {}, {}"
+                .format(len(geographic_chunks), geographic_chunks))
+    logger.info("time_chunks: {}, {}"
+                .format(len(time_chunks), time_chunks))
+    logger.info("True number of time slices: {}"
+                .format(sum([len(time_chunk) for time_chunk in time_chunks])))
+    logger.info("task.get_chunk_size()['time']: {}"
+                .format(task.get_chunk_size()['time']))
+    # Track task progress.
+    num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
+    logger.info("num_scenes: {}".format(num_scenes))
+    # recombine_time_chunks() and process_band_math() scenes:
+    # num_scn_per_chk * len(time_chunks) * len(geographic_chunks)
+    num_scn_per_chk = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
+    # recombine_geographic_chunks() and create_output_products() scenes:
+    # num_scn_per_chk_geo * len(geographic_chunks)
+    num_scn_per_chk_geo = round(num_scenes / len(geographic_chunks))
+    # Every scene is processed by: processing_task(), recombine_time_chunks(),
+    # and process_band_math(). Scenes in process_band_math() are counted twice
+    # for the sake of tracking progress because it takes so long to run. So 1 + 1 + 2 = 4.
+    task.total_scenes = 4 * num_scenes
+    logger.info("task.total_scenes: {}"
+                .format(task.total_scenes))
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -246,9 +271,11 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 geographic_chunk=geographic_chunk,
                 time_chunk=time_chunk,
                 **parameters) for time_index, time_chunk in enumerate(time_chunks)
-        ]) | recombine_time_chunks.s(task_id=task_id) | process_band_math.s(task_id=task_id)
+        ]) | recombine_time_chunks.s(task_id=task_id, num_scn_per_chk=num_scn_per_chk)
+           | process_band_math.s(task_id=task_id, num_scn_per_chk=2*num_scn_per_chk_geo)
         for geo_index, geographic_chunk in enumerate(geographic_chunks)
-    ]) | recombine_geographic_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
+    ]) | recombine_geographic_chunks.s(task_id=task_id)
+       | create_output_products.s(task_id=task_id)
        | task_clean_up.si(task_id=task_id, task_model='FractionalCoverTask')).apply_async()
 
     return True
@@ -323,12 +350,12 @@ def processing_task(self,
                                                       reverse_time=task.get_reverse_time())
 
         if check_cancel_task(self, task): return
-
         task.scenes_processed = F('scenes_processed') + 1
         # Avoid overwriting the task's status if it is cancelled.
         task.save(update_fields=['scenes_processed'])
     if iteration_data is None:
         return None
+
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
     iteration_data.to_netcdf(path)
     dc.close()
@@ -337,7 +364,7 @@ def processing_task(self,
 
 
 @task(name="fractional_cover.recombine_time_chunks", base=BaseTask, bind=True)
-def recombine_time_chunks(self, chunks, task_id=None):
+def recombine_time_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
     """Recombine processed chunks over the time index.
 
     Open time chunked processed datasets and recombine them using the same function
@@ -346,12 +373,20 @@ def recombine_time_chunks(self, chunks, task_id=None):
 
     Args:
         chunks: list of the return from the processing_task function - path, metadata, and {chunk ids}
+        num_scn_per_chk: The number of scenes per chunk. Used to determine task progress.
 
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
+    # import time
+    # time.sleep(5)
+
+    logger.info("In recombine_time_chunks()!")
+
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
+
+    logger.info("recombine_time_chunks task.scenes_processed: {}".format(task.scenes_processed))
 
     #sorting based on time id - earlier processed first as they're incremented e.g. 0, 1, 2..
     chunks = chunks if isinstance(chunks, list) else [chunks]
@@ -359,6 +394,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
     if len(chunks) == 0:
         return None
     total_chunks = sorted(chunks, key=lambda x: x[0])
+    logger.info("recombine_time_chunks total_chunks: {}, {}"\
+                .format(len(total_chunks), total_chunks))
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -369,6 +406,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
         data = xr.open_dataset(chunk[0], autoclose=True)
         if combined_data is None:
             combined_data = data
+            task.scenes_processed = F('scenes_processed') + num_scn_per_chk
+            task.save(update_fields=['scenes_processed'])
             continue
         #give time an indice to keep mosaicking from breaking.
         data = xr.concat([data], 'time')
@@ -381,6 +420,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
                                                      no_data=task.satellite.no_data_value,
                                                      reverse_time=task.get_reverse_time())
         if check_cancel_task(self, task): return
+        task.scenes_processed = F('scenes_processed') + num_scn_per_chk
+        task.save(update_fields=['scenes_processed'])
     if combined_data is None:
         return None
 
@@ -391,33 +432,48 @@ def recombine_time_chunks(self, chunks, task_id=None):
 
 
 @task(name="fractional_cover.process_band_math", base=BaseTask, bind=True)
-def process_band_math(self, chunk, task_id=None):
+def process_band_math(self, chunk, task_id=None, num_scn_per_chk=None):
     """Apply some band math to a chunk and return the args
 
     Opens the chunk dataset and applys some band math defined by _apply_band_math(dataset)
     _apply_band_math creates some product using the bands already present in the dataset and
     returns the dataarray. The data array is then appended under 'band_math', then saves the
     result to disk in the same path as the nc file already exists.
+
+    Args:
+        chunk: The return from the recombine_time_chunks function - path, metadata, and {chunk ids}
+        num_scn_per_chk: The number of scenes per chunk. Used to determine task progress.
     """
+    # import time
+    # time.sleep(5)
+
+    logger.info("In process_band_math()!")
+
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
+
+    logger.info("process_band_math task.scenes_processed: {}".format(task.scenes_processed))
 
     def _apply_band_math(dataset):
         clear_mask = task.satellite.get_clean_mask_func()(dataset)
         # mask out water manually. Necessary for frac. cover.
         wofs = wofs_classify(dataset, clean_mask=clear_mask, mosaic=True)
         clear_mask[wofs.wofs.values == 1] = False
-
         return frac_coverage_classify(dataset, clean_mask=clear_mask, no_data=task.satellite.no_data_value)
 
     if chunk is None:
         return None
 
-    dataset = xr.open_dataset(chunk[0], autoclose=True).load()
+    dataset = xr.open_dataset(chunk[0]).load()
     dataset = xr.merge([dataset, _apply_band_math(dataset)])
     #remove previous nc and write band math to disk
     os.remove(chunk[0])
     dataset.to_netcdf(chunk[0])
+    task.scenes_processed = F('scenes_processed') + num_scn_per_chk
+    task.save(update_fields=['scenes_processed'])
+
+    logger.info("task.scenes_processed: {}".format(task.scenes_processed))
+
     return chunk
 
 
@@ -434,10 +490,20 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
+    # import time
+    # time.sleep(5)
+
+    logger.info("In recombine_geographic_chunks()!")
+
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
+    logger.info("recombine_geographic_chunks task.scenes_processed: {}"
+                .format(task.scenes_processed))
+
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
+    logger.info("recombine_geographic_chunks total_chunks: {}, {}"
+                .format(len(total_chunks), total_chunks))
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
@@ -446,7 +512,8 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     chunk_data = []
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
-        chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        current_chunk_data = xr.open_dataset(chunk[0])
+        chunk_data.append(current_chunk_data)
     combined_data = combine_geographic_chunks(chunk_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
@@ -466,6 +533,8 @@ def create_output_products(self, data, task_id=None):
     Args:
         data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
     """
+    logger.info("In create_output_products()!")
+
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
