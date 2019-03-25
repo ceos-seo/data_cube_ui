@@ -218,10 +218,14 @@ def start_chunk_processing(self, chunk_details, task_id=None):
     time_chunks = chunk_details.get('time_chunks')
 
     task = SpectralIndicesTask.objects.get(pk=task_id)
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+
+    # Track task progress.
+    num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
+    # Scene processing progress is tracked in processing_task().
+    task.total_scenes = num_scenes
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -238,7 +242,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 **parameters) for time_index, time_chunk in enumerate(time_chunks)
         ]) | recombine_time_chunks.s(task_id=task_id) | process_band_math.s(task_id=task_id)
         for geo_index, geographic_chunk in enumerate(geographic_chunks)
-    ]) | recombine_geographic_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
+    ]) | recombine_geographic_chunks.s(task_id=task_id)
+       | create_output_products.s(task_id=task_id)
        | task_clean_up.si(task_id=task_id, task_model='SpectralIndicesTask')).apply_async()
 
     return True
@@ -276,7 +281,6 @@ def processing_task(self,
     if not os.path.exists(task.get_temp_path()):
         return None
 
-    iteration_data = None
     metadata = {}
 
     def _get_datetime_range_containing(*time_ranges):
@@ -290,7 +294,6 @@ def processing_task(self,
     updated_params.update(geographic_chunk)
     #updated_params.update({'products': parameters['']})
     iteration_data = None
-    base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):
         updated_params.update({'time': time})
         data = dc.get_dataset_by_extent(**updated_params)
@@ -369,6 +372,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
                                                      no_data=task.satellite.no_data_value,
                                                      reverse_time=task.get_reverse_time())
         if check_cancel_task(self, task): return
+    if combined_data is None:
+        return None
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
     combined_data.to_netcdf(path)
