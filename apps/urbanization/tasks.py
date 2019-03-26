@@ -208,10 +208,13 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     task = UrbanizationTask.objects.get(pk=task_id)
 
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+    # Track task progress.
+    num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
+    # Scene processing progress is tracked in processing_task().
+    task.total_scenes = num_scenes
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -228,7 +231,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 **parameters) for time_index, time_chunk in enumerate(time_chunks)
         ]) | recombine_time_chunks.s(task_id=task_id) | process_band_math.s(task_id=task_id)
         for geo_index, geographic_chunk in enumerate(geographic_chunks)
-    ]) | recombine_geographic_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
+    ]) | recombine_geographic_chunks.s(task_id=task_id)
+       | create_output_products.s(task_id=task_id)
        | task_clean_up.si(task_id=task_id, task_model='UrbanizationTask')).apply_async()
 
     return True
@@ -266,7 +270,6 @@ def processing_task(self,
     if not os.path.exists(task.get_temp_path()):
         return None
 
-    iteration_data = None
     metadata = {}
 
     def _get_datetime_range_containing(*time_ranges):
@@ -278,17 +281,16 @@ def processing_task(self,
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     iteration_data = None
-    base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):
         updated_params.update({'time': time})
         data = dc.get_dataset_by_extent(**updated_params)
+
+        if check_cancel_task(self, task): return
+
         if data is None or 'time' not in data:
             logger.info("Invalid chunk.")
             continue
-
-        if check_cancel_task(self, task): return
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
         add_timestamp_data_to_xr(data)
@@ -305,7 +307,6 @@ def processing_task(self,
 
         task.scenes_processed = F('scenes_processed') + 1
         task.save(update_fields=['scenes_processed'])
-
     if iteration_data is None:
         return None
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
@@ -340,8 +341,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
     total_chunks = sorted(chunks, key=lambda x: x[0])
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
-    metadata = {}
 
+    metadata = {}
     combined_data = None
     for index, chunk in enumerate(total_chunks):
         metadata.update(chunk[1])
@@ -358,8 +359,9 @@ def recombine_time_chunks(self, chunks, task_id=None):
                                                      intermediate_product=combined_data,
                                                      no_data=task.satellite.no_data_value,
                                                      reverse_time=task.get_reverse_time())
-
-    if check_cancel_task(self, task): return
+        if check_cancel_task(self, task): return
+    if combined_data is None:
+        return None
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
     combined_data.to_netcdf(path)
