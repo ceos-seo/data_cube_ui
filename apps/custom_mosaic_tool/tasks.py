@@ -361,6 +361,8 @@ def recombine_geographic_chunks(self, chunks, task_id=None, num_scn_per_chk=None
 
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -415,6 +417,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
     # sorting based on time id - earlier processed first as they're incremented e.g. 0, 1, 2..
     chunks = chunks if isinstance(chunks, list) else [chunks]
     chunks = [chunk for chunk in chunks if chunk is not None]
+    if len(chunks) == 0:
+        return None
     total_chunks = sorted(chunks, key=lambda x: x[0])
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']

@@ -172,7 +172,6 @@ def perform_task_chunking(self, parameters, task_id=None):
     if check_cancel_task(self, task): return
 
     dc = DataAccessApi(config=task.config_path)
-    dates = dc.list_acquisition_dates(**parameters)
     task_chunk_sizing = task.get_chunk_size()
 
     geographic_chunks = create_geographic_chunks(
@@ -431,11 +430,10 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
-    import time
-    time.sleep(10)
-
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
 
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
@@ -513,18 +511,10 @@ def create_output_products(self, data, task_id=None):
                           bands=bands, no_data=task.satellite.no_data_value)
     # 2. Create a PNG of the spectral index change composite.
     # 2.1. Find the min and max possible difference for the selected spectral index.
-    # TODO: The bounds of the user-specified min/max composite values should always be [0,1].
     spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
     diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
     # 2.2. Scale the difference composite to the range [0, 1] for plotting.
     image_data = np.interp(diff_comp_np_arr, (diff_min_possible, diff_max_possible), (0, 1))
-    # TODO: (Handled by scaling the baseline and analysis composites to [0,1] as suggested above)
-    # TODO: Scale the difference composite to the range [-1, 1] so the optional
-    # TODO: user-specified change value range must always be within [-1, 1].
-    # TODO: Without this, the bounds are dependent on the spectral index range -
-    # TODO: more specifically, the bounds are (min-max, max-min) for a given spectral index.
-    # TODO: For example, without this the bounds on the user-specified change value
-    # TODO: range for NDVI is [-2, 2].
     # 2.3. Color by region.
     # 2.3.1. First, color by change.
     # If the user specified a change value range, the product is binary -

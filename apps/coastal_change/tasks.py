@@ -152,7 +152,6 @@ def perform_task_chunking(self, parameters, task_id=None):
     dc.close()
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Chunked parameter set.")
-
     return {'parameters': parameters, 'geographic_chunks': geographic_chunks, 'time_chunks': time_chunks}
 
 
@@ -242,8 +241,6 @@ def processing_task(self,
     starting_year = _get_datetime_range_containing(*time_chunk[0])
     comparison_year = _get_datetime_range_containing(*time_chunk[1])
 
-    if check_cancel_task(self, task): return
-
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
@@ -302,13 +299,13 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
-    logger.info("recombine_geographic_chunks() begin!")
-
     task = CoastalChangeTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -351,7 +348,6 @@ def recombine_time_chunks(self, chunks, task_id=None):
 
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
-
     """
     logger.info("RECOMBINE_TIME")
 
@@ -360,6 +356,8 @@ def recombine_time_chunks(self, chunks, task_id=None):
 
     #sorting based on time id - earlier processed first as they're incremented e.g. 0, 1, 2..
     total_chunks = sorted(chunks, key=lambda x: x[0]) if isinstance(chunks, list) else [chunks]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
     metadata = {}
@@ -384,10 +382,7 @@ def create_output_products(self, data, task_id=None):
 
     Args:
         data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
-
     """
-    logger.info("create_output_products() begin!")
-
     task = CoastalChangeTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 

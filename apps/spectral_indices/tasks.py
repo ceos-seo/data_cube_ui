@@ -292,7 +292,6 @@ def processing_task(self,
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     iteration_data = None
     for time_index, time in enumerate(times):
         updated_params.update({'time': time})
@@ -435,6 +434,8 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
 
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 

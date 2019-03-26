@@ -231,29 +231,17 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     # Get an estimate of the amount of work to be done: the number of scenes
     # to process, also considering intermediate chunks to be combined.
-    logger.info("geographic_chunks: {}, {}"
-                .format(len(geographic_chunks), geographic_chunks))
-    logger.info("time_chunks: {}, {}"
-                .format(len(time_chunks), time_chunks))
-    logger.info("True number of time slices: {}"
-                .format(sum([len(time_chunk) for time_chunk in time_chunks])))
-    logger.info("task.get_chunk_size()['time']: {}"
-                .format(task.get_chunk_size()['time']))
-    # Track task progress.
     num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
-    logger.info("num_scenes: {}".format(num_scenes))
     # recombine_time_chunks() and process_band_math() scenes:
     # num_scn_per_chk * len(time_chunks) * len(geographic_chunks)
     num_scn_per_chk = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
     # recombine_geographic_chunks() and create_output_products() scenes:
     # num_scn_per_chk_geo * len(geographic_chunks)
     num_scn_per_chk_geo = round(num_scenes / len(geographic_chunks))
-    # Every scene is processed by: processing_task(), recombine_time_chunks(),
+    # Scene processing progress is tracked in: processing_task(), recombine_time_chunks(),
     # and process_band_math(). Scenes in process_band_math() are counted twice
     # for the sake of tracking progress because it takes so long to run. So 1 + 1 + 2 = 4.
     task.total_scenes = 4 * num_scenes
-    logger.info("task.total_scenes: {}"
-                .format(task.total_scenes))
     task.scenes_processed = 0
     task.save(update_fields=['total_scenes', 'scenes_processed'])
 
@@ -325,9 +313,7 @@ def processing_task(self,
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     iteration_data = None
-    base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):
         updated_params.update({'time': time})
         data = dc.get_stacked_datasets_by_extent(**updated_params)
@@ -378,15 +364,8 @@ def recombine_time_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
-    # import time
-    # time.sleep(5)
-
-    logger.info("In recombine_time_chunks()!")
-
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
-
-    logger.info("recombine_time_chunks task.scenes_processed: {}".format(task.scenes_processed))
 
     #sorting based on time id - earlier processed first as they're incremented e.g. 0, 1, 2..
     chunks = chunks if isinstance(chunks, list) else [chunks]
@@ -394,8 +373,6 @@ def recombine_time_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
     if len(chunks) == 0:
         return None
     total_chunks = sorted(chunks, key=lambda x: x[0])
-    logger.info("recombine_time_chunks total_chunks: {}, {}"\
-                .format(len(total_chunks), total_chunks))
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -444,15 +421,8 @@ def process_band_math(self, chunk, task_id=None, num_scn_per_chk=None):
         chunk: The return from the recombine_time_chunks function - path, metadata, and {chunk ids}
         num_scn_per_chk: The number of scenes per chunk. Used to determine task progress.
     """
-    # import time
-    # time.sleep(5)
-
-    logger.info("In process_band_math()!")
-
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
-
-    logger.info("process_band_math task.scenes_processed: {}".format(task.scenes_processed))
 
     def _apply_band_math(dataset):
         clear_mask = task.satellite.get_clean_mask_func()(dataset)
@@ -471,9 +441,6 @@ def process_band_math(self, chunk, task_id=None, num_scn_per_chk=None):
     dataset.to_netcdf(chunk[0])
     task.scenes_processed = F('scenes_processed') + num_scn_per_chk
     task.save(update_fields=['scenes_processed'])
-
-    logger.info("task.scenes_processed: {}".format(task.scenes_processed))
-
     return chunk
 
 
@@ -490,21 +457,13 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     Returns:
         path to the output product, metadata dict, and a dict containing the geo/time ids
     """
-    # import time
-    # time.sleep(5)
-
-    logger.info("In recombine_geographic_chunks()!")
-
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
-    logger.info("recombine_geographic_chunks task.scenes_processed: {}"
-                .format(task.scenes_processed))
-
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
-    logger.info("recombine_geographic_chunks total_chunks: {}, {}"
-                .format(len(total_chunks), total_chunks))
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -533,8 +492,6 @@ def create_output_products(self, data, task_id=None):
     Args:
         data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
     """
-    logger.info("In create_output_products()!")
-
     task = FractionalCoverTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
