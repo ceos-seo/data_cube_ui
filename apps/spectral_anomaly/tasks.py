@@ -228,9 +228,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
             num_scenes[composite_name] += len(dc.dc.load(**params_temp_clean).time)
     # The number of scenes per geographic chunk for baseline and analysis extents.
     num_scn_per_chk_geo = {k: round(v/len(geographic_chunks)) for k, v in num_scenes.items()}
-    # Scene processing progress is tracked in processing_task(), which
-    # tracks progress in 2 stages.
-    task.total_scenes = 2 * sum(num_scenes.values())
+    # Scene processing progress is tracked in processing_task().
+    task.total_scenes = sum(num_scenes.values())
     task.scenes_processed = 0
     task.save(update_fields=['total_scenes', 'scenes_processed'])
 
@@ -367,8 +366,7 @@ def processing_task(self,
         # Update the metadata with the current data (baseline or analysis).
         metadata = task.metadata_from_dataset(metadata, time_column_data,
                                               time_column_clean_mask, parameters)
-        # Record task progress (baseline and analysis composites
-        # and out-of-range masks created).
+        # Record task progress (baseline or analysis composite data obtained).
         task.scenes_processed = F('scenes_processed') + num_scn_per_chk[composite_name]
         task.save(update_fields=['scenes_processed'])
     dc.close()
@@ -410,9 +408,6 @@ def processing_task(self,
     composite_out_of_range.to_netcdf(composite_out_of_range_path)
     composite_no_data_path = os.path.join(task.get_temp_path(), chunk_id + "_no_data.nc")
     composite_no_data.to_netcdf(composite_no_data_path)
-    # Record task progress (all data obtained - only recombining remains).
-    task.scenes_processed = F('scenes_processed') + sum(num_scn_per_chk.values())
-    task.save(update_fields=['scenes_processed'])
     return composite_path, composite_out_of_range_path, composite_no_data_path, \
            metadata, {'geo_chunk_id': geo_chunk_id}
 
