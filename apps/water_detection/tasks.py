@@ -203,10 +203,13 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     task = WaterDetectionTask.objects.get(pk=task_id)
 
-    task.total_scenes = len(geographic_chunks) * len(time_chunks) * (task.get_chunk_size()['time']
-                                                                     if task.get_chunk_size()['time'] is not None else
-                                                                     len(time_chunks[0]))
+    # Track task progress.
+    num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
+    # Scene processing progress is tracked in processing_task().
+    task.total_scenes = num_scenes
     task.scenes_processed = 0
+    task.save(update_fields=['total_scenes', 'scenes_processed'])
+
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Starting processing.")
 
@@ -221,7 +224,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 geographic_chunk=geographic_chunk,
                 time_chunk=time_chunk,
                 **parameters) for geo_index, geographic_chunk in enumerate(geographic_chunks)
-        ]) | recombine_geographic_chunks.s(task_id=task_id) for time_index, time_chunk in enumerate(time_chunks)
+        ]) | recombine_geographic_chunks.s(task_id=task_id)
+        for time_index, time_chunk in enumerate(time_chunks)
     ]) | recombine_time_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id) \
        | task_clean_up.si(task_id=task_id, task_model='WaterDetectionTask')).apply_async()
 
@@ -277,11 +281,12 @@ def processing_task(self,
     for time_index, time in enumerate(times):
         updated_params.update({'time': time})
         data = dc.get_stacked_datasets_by_extent(**updated_params)
+
+        if check_cancel_task(self, task): return
+
         if data is None or 'time' not in data:
             logger.info("Invalid chunk.")
             continue
-
-        if check_cancel_task(self, task): return
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
 
@@ -304,7 +309,6 @@ def processing_task(self,
 
         task.scenes_processed = F('scenes_processed') + 1
         task.save(update_fields=['scenes_processed'])
-
     if water_analysis is None:
         return None
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
@@ -332,6 +336,8 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
 
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
+    if len(total_chunks) == 0:
+        return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
 
@@ -383,10 +389,11 @@ def recombine_time_chunks(self, chunks, task_id=None):
     #sorting based on time id - earlier processed first as they're incremented e.g. 0, 1, 2..
     chunks = chunks if isinstance(chunks, list) else [chunks]
     chunks = [chunk for chunk in chunks if chunk is not None]
+    if len(chunks) == 0:
+        return None
     total_chunks = sorted(chunks, key=lambda x: x[0])
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
-    metadata = {}
 
     def combine_intermediates(dataset, dataset_intermediate):
         """
@@ -417,6 +424,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
                     interpolate=False,
                     no_data=task.satellite.no_data_value)
 
+    metadata = {}
     combined_data = None
     for index, chunk in enumerate(total_chunks):
         metadata.update(chunk[1])
@@ -430,8 +438,6 @@ def recombine_time_chunks(self, chunks, task_id=None):
         # if we're animating, combine it all and save to disk.
         if task.animated_product.animation_id != "none":
             generate_animation(index, combined_data)
-
-    if check_cancel_task(self, task): return
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
     combined_data.to_netcdf(path)
