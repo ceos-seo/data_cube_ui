@@ -439,9 +439,9 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     no_data_chunk_data = []
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[3])
-        composite_chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
-        out_of_range_chunk_data.append(xr.open_dataset(chunk[1], autoclose=True))
-        no_data_chunk_data.append(xr.open_dataset(chunk[2], autoclose=True))
+        composite_chunk_data.append(xr.open_dataset(chunk[0]))
+        out_of_range_chunk_data.append(xr.open_dataset(chunk[1]))
+        no_data_chunk_data.append(xr.open_dataset(chunk[2]))
 
     combined_composite_data = combine_geographic_chunks(composite_chunk_data)
     combined_out_of_range_data = combine_geographic_chunks(out_of_range_chunk_data)
@@ -475,14 +475,14 @@ def create_output_products(self, data, task_id=None):
 
     full_metadata = data[3]
     # This is the difference (or "change") composite.
-    diff_composite = xr.open_dataset(data[0], autoclose=True)
+    diff_composite = xr.open_dataset(data[0])
     # This indicates where either the baseline or analysis composite
     # was outside the corresponding user-specified range.
-    orig_composite_out_of_range = xr.open_dataset(data[1], autoclose=True) \
+    orig_composite_out_of_range = xr.open_dataset(data[1]) \
         [spectral_index].astype(np.bool).values
     # This indicates where either the baseline or analysis composite
     # was the no_data value.
-    composite_no_data = xr.open_dataset(data[2], autoclose=True) \
+    composite_no_data = xr.open_dataset(data[2]) \
         [spectral_index].astype(np.bool).values
 
     # Obtain a NumPy array of the data to create a plot later.

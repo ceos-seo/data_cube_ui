@@ -380,7 +380,7 @@ def recombine_time_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
     combined_data = None
     for index, chunk in enumerate(total_chunks):
         metadata.update(chunk[1])
-        data = xr.open_dataset(chunk[0], autoclose=True)
+        data = xr.open_dataset(chunk[0])
         if combined_data is None:
             combined_data = data
             task.scenes_processed = F('scenes_processed') + num_scn_per_chk
@@ -496,7 +496,7 @@ def create_output_products(self, data, task_id=None):
     if check_cancel_task(self, task): return
 
     full_metadata = data[1]
-    dataset = xr.open_dataset(data[0], autoclose=True)
+    dataset = xr.open_dataset(data[0])
 
     task.result_path = os.path.join(task.get_result_path(), "band_math.png")
     task.mosaic_path = os.path.join(task.get_result_path(), "png_mosaic.png")

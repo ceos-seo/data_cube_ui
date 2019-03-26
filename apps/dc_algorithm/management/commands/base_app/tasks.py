@@ -369,7 +369,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
 
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
-        chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        chunk_data.append(xr.open_dataset(chunk[0]))
 
     combined_data = combine_geographic_chunks(chunk_data)
 
@@ -386,7 +386,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
                 path = os.path.join(task.get_temp_path(),
                                     "animation_{}_{}.nc".format(str(geo_chunk_index), str(base_index + index)))
                 if os.path.exists(path):
-                    animated_data.append(xr.open_dataset(path, autoclose=True))
+                    animated_data.append(xr.open_dataset(path))
             path = os.path.join(task.get_temp_path(), "animation_{}.nc".format(base_index + index))
             if len(animated_data) > 0:
                 combine_geographic_chunks(animated_data).to_netcdf(path)
@@ -430,7 +430,7 @@ def recombine_time_chunks(chunks, task_id=None):
         for index in range((task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1)):
             path = os.path.join(task.get_temp_path(), "animation_{}.nc".format(base_index + index))
             if os.path.exists(path):
-                animated_data = xr.open_dataset(path, autoclose=True)
+                animated_data = xr.open_dataset(path)
                 if task.animated_product.animation_id == "cumulative":
                     animated_data = xr.concat([animated_data], 'time')
                     animated_data['time'] = [0]
@@ -451,7 +451,7 @@ def recombine_time_chunks(chunks, task_id=None):
     combined_data = None
     for index, chunk in enumerate(total_chunks):
         metadata.update(chunk[1])
-        data = xr.open_dataset(chunk[0], autoclose=True)
+        data = xr.open_dataset(chunk[0])
         if combined_data is None:
             # TODO: If there is no animation, remove this.
             if task.animated_product.animation_id != "none":
@@ -492,7 +492,7 @@ def create_output_products(data, task_id=None):
     """
     logger.info("CREATE_OUTPUT")
     full_metadata = data[1]
-    dataset = xr.open_dataset(data[0], autoclose=True)
+    dataset = xr.open_dataset(data[0])
     task = AppNameTask.objects.get(pk=task_id)
 
     # TODO: Add any paths that you've added in your models.py Result model and remove the ones that aren't there.

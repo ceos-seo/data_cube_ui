@@ -313,7 +313,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     chunk_data = []
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
-        chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        chunk_data.append(xr.open_dataset(chunk[0]))
     combined_data = combine_geographic_chunks(chunk_data)
 
     if task.animated_product.animation_id != "none":
@@ -387,7 +387,7 @@ def create_output_products(self, data, task_id=None):
     if check_cancel_task(self, task): return
 
     full_metadata = data[1]
-    dataset = xr.open_dataset(data[0], autoclose=True)
+    dataset = xr.open_dataset(data[0])
 
     task.result_path = os.path.join(task.get_result_path(), "coastline_change.png")
     task.result_coastal_change_path = os.path.join(task.get_result_path(), "coastal_change.png")

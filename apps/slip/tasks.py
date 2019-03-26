@@ -341,7 +341,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
     combined_slip = None
     for index, chunk in enumerate(reversed(total_chunks)):
         metadata.update(chunk[1])
-        data = xr.open_dataset(chunk[0], autoclose=True)
+        data = xr.open_dataset(chunk[0])
         if combined_data is None:
             combined_data = data.drop('slip')
             # since this is going to interact with data/mosaicking, it needs a time dim
@@ -397,7 +397,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     chunk_data = []
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
-        chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        chunk_data.append(xr.open_dataset(chunk[0]))
     combined_data = combine_geographic_chunks(chunk_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
@@ -421,7 +421,7 @@ def create_output_products(self, data, task_id=None):
     if check_cancel_task(self, task): return
 
     full_metadata = data[1]
-    dataset = xr.open_dataset(data[0], autoclose=True)
+    dataset = xr.open_dataset(data[0])
 
     task.result_path = os.path.join(task.get_result_path(), "slip_result.png")
     task.result_mosaic_path = os.path.join(task.get_result_path(), "mosaic.png")

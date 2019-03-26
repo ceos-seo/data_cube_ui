@@ -343,7 +343,7 @@ def recombine_time_chunks(chunks, task_id=None):
     combined_data = None
     for index, chunk in enumerate(total_chunks):
         metadata.update(chunk[1])
-        data = xr.open_dataset(chunk[0], autoclose=True)
+        data = xr.open_dataset(chunk[0])
         if combined_data is None:
             combined_data = data
             continue
@@ -380,7 +380,7 @@ def process_band_math(chunk, task_id=None):
     if chunk is None:
         return None
 
-    dataset = xr.open_dataset(chunk[0], autoclose=True).load()
+    dataset = xr.open_dataset(chunk[0]).load()
     dataset['band_math'] = _apply_band_math(dataset)
     #remove previous nc and write band math to disk
     os.remove(chunk[0])
@@ -404,7 +404,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
     logger.info("RECOMBINE_GEO")
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
-    if len(total_chunks) == 0:
+    if len(chunks) == 0:
         return None
     geo_chunk_id = total_chunks[0][2]['geo_chunk_id']
     time_chunk_id = total_chunks[0][2]['time_chunk_id']
@@ -416,7 +416,7 @@ def recombine_geographic_chunks(chunks, task_id=None):
 
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
-        chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
+        chunk_data.append(xr.open_dataset(chunk[0]))
 
     combined_data = combine_geographic_chunks(chunk_data)
 
@@ -440,7 +440,7 @@ def create_output_products(data, task_id=None):
     """
     logger.info("CREATE_OUTPUT")
     full_metadata = data[1]
-    dataset = xr.open_dataset(data[0], autoclose=True)
+    dataset = xr.open_dataset(data[0])
     task = BandMathTask.objects.get(pk=task_id)
 
     task.result_path = os.path.join(task.get_result_path(), "band_math.png")
