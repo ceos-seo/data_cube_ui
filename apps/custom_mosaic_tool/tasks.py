@@ -217,12 +217,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     # Track task progress.
     num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
-    # recombine_geographic_chunks() scenes:
-    # num_scenes * len(time_chunks) * len(geographic_chunks)
-    num_scn_per_chk_geo = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
-    # Every scene is processed by: processing_task() and recombine_geographic_chunks(),
-    # So 1 + 1 = 2.
-    task.total_scenes = 2 * num_scenes
+    # Every scene is processed by processing_task().
+    task.total_scenes = num_scenes
     task.scenes_processed = 0
     task.save(update_fields=['total_scenes', 'scenes_processed'])
 
@@ -240,7 +236,7 @@ def start_chunk_processing(self, chunk_details, task_id=None):
                 geographic_chunk=geographic_chunk,
                 time_chunk=time_chunk,
                 **parameters) for geo_index, geographic_chunk in enumerate(geographic_chunks)
-        ]) | recombine_geographic_chunks.s(task_id=task_id, num_scn_per_chk=num_scn_per_chk_geo)
+        ]) | recombine_geographic_chunks.s(task_id=task_id)
         for time_index, time_chunk in enumerate(time_chunks)
     ]) | recombine_time_chunks.s(task_id=task_id) | create_output_products.s(task_id=task_id)\
        | task_clean_up.si(task_id=task_id, task_model='CustomMosaicToolTask')).apply_async()
@@ -343,7 +339,7 @@ def processing_task(self,
 
 
 @task(name="custom_mosaic_tool.recombine_geographic_chunks", base=BaseTask, bind=True)
-def recombine_geographic_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
+def recombine_geographic_chunks(self, chunks, task_id=None):
     """Recombine processed data over the geographic indices
 
     For each geographic chunk process spawned by the main task, open the resulting dataset
@@ -371,8 +367,6 @@ def recombine_geographic_chunks(self, chunks, task_id=None, num_scn_per_chk=None
     for index, chunk in enumerate(total_chunks):
         metadata = task.combine_metadata(metadata, chunk[1])
         chunk_data.append(xr.open_dataset(chunk[0], autoclose=True))
-        task.scenes_processed = F('scenes_processed') + num_scn_per_chk
-        task.save(update_fields=['scenes_processed'])
     combined_data = combine_geographic_chunks(chunk_data)
 
     # if we're animating, combine it all and save to disk.
