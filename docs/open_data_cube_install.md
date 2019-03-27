@@ -5,7 +5,7 @@ This document assumes that a local user, not an admin user, will be used to run 
 
 This document is targeted at Ubuntu based development environment. The base requirements can be found below:
 
-* **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/desktop)
+* **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/server)
 * **Memory**: 8GiB
 * **Local Storage**: 50GiB
 * **Python Version**: Python 3
