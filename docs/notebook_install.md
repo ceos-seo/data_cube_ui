@@ -38,6 +38,7 @@ source ~/Datacube/datacube_env/bin/activate
 ```
 
 The Notebook repository can be downloaded as follows:
+
 ```
 cd ~/Datacube
 git clone https://github.com/ceos-seo/data_cube_notebooks.git
@@ -49,6 +50,7 @@ Now install the following Python packages:
 
 ```
 pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8
+pip install bokeh geopandas descartes
 ```
 
 <a name="configuration"></a> Configuration
@@ -57,6 +59,7 @@ pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn sciki
 The first step is to generate a notebook configuration file. 
 Ensure that you're in the virtual environment. If not, activate with `source ~/Datacube/datacube_env/bin/activate`.
 Then run the following commands:
+
 ```
 cd ~/Datacube/data_cube_notebooks
 jupyter notebook --generate-config

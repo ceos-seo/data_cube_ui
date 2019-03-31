@@ -1,6 +1,6 @@
 ﻿# Open Data Cube Core Install
 
-<h2 name="system_requirements">System Requirements</h2> 
+## System Requirements
 This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser` however as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
 
 This document is targeted at Ubuntu based development environment. The base requirements can be found below:
@@ -15,6 +15,7 @@ This document is targeted at Ubuntu based development environment. The base requ
 
 ## Updates 
 Before starting the installation of packages, it is a good idea to update the software that will be retrieving those packages as well as the locations from which they will be retrieved.  The lines below will upgrade `apt-get` then install `Python3`, `npm`, `pip3`, and `git`. The other packages, `tmux` and `htop`, are useful tools for performance monitoring but are not required.  Then finally we attempt to upgrade `pip3`, just in case the version is not as new as it could be.
+
 ```
 sudo apt-get update
 sudo apt-get install tmux htop python3-dev python3-pip git
@@ -23,29 +24,39 @@ sudo pip3 install --upgrade pip
 
 ## Prerequisites
 The following commands will create the directories the Data Cube will require and set their permissions so that all users can read and write data to and from them.
+
 ```
 sudo mkdir -p /datacube/{original_data,ingested_data}
 sudo chmod -R 777 /datacube/
 
 mkdir -p ~/Datacube
 ```
-<br>
 
 ##### Virtual Environment Setup
 Next, we need to install the virtual environment and source it before we start pip installing packages.  This is a way to compartmentalize the python packages and keep your operating environment unaffected by changes to Python made from within the virtual environment.
+
 ```
 sudo pip3 install virtualenv 
 virtualenv ~/Datacube/datacube_env
 source ~/Datacube/datacube_env/bin/activate
 ```
-<br>
 
 ##### GDAL Libraries
 Install GDAL's header libraries and other important libraries that the Data Cube will rely on. 
+
+The first two commands account for the GDAL version used by datacube-core being 2.4.0, 
+which, at the time of writing, is not available on the default repositories used by `apt-get`.
+
 ```
+sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+
+sudo apt-get update
+
 sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
 ```
+
 The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`. The next step will require a compatible installation of gdal. Again, as mentioned before, run the following command to see the version gdalinfo currently on the machine:
+
 ```
 gdalinfo --version  
 ```
@@ -54,10 +65,9 @@ Run the following command where X.X.X is the version from the previous step, or 
 For instance, if 2.2.4 was shown but unable to install, try 2.2.3 and so forth:
 
 ```
-pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.2.3
+pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.0
 ```
-<BR>
- 
+
 ##### Specific RasterIO Library
  
 The current installation requires and works with rasterio version 1.0.2.
@@ -65,7 +75,6 @@ The current installation requires and works with rasterio version 1.0.2.
 ```
 pip install rasterio==1.0.2
 ```
-<br>
 
 ##### Python Dependencies
 Use the following commands to install the requisite Python dependencies. 
@@ -81,10 +90,10 @@ pip install psycopg2-binary
 
 ## Core
 Install the latest version of the Open Data Cube core from the [Open Data Cube Core github](https://github.com/opendatacube/datacube-core/releases).  It is critical that you select a version of `1.6.1` or later if you intend to use S3 indexing.  Afterwards, run the python setup development wheel.
-```sh
+```
 cd ~/Datacube
 wget https://github.com/opendatacube/datacube-core/archive/datacube-1.6.1.tar.gz
-tar -xvf datacube-1.6.1.tar.gz
+tar -xf datacube-1.6.1.tar.gz
 sudo mv datacube-core-datacube-1.6.1/ datacube-core
 cd ~/Datacube/datacube-core
 python setup.py develop
@@ -155,6 +164,16 @@ Environment:   None
 Index Driver:  default
 ```
 If you receive an error on this step then please ensure you have followed the previous steps and that there were no errors received during their execution.
+
+## Temporary Fixes
+
+Currently, the following lines should be added to the bottom of your `/etc/profile` file
+to avoid errors related to a `GDAL_DATA` environment variable when loading data:
+```
+# Datacube environment variables
+export GDAL_DATA=/home/localuser/Datacube/datacube_env/lib/python3.6/site-packages/rasterio/gdal_data
+```
+and then run `source /etc/profile` in a terminal so restarting the system is not required to enable this fix.
 
 <a name="faqs"></a> Common problems/FAQs
 ========  

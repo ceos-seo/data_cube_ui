@@ -70,6 +70,7 @@ The UI will work without any ingested data, but no analysis can occur. The steps
 =================
 
 The UI can be downloaded as follows:
+
 ```
 cd ~/Datacube
 git clone https://github.com/ceos-seo/data_cube_ui.git
@@ -82,25 +83,21 @@ The installation process includes both system-level packages and Python packages
 Run the following commands to install Apache, Apache-related packages, Redis, and image processing libraries.
 
 ```
-sudo apt-get install apache2
-sudo apt-get install libapache2-mod-wsgi-py3
-sudo apt-get install redis-server
-sudo apt-get install libfreeimage3
-sudo apt-get install imagema`gick
+sudo apt-get install apache2 libapache2-mod-wsgi-py3 redis-server libfreeimage3 imagemagick
+sudo service redis-server start
 ```
 
 Next, you'll need various Python packages that are responsible for running the application:
 
 ```
-pip install django==1.11.13
-pip install redis imageio django-bootstrap3 matplotlib stringcase celery
+pip install django==1.11.13 redis imageio django-bootstrap3 matplotlib stringcase celery
 ```
 
 You will also need to create a base directory structure for results:
 
 ```
-mkdir /datacube/ui_results
-chmod 777 /datacube/ui_results
+sudo mkdir /datacube/ui_results
+sudo chmod 777 /datacube/ui_results
 ```
 
 The Data Cube UI also sends admin mail, so a mail server is required.
@@ -111,6 +108,7 @@ sudo apt-get install -y mailutils
 ```
 
 Make the necessary changes to `/etc/postfix/main.cf`:
+
 ```
 myhostname = {your site name here}
 mailbox_size_limit = 0
@@ -405,6 +403,7 @@ dc.get_datacube_metadata('ls7_ledaps_general','LANDSAT_7')
 
 Record the latitude and longitude extents.
 They should be:
+
 ```
 lat=(7.745543874267876, 9.617183768731897)
 lon=(-3.5136704023069685, -1.4288602909212722)
