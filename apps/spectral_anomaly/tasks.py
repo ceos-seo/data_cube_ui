@@ -225,7 +225,9 @@ def start_chunk_processing(self, chunk_details, task_id=None):
             params_temp_clean = params_temp.copy()
             del params_temp_clean['baseline_time'], params_temp_clean['analysis_time'], \
                 params_temp_clean['composite_range'], params_temp_clean['change_range']
-            num_scenes[composite_name] += len(dc.dc.load(**params_temp_clean).time)
+            data = dc.dc.load(**params_temp_clean)
+            if 'time' in data.coords:
+                num_scenes[composite_name] += len(data.time)
     # The number of scenes per geographic chunk for baseline and analysis extents.
     num_scn_per_chk_geo = {k: round(v/len(geographic_chunks)) for k, v in num_scenes.items()}
     # Scene processing progress is tracked in processing_task().
@@ -301,6 +303,8 @@ def processing_task(self,
         updated_params['time'] = \
             updated_params['baseline_time' if composite_name == 'baseline' else 'analysis_time']
         time_column_data = dc.get_dataset_by_extent(**updated_params)
+        # If this geographic chunk is outside the data extents, return None.
+        if len(time_column_data.dims) == 0: return None
 
         # Obtain the clean mask for the satellite.
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
@@ -427,8 +431,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     """
     total_chunks = [chunks] if not isinstance(chunks, list) else chunks
     total_chunks = [chunk for chunk in total_chunks if chunk is not None]
-    if len(total_chunks) == 0:
-        return None
+    if len(total_chunks) == 0: return None
 
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
@@ -468,6 +471,8 @@ def create_output_products(self, data, task_id=None):
         data: tuple in the format of processing_task function - path, metadata, and {chunk ids}
 
     """
+    if data is None: return None
+
     task = SpectralAnomalyTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
