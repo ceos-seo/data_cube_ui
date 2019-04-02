@@ -124,7 +124,7 @@ class AdditionalOptionsForm(forms.Form):
                 self.add_error('change_threshold_min',
                                'The min change value must be less than the max change value.')
         elif (change_threshold_min is not None) ^ (change_threshold_max is not None):
-            self.add_error('change_threshold_min', 'Either neither or both the min and max '
+            self.add_error('change_threshold_min', 'Either, neither, or both the min and max '
                                                     'change value fields may be specified.')
 
 

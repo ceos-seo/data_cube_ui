@@ -253,7 +253,9 @@ class Result(BaseResult):
     Extends base result, adding additional fields and adding abstract=True
     See the dc_algorithm.Result docstring for more information
     """
+    data_netcdf_path = models.CharField(max_length=250, default="")
     data_path = models.CharField(max_length=250, default="")
+    plot_path = models.CharField(max_length=250, default="")
 
     class Meta(BaseResult.Meta):
         abstract = True

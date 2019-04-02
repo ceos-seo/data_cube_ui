@@ -207,7 +207,7 @@ def start_chunk_processing(self, chunk_details, task_id=None):
 
     task = SpectralAnomalyTask.objects.get(pk=task_id)
 
-    dc = DataAccessApi(config=task.config_path)
+    api = DataAccessApi(config=task.config_path)
 
     # Get an estimate of the amount of work to be done: the number of scenes
     # to process, also considering intermediate chunks to be combined.
@@ -225,7 +225,7 @@ def start_chunk_processing(self, chunk_details, task_id=None):
             params_temp_clean = params_temp.copy()
             del params_temp_clean['baseline_time'], params_temp_clean['analysis_time'], \
                 params_temp_clean['composite_range'], params_temp_clean['change_range']
-            data = dc.dc.load(**params_temp_clean)
+            data = api.dc.load(**params_temp_clean)
             if 'time' in data.coords:
                 num_scenes[composite_name] += len(data.time)
     # The number of scenes per geographic chunk for baseline and analysis extents.
@@ -497,19 +497,18 @@ def create_output_products(self, data, task_id=None):
         diff_comp_np_arr = diff_composite['pv'].values
     diff_comp_np_arr[composite_no_data] = np.nan
 
-    task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
+    task.data_netcdf_path = os.path.join(task.get_result_path(), "data_netcdf.nc")
     task.data_path = os.path.join(task.get_result_path(), "data_tif.tif")
+    task.result_path = os.path.join(task.get_result_path(), "png_mosaic.png")
     task.final_metadata_from_dataset(diff_composite)
     task.metadata_from_dict(full_metadata)
 
-    # 1. Save the spectral index net change as a GeoTIFF.
+    # 1. Prepare to save the spectral index net change as a GeoTIFF and NetCDF.
     if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
         bands = [spectral_index]
     else:  # Fractional Coverage
         bands = ['bs', 'pv', 'npv']
-    write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'),
-                          bands=bands, no_data=task.satellite.no_data_value)
-    # 2. Create a PNG of the spectral index change composite.
+    # 2. Prepare to create a PNG of the spectral index change composite.
     # 2.1. Find the min and max possible difference for the selected spectral index.
     spec_ind_min, spec_ind_max = spectral_indices_range_map[spectral_index]
     diff_min_possible, diff_max_possible = spec_ind_min - spec_ind_max, spec_ind_max - spec_ind_min
@@ -541,6 +540,10 @@ def create_output_products(self, data, task_id=None):
     composite_no_data_color = np.array([0., 0., 0., 0.])
     image_data[composite_no_data] = composite_no_data_color
 
+    # Create output products (NetCDF, GeoTIFF, PNG).
+    diff_composite.to_netcdf(task.data_netcdf_path)
+    write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'),
+                          bands=bands, no_data=task.satellite.no_data_value)
     plt.imsave(task.result_path, image_data)
 
     # Plot metadata.
