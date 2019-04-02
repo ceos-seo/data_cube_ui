@@ -46,6 +46,7 @@ Install GDAL's header libraries and other important libraries that the Data Cube
 
 The first two commands account for the GDAL version used by datacube-core being 2.4.0, 
 which, at the time of writing, is not available on the default repositories used by `apt-get`.
+Note that you will need to press the Enter key to actually perform the first command.
 
 ```
 sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
@@ -62,18 +63,10 @@ gdalinfo --version
 ```
 
 Run the following command where X.X.X is the version from the previous step, or as close to it as possible.
-For instance, if 2.2.4 was shown but unable to install, try 2.2.3 and so forth:
+For instance, if 2.4.1 was shown but unable to install, try 2.4.0 and so forth:
 
 ```
 pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.0
-```
-
-##### Specific RasterIO Library
- 
-The current installation requires and works with rasterio version 1.0.2.
-
-```
-pip install rasterio==1.0.2
 ```
 
 ##### Python Dependencies
@@ -82,7 +75,8 @@ These packages are required for using the Data Cube, S3 indexing, and the Data C
 Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
 the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 ```
-pip install numpy
+pip install rasterio==1.0.2
+pip install numpy xarray
 pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
 pip install sqlalchemy==1.2.18
 pip install psycopg2-binary
