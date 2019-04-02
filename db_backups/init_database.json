@@ -1,4 +1,885 @@
-[{
+[
+{
+  "model": "cloud_coverage.userhistory",
+  "pk": 128,
+  "fields": {
+    "user_id": 550,
+    "task_id": "e65a6268-37ef-451b-a664-669c7c497dc8"
+  }
+},
+{
+  "model": "cloud_coverage.userhistory",
+  "pk": 129,
+  "fields": {
+    "user_id": 550,
+    "task_id": "9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8"
+  }
+},
+{
+  "model": "cloud_coverage.userhistory",
+  "pk": 130,
+  "fields": {
+    "user_id": 550,
+    "task_id": "96a90f15-d78a-4ce9-ba5f-1398ab44bc5b"
+  }
+},
+{
+  "model": "cloud_coverage.toolinfo",
+  "pk": 1,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_1.png",
+    "image_title": "Run Band Math Analyses on Mosaics",
+    "image_description": "Run arbitrary band math calculations on mosaics that are generated automatically."
+  }
+},
+{
+  "model": "cloud_coverage.toolinfo",
+  "pk": 2,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_2.png",
+    "image_title": "Pixel Preference",
+    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max cloud_coverage value pixel."
+  }
+},
+{
+  "model": "cloud_coverage.toolinfo",
+  "pk": 3,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_3.png",
+    "image_title": "Time Series",
+    "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image then calculates some band math equation."
+  }
+},
+{
+  "model": "cloud_coverage.cloudcoveragetask",
+  "pk": "96a90f15-d78a-4ce9-ba5f-1398ab44bc5b",
+  "fields": {
+    "title": "Cloud Coverage Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:47:44.535Z",
+    "execution_end": "2019-04-01T18:47:50.169Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.7058,
+    "latitude_max": 8.9542,
+    "longitude_min": -3.5533,
+    "longitude_max": -3.0466,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1735204,
+    "clean_pixel_count": 1022872,
+    "percentage_clean_pixels": 58.9482274130304,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "167065,569724,444915,24146,598462,254073,647069,600566,605604,416103,566201,0,143864",
+    "clean_pixel_percentages_per_acquisition": "9.627974578205214,32.833257645786894,25.640501059241448,1.3915366723451537,34.48943179015263,14.642255319835593,37.2906586199663,34.61068554475439,34.901026046505194,23.980062286624513,32.63022676296274,0.0,8.29089836123015",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/cloud_coverage/96a90f15-d78a-4ce9-ba5f-1398ab44bc5b/cloud_coverage.png",
+    "mosaic_path": "/datacube/ui_results/cloud_coverage/96a90f15-d78a-4ce9-ba5f-1398ab44bc5b/mosaic.png",
+    "plot_path": "/datacube/ui_results/cloud_coverage/96a90f15-d78a-4ce9-ba5f-1398ab44bc5b/plot_path.png",
+    "data_path": "/datacube/ui_results/cloud_coverage/96a90f15-d78a-4ce9-ba5f-1398ab44bc5b/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/cloud_coverage/96a90f15-d78a-4ce9-ba5f-1398ab44bc5b/data_netcdf.nc"
+  }
+},
+{
+  "model": "cloud_coverage.cloudcoveragetask",
+  "pk": "9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8",
+  "fields": {
+    "title": "Cloud Coverage Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:47:29.662Z",
+    "execution_end": "2019-04-01T18:47:36.223Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.9053,
+    "latitude_max": 9.2959,
+    "longitude_min": -3.5781,
+    "longitude_max": -3.0837,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2662200,
+    "clean_pixel_count": 1086615,
+    "percentage_clean_pixels": 40.816430020284,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "406961,596164,353974,0,613038,118993,675486,556873,613332,526530,532538,58663,159484",
+    "clean_pixel_percentages_per_acquisition": "15.28664262639922,22.393659379460598,13.296296296296296,0.0,23.02749605589362,4.469724288182706,25.373225152129816,20.917774772744348,23.038539553752535,19.778003155285102,20.003681165952973,2.203553452032154,5.99068439636391",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/cloud_coverage/9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8/cloud_coverage.png",
+    "mosaic_path": "/datacube/ui_results/cloud_coverage/9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8/mosaic.png",
+    "plot_path": "/datacube/ui_results/cloud_coverage/9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8/plot_path.png",
+    "data_path": "/datacube/ui_results/cloud_coverage/9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/cloud_coverage/9d1d60d5-c9d7-4a63-b564-1e6baaf36fc8/data_netcdf.nc"
+  }
+},
+{
+  "model": "cloud_coverage.cloudcoveragetask",
+  "pk": "e65a6268-37ef-451b-a664-669c7c497dc8",
+  "fields": {
+    "title": "Cloud Coverage Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:47:18.321Z",
+    "execution_end": "2019-04-01T18:47:23.767Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2398935,
+    "clean_pixel_count": 115555,
+    "percentage_clean_pixels": 4.81692917898984,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14722,34556,13035,0,42374,10914,80061,39842,42771,25989,25195,11739,0",
+    "clean_pixel_percentages_per_acquisition": "0.6136889911564923,1.4404725430243004,0.5433661187151798,0.0,1.7663671587600331,0.4549518848989239,3.3373559517035685,1.6608203223513767,1.782916169050016,1.0833557391092297,1.050257718529264,0.4893421455770998,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/cloud_coverage/e65a6268-37ef-451b-a664-669c7c497dc8/cloud_coverage.png",
+    "mosaic_path": "/datacube/ui_results/cloud_coverage/e65a6268-37ef-451b-a664-669c7c497dc8/mosaic.png",
+    "plot_path": "/datacube/ui_results/cloud_coverage/e65a6268-37ef-451b-a664-669c7c497dc8/plot_path.png",
+    "data_path": "/datacube/ui_results/cloud_coverage/e65a6268-37ef-451b-a664-669c7c497dc8/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/cloud_coverage/e65a6268-37ef-451b-a664-669c7c497dc8/data_netcdf.nc"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 258,
+  "fields": {
+    "user_id": 550,
+    "task_id": "7be96220-a2b0-47dd-bc76-604147240c30"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 260,
+  "fields": {
+    "user_id": 550,
+    "task_id": "0f723c12-c603-45c7-942e-f13b02f3f18c"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 261,
+  "fields": {
+    "user_id": 550,
+    "task_id": "feba7d94-0754-4c5b-b430-1c8bc14c6e22"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 262,
+  "fields": {
+    "user_id": 550,
+    "task_id": "e264f0a5-1151-4864-9020-4699d92ce571"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 264,
+  "fields": {
+    "user_id": 550,
+    "task_id": "1a07034d-6bb1-471f-8f77-46626f6488aa"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 267,
+  "fields": {
+    "user_id": 550,
+    "task_id": "567b2c92-9ae5-47ab-a398-38b901160ce1"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 268,
+  "fields": {
+    "user_id": 550,
+    "task_id": "8704dd1d-d492-4ad3-9315-cd7ebac37165"
+  }
+},
+{
+  "model": "coastal_change.userhistory",
+  "pk": 269,
+  "fields": {
+    "user_id": 550,
+    "task_id": "4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9"
+  }
+},
+{
+  "model": "coastal_change.toolinfo",
+  "pk": 18,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/coastal_change_1.png",
+    "image_title": "Coastline Identification",
+    "image_description": "Identify the coastline of a yearly mosaic and compare it to a baseline year."
+  }
+},
+{
+  "model": "coastal_change.toolinfo",
+  "pk": 19,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/coastal_change_2.png",
+    "image_title": "Coastal Change",
+    "image_description": "Compute the area covered by receding coastline over a user defined period."
+  }
+},
+{
+  "model": "coastal_change.animationtype",
+  "pk": 0,
+  "fields": {
+    "animation_id": "none",
+    "name": "None",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "coastal_change.animationtype",
+  "pk": 1,
+  "fields": {
+    "animation_id": "coastline_change",
+    "name": "Coastline Change",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "coastal_change.animationtype",
+  "pk": 2,
+  "fields": {
+    "animation_id": "coastal_change",
+    "name": "Coastal Change",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "0ca3f187-cdcc-4e91-971b-d8484681d097",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:11:39.568Z",
+    "execution_end": "2019-04-01T14:11:39.568Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 8.9949,
+    "latitude_max": 9.6616,
+    "longitude_min": -3.4915,
+    "longitude_max": -2.6429,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 886,
+    "total_scenes": 1026,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "0f723c12-c603-45c7-942e-f13b02f3f18c",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:29:55.370Z",
+    "execution_end": "2019-04-01T14:30:37.239Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1088,
+    "latitude_max": 9.6088,
+    "longitude_min": -3.3968,
+    "longitude_max": -2.8859,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 3520832,
+    "clean_pixel_count": 2223663,
+    "percentage_clean_pixels": 63.1573162252558,
+    "acquisition_list": "12/14/2010,11/28/2010,11/12/2010,10/11/2010,04/18/2010,04/02/2010,03/17/2010,03/01/2010,01/28/2010,01/12/2010,12/16/2005,11/30/2005,11/14/2005,10/29/2005,05/22/2005,04/04/2005,02/15/2005,01/14/2005",
+    "clean_pixels_per_acquisition": "1346588,988736,1338548,0,1544326,130,607910,241569,211805,1527383,1280461,78465,810115,1421205,0,1332477,1386980,765646",
+    "clean_pixel_percentages_per_acquisition": "38.24630087433879,28.08245323832549,38.01794575827532,0.0,43.862530220129784,0.0036923090905785906,17.266089378874085,6.861133959245996,6.0157655917692185,43.38130873611692,36.368136849471945,2.2285925599403775,23.009192145492882,40.365601085198044,0.0,37.8455149237453,39.39352971115918,21.74616681511643",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 18,
+    "total_scenes": 18,
+    "result_path": "/datacube/ui_results/coastal_change/0f723c12-c603-45c7-942e-f13b02f3f18c/coastline_change.png",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "16",
+    "sea_converted": "34",
+    "result_coastal_change_path": "/datacube/ui_results/coastal_change/0f723c12-c603-45c7-942e-f13b02f3f18c/coastal_change.png",
+    "result_mosaic_path": "/datacube/ui_results/coastal_change/0f723c12-c603-45c7-942e-f13b02f3f18c/mosaic.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/coastal_change/0f723c12-c603-45c7-942e-f13b02f3f18c/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/coastal_change/0f723c12-c603-45c7-942e-f13b02f3f18c/data_netcdf.nc"
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "1a07034d-6bb1-471f-8f77-46626f6488aa",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:33:50.347Z",
+    "execution_end": "2019-04-01T14:33:50.347Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 324,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:50:59.794Z",
+    "execution_end": "2019-04-01T18:51:16.451Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1861,
+    "latitude_max": 9.645,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1201578,
+    "clean_pixel_count": 56380,
+    "percentage_clean_pixels": 4.6921631388058,
+    "acquisition_list": "12/14/2010,11/28/2010,11/12/2010,10/11/2010,04/18/2010,04/02/2010,03/17/2010,03/01/2010,01/28/2010,01/12/2010,12/16/2005,11/30/2005,11/14/2005,10/29/2005,05/22/2005,04/04/2005,02/15/2005,01/14/2005",
+    "clean_pixels_per_acquisition": "19162,11029,18139,0,111537,0,60934,71,5933,85040,3093,0,10777,34594,0,11900,26091,14405",
+    "clean_pixel_percentages_per_acquisition": "1.5947362551578008,0.9178763259646898,1.5095982116849676,0.0,9.282543455356207,0.0,5.071164751684868,0.005908896467811495,0.4937673625848676,7.0773599383477395,0.2574115038724078,0.0,0.8969039046986546,2.879047386020716,0.0,0.9903643375627716,2.171394616079855,1.1988401918144307",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 18,
+    "total_scenes": 18,
+    "result_path": "/datacube/ui_results/coastal_change/4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9/coastline_change.png",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "0",
+    "sea_converted": "1",
+    "result_coastal_change_path": "/datacube/ui_results/coastal_change/4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9/coastal_change.png",
+    "result_mosaic_path": "/datacube/ui_results/coastal_change/4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9/mosaic.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/coastal_change/4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/coastal_change/4c4a1fcf-dc78-49ea-9f8d-b2c24bccc3b9/data_netcdf.nc"
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "567b2c92-9ae5-47ab-a398-38b901160ce1",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T15:20:00.711Z",
+    "execution_end": "2019-04-01T15:20:18.615Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6451,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1201578,
+    "clean_pixel_count": 56380,
+    "percentage_clean_pixels": 4.6921631388058,
+    "acquisition_list": "12/14/2010,11/28/2010,11/12/2010,10/11/2010,04/18/2010,04/02/2010,03/17/2010,03/01/2010,01/28/2010,01/12/2010,12/16/2005,11/30/2005,11/14/2005,10/29/2005,05/22/2005,04/04/2005,02/15/2005,01/14/2005",
+    "clean_pixels_per_acquisition": "19162,11029,18139,0,111537,0,60934,71,5933,85040,3093,0,10777,34594,0,11900,26091,14405",
+    "clean_pixel_percentages_per_acquisition": "1.5947362551578008,0.9178763259646898,1.5095982116849676,0.0,9.282543455356207,0.0,5.071164751684868,0.005908896467811495,0.4937673625848676,7.0773599383477395,0.2574115038724078,0.0,0.8969039046986546,2.879047386020716,0.0,0.9903643375627716,2.171394616079855,1.1988401918144307",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 18,
+    "total_scenes": 18,
+    "result_path": "/datacube/ui_results/coastal_change/567b2c92-9ae5-47ab-a398-38b901160ce1/coastline_change.png",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "0",
+    "sea_converted": "1",
+    "result_coastal_change_path": "/datacube/ui_results/coastal_change/567b2c92-9ae5-47ab-a398-38b901160ce1/coastal_change.png",
+    "result_mosaic_path": "/datacube/ui_results/coastal_change/567b2c92-9ae5-47ab-a398-38b901160ce1/mosaic.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/coastal_change/567b2c92-9ae5-47ab-a398-38b901160ce1/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/coastal_change/567b2c92-9ae5-47ab-a398-38b901160ce1/data_netcdf.nc"
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "7be96220-a2b0-47dd-bc76-604147240c30",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:11:27.071Z",
+    "execution_end": "2019-04-01T14:11:27.071Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.2674,
+    "latitude_max": 9.6047,
+    "longitude_min": -3.4462,
+    "longitude_max": -3.0054,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There must be at least one acquisition in both the start and ending year.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 1999,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "8704dd1d-d492-4ad3-9315-cd7ebac37165",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T15:20:25.802Z",
+    "execution_end": "2019-04-01T15:20:59.683Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1088,
+    "latitude_max": 9.6494,
+    "longitude_min": -3.265,
+    "longitude_max": -2.8324,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 3094762,
+    "clean_pixel_count": 2595684,
+    "percentage_clean_pixels": 83.8734610286672,
+    "acquisition_list": "12/14/2010,11/28/2010,11/12/2010,10/11/2010,04/18/2010,04/02/2010,03/17/2010,03/01/2010,01/28/2010,01/12/2010,12/16/2005,11/30/2005,11/14/2005,10/29/2005,05/22/2005,04/04/2005,02/15/2005,01/14/2005",
+    "clean_pixels_per_acquisition": "1589000,1214572,1579919,0,1744557,123,661412,374119,258835,1756673,1535047,125872,1012629,1677969,0,1586013,1638582,830238",
+    "clean_pixel_percentages_per_acquisition": "51.3448207002671,39.24605510859963,51.05138941217451,0.0,56.37128153958204,0.003974457486553086,21.371982724358126,12.088780978957347,8.36364799619486,56.76278175833877,49.601455620819955,4.067259453230975,32.72073910691678,54.21964596954467,0.0,51.24830277740259,52.94694713196039,26.82720028228342",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 18,
+    "total_scenes": 18,
+    "result_path": "/datacube/ui_results/coastal_change/8704dd1d-d492-4ad3-9315-cd7ebac37165/coastline_change.png",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "16",
+    "sea_converted": "34",
+    "result_coastal_change_path": "/datacube/ui_results/coastal_change/8704dd1d-d492-4ad3-9315-cd7ebac37165/coastal_change.png",
+    "result_mosaic_path": "/datacube/ui_results/coastal_change/8704dd1d-d492-4ad3-9315-cd7ebac37165/mosaic.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/coastal_change/8704dd1d-d492-4ad3-9315-cd7ebac37165/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/coastal_change/8704dd1d-d492-4ad3-9315-cd7ebac37165/data_netcdf.nc"
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "b62c6ee9-dad5-4e57-a331-9301d62187bc",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T15:10:18.412Z",
+    "execution_end": "2019-04-01T15:10:18.412Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6454,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 324,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "c1179513-a3c0-469c-af9d-3ddf4144fdb1",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T15:14:25.533Z",
+    "execution_end": "2019-04-01T15:14:25.533Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6452,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 324,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "e264f0a5-1151-4864-9020-4699d92ce571",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:33:41.254Z",
+    "execution_end": "2019-04-01T14:33:41.254Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.2796,
+    "latitude_max": 9.4585,
+    "longitude_min": -3.5616,
+    "longitude_max": -3.265,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There must be at least one acquisition in both the start and ending year.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "",
+    "sea_converted": "",
+    "result_coastal_change_path": "",
+    "result_mosaic_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "coastal_change.coastalchangetask",
+  "pk": "feba7d94-0754-4c5b-b430-1c8bc14c6e22",
+  "fields": {
+    "title": "Coastal Change Query",
+    "description": "None",
+    "execution_start": "2019-04-01T14:32:46.042Z",
+    "execution_end": "2019-04-01T14:33:23.148Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "latitude_min": 9.0681,
+    "latitude_max": 9.556,
+    "longitude_min": -3.508,
+    "longitude_max": -3.0837,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2860200,
+    "clean_pixel_count": 927488,
+    "percentage_clean_pixels": 32.4273827005105,
+    "acquisition_list": "12/14/2010,11/28/2010,11/12/2010,10/11/2010,04/18/2010,04/02/2010,03/17/2010,03/01/2010,01/28/2010,01/12/2010,12/16/2005,11/30/2005,11/14/2005,10/29/2005,05/22/2005,04/04/2005,02/15/2005,01/14/2005",
+    "clean_pixels_per_acquisition": "513659,363695,509709,0,733817,0,248700,10162,114117,678882,433466,1547,226473,559778,0,471647,534210,358774",
+    "clean_pixel_percentages_per_acquisition": "17.958849031536257,12.71571918047689,17.82074680092301,0.0,25.656142927068036,0.0,8.695196140130061,0.35528983987133766,3.989825886301657,23.735473043843086,15.155094049367177,0.05408712677435144,7.918082651562828,19.571288721068456,0.0,16.4900006992518,18.67736521921544,12.543668274945809",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 18,
+    "total_scenes": 18,
+    "result_path": "/datacube/ui_results/coastal_change/feba7d94-0754-4c5b-b430-1c8bc14c6e22/coastline_change.png",
+    "time_end": 2010,
+    "time_start": 2005,
+    "animated_product": 0,
+    "land_converted": "0",
+    "sea_converted": "1",
+    "result_coastal_change_path": "/datacube/ui_results/coastal_change/feba7d94-0754-4c5b-b430-1c8bc14c6e22/coastal_change.png",
+    "result_mosaic_path": "/datacube/ui_results/coastal_change/feba7d94-0754-4c5b-b430-1c8bc14c6e22/mosaic.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/coastal_change/feba7d94-0754-4c5b-b430-1c8bc14c6e22/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/coastal_change/feba7d94-0754-4c5b-b430-1c8bc14c6e22/data_netcdf.nc"
+  }
+},
+{
+  "model": "custom_mosaic_tool.userhistory",
+  "pk": 815,
+  "fields": {
+    "user_id": 550,
+    "task_id": "de657402-4a32-4b81-b34f-96965d931353"
+  }
+},
+{
+  "model": "custom_mosaic_tool.toolinfo",
+  "pk": 1,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_1.png",
+    "image_title": "True Color Mosaics",
+    "image_description": "The Custom Mosaic Tool allows users to create detailed true or false color images of given areas using optical data from various Landsat satellites."
+  }
+},
+{
+  "model": "custom_mosaic_tool.toolinfo",
+  "pk": 2,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_2.png",
+    "image_title": "Pixel Preference",
+    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max NDVI value pixel."
+  }
+},
+{
+  "model": "custom_mosaic_tool.toolinfo",
+  "pk": 3,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_3.png",
+    "image_title": "Time Series",
+    "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image."
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 1,
+  "fields": {
+    "result_id": "true_color",
+    "name": "True color",
+    "red": "red",
+    "green": "green",
+    "blue": "blue",
+    "fill": "red"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 2,
+  "fields": {
+    "result_id": "nir_swir_swir",
+    "name": "NIR, SWIR1, SWIR2",
+    "red": "nir",
+    "green": "swir1",
+    "blue": "swir2",
+    "fill": "red"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 3,
+  "fields": {
+    "result_id": "nir_swir_red",
+    "name": "NIR, SWIR1, RED",
+    "red": "nir",
+    "green": "swir1",
+    "blue": "red",
+    "fill": "red"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 4,
+  "fields": {
+    "result_id": "swir_nir_red",
+    "name": "SWIR1, NIR, RED",
+    "red": "swir1",
+    "green": "nir",
+    "blue": "red",
+    "fill": "blue"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 5,
+  "fields": {
+    "result_id": "swir_nir_green",
+    "name": "SWIR2, NIR, GREEN",
+    "red": "swir2",
+    "green": "nir",
+    "blue": "green",
+    "fill": "red"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 6,
+  "fields": {
+    "result_id": "swir_nir_blue",
+    "name": "SWIR1, NIR, BLUE",
+    "red": "swir1",
+    "green": "nir",
+    "blue": "blue",
+    "fill": "blue"
+  }
+},
+{
+  "model": "custom_mosaic_tool.resulttype",
+  "pk": 7,
+  "fields": {
+    "result_id": "nir_red_green",
+    "name": "NIR, RED, GREEN",
+    "red": "nir",
+    "green": "red",
+    "blue": "green",
+    "fill": "blue"
+  }
+},
+{
+  "model": "custom_mosaic_tool.animationtype",
+  "pk": 0,
+  "fields": {
+    "animation_id": "none",
+    "name": "None",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "custom_mosaic_tool.animationtype",
+  "pk": 1,
+  "fields": {
+    "animation_id": "cumulative",
+    "name": "Cumulative",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "custom_mosaic_tool.animationtype",
+  "pk": 2,
+  "fields": {
+    "animation_id": "scene",
+    "name": "Scene",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "custom_mosaic_tool.custommosaictooltask",
+  "pk": "de657402-4a32-4b81-b34f-96965d931353",
+  "fields": {
+    "title": "Custom Mosaic Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:52:11.132Z",
+    "execution_end": "2019-04-01T18:52:17.579Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1869903,
+    "clean_pixel_count": 115793,
+    "percentage_clean_pixels": 6.19246025061193,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14777,34658,13096,0,42615,10936,80319,40072,42967,26116,25258,11789,0",
+    "clean_pixel_percentages_per_acquisition": "0.7902548955747972,1.8534651262659079,0.700357184303143,0.0,2.2789952206076998,0.5848431710094053,4.2953564971017215,2.142998861438267,2.2978197264777904,1.3966499866570619,1.350765253598716,0.6304605105184601,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/custom_mosaic_tool/de657402-4a32-4b81-b34f-96965d931353/png_mosaic.png",
+    "query_type": 1,
+    "animated_product": 0,
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "result_filled_path": "/datacube/ui_results/custom_mosaic_tool/de657402-4a32-4b81-b34f-96965d931353/filled_png_mosaic.png",
+    "plot_path": "/datacube/ui_results/custom_mosaic_tool/de657402-4a32-4b81-b34f-96965d931353/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/custom_mosaic_tool/de657402-4a32-4b81-b34f-96965d931353/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/custom_mosaic_tool/de657402-4a32-4b81-b34f-96965d931353/data_netcdf.nc"
+  }
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 1,
   "fields": {
@@ -6,13 +887,14 @@
     "name": "Landsat 7",
     "product_prefix": "ls7_ledaps_",
     "date_min": "1999-04-15",
-    "date_max": "2016-12-26",
+    "date_max": "2018-06-06",
     "data_min": 0.0,
     "data_max": 4096.0,
     "measurements": "blue,green,red,nir,swir1,swir2,pixel_qa",
     "no_data_value": -9999.0
   }
-}, {
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 2,
   "fields": {
@@ -20,13 +902,14 @@
     "name": "Landsat 8",
     "product_prefix": "ls8_lasrc_",
     "date_min": "2013-02-11",
-    "date_max": "2016-12-26",
+    "date_max": "2018-06-06",
     "data_min": 0.0,
     "data_max": 4096.0,
     "measurements": "blue,green,red,nir,swir1,swir2,pixel_qa",
     "no_data_value": -9999.0
   }
-}, {
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 3,
   "fields": {
@@ -40,7 +923,8 @@
     "measurements": "blue,green,red,nir,swir1,swir2,pixel_qa",
     "no_data_value": -9999.0
   }
-}, {
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 4,
   "fields": {
@@ -48,13 +932,14 @@
     "name": "Landsat 5/7/8",
     "product_prefix": "ls5_leaps_,ls7_ledaps_,ls8_lasrc_",
     "date_min": "1984-03-01",
-    "date_max": "2016-12-26",
+    "date_max": "2018-06-06",
     "data_min": 0.0,
     "data_max": 4096.0,
     "measurements": "blue,green,red,nir,swir1,swir2,pixel_qa",
     "no_data_value": -9999.0
   }
-}, {
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 5,
   "fields": {
@@ -68,7 +953,8 @@
     "measurements": "vv,vh",
     "no_data_value": 0.0
   }
-}, {
+},
+{
   "model": "dc_algorithm.satellite",
   "pk": 6,
   "fields": {
@@ -76,25 +962,14 @@
     "name": "Landsat 7/8",
     "product_prefix": "ls7_ledaps_,ls8_lasrc_",
     "date_min": "1999-04-15",
-    "date_max": "2016-12-26",
+    "date_max": "2018-06-06",
     "data_min": 0.0,
     "data_max": 4096.0,
     "measurements": "blue,green,red,nir,swir1,swir2,pixel_qa",
     "no_data_value": -9999.0
   }
-}, {
-  "model": "dc_algorithm.area",
-  "pk": "amazon_river",
-  "fields": {
-    "name": "Amazon River",
-    "latitude_min": -4.5,
-    "latitude_max": -2.0,
-    "longitude_min": -71.5,
-    "longitude_max": -69.0,
-    "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/amazon_river_thumbnail_74W_66W_7S_1N.png",
-    "satellites": [1]
-  }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "bangladesh",
   "fields": {
@@ -104,9 +979,13 @@
     "longitude_min": 89.25,
     "longitude_max": 92.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/bangladesh_thumbnail_88E_93E_22N27N.png",
-    "satellites": [1, 3]
+    "satellites": [
+      1,
+      3
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "bangladesh_bari",
   "fields": {
@@ -116,9 +995,12 @@
     "longitude_min": 87.8,
     "longitude_max": 91.2,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/bangladesh_thumbnail_88E_93E_22N27N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "caqueta",
   "fields": {
@@ -128,9 +1010,14 @@
     "longitude_min": -75.0,
     "longitude_max": -73.8,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/caqueta_-75_-.1_-73.8_1.1.png",
-    "satellites": [1, 2, 6]
+    "satellites": [
+      1,
+      2,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "colombia",
   "fields": {
@@ -140,9 +1027,12 @@
     "longitude_min": -77.2,
     "longitude_max": -73.7,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/colombia_thumbnail_78W_71W_2S_4N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "ghana",
   "fields": {
@@ -152,9 +1042,12 @@
     "longitude_min": -3.6,
     "longitude_max": -1.4,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/ghana_thumbnail_-5_6_0_11.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "kenya",
   "fields": {
@@ -164,9 +1057,12 @@
     "longitude_min": 34.0,
     "longitude_max": 37.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/kenya_micro_cube_32E_39E_3_5S_3_5N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "lake_baringo",
   "fields": {
@@ -176,9 +1072,12 @@
     "longitude_min": 36.0,
     "longitude_max": 36.25,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/lake_baringo_thumbnail_34E_37E_1S_1N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "lake_chad_full",
   "fields": {
@@ -188,9 +1087,15 @@
     "longitude_min": 13.65,
     "longitude_max": 15.5,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/lake_chad_full_thumbnail_0_1E_35N_37N.png",
-    "satellites": [1, 3, 4, 2]
+    "satellites": [
+      1,
+      2,
+      3,
+      4
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "lake_cortijo",
   "fields": {
@@ -200,9 +1105,12 @@
     "longitude_min": -75.75,
     "longitude_max": -73.3,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/cortijo_thumbnail_-77W_-72W_1.5N_6.5N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "meta_river",
   "fields": {
@@ -212,9 +1120,14 @@
     "longitude_min": -72.0,
     "longitude_max": -71.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/meta_river_thumbnail_75W_67W_0_5N_8_5N.png",
-    "satellites": [1, 6, 2]
+    "satellites": [
+      1,
+      2,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "salgar_colombia",
   "fields": {
@@ -224,9 +1137,28 @@
     "longitude_min": -75.925,
     "longitude_max": -75.825,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/colombia_thumbnail_78W_71W_2S_4N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
+  "model": "dc_algorithm.area",
+  "pk": "samoa",
+  "fields": {
+    "name": "Samoa",
+    "latitude_min": -15.40142324,
+    "latitude_max": -12.060745071,
+    "longitude_min": -173.830319544,
+    "longitude_max": -170.165372808,
+    "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/tonga_thumbnail_177W_174W_23S_20S.png",
+    "satellites": [
+      1,
+      2
+    ]
+  }
+},
+{
   "model": "dc_algorithm.area",
   "pk": "togo",
   "fields": {
@@ -236,9 +1168,12 @@
     "longitude_min": 0.0,
     "longitude_max": 3.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/togo_thumbnail_1W_4E_3N_8N.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "tonga",
   "fields": {
@@ -248,9 +1183,12 @@
     "longitude_min": -177.375,
     "longitude_max": -174.375,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/tonga_thumbnail_177W_174W_23S_20S.png",
-    "satellites": [1]
+    "satellites": [
+      1
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "uruguay",
   "fields": {
@@ -260,9 +1198,12 @@
     "longitude_min": -57.0,
     "longitude_max": -54.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/uruguay_thumbnail_-57E_-54E_-36.25S_-33.25S.png",
-    "satellites": [2]
+    "satellites": [
+      2
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.area",
   "pk": "vietnam",
   "fields": {
@@ -272,322 +1213,438 @@
     "longitude_min": 106.75,
     "longitude_max": 109.0,
     "thumbnail_imagery": "/static/assets/images/thumbnails/area_thumbnails/vietnam_thumbnail_105E_110E_9N_14N.png",
-    "satellites": [1, 6, 2]
+    "satellites": [
+      1,
+      2,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "cloud_coverage",
   "fields": {
     "name": "Cloud Coverage",
     "color_scale": "/static/assets/images/color_scales/cloud_coverage.png",
-    "application_group": 1,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam", "uruguay", "bangladesh_bari", "caqueta"],
-    "satellites": [1, 3, 2]
+    "application_group": 2,
+    "areas": [
+      "samoa",
+      "ghana",
+      "bangladesh",
+      "bangladesh_bari",
+      "caqueta",
+      "colombia",
+      "kenya",
+      "lake_baringo",
+      "lake_chad_full",
+      "lake_cortijo",
+      "meta_river",
+      "salgar_colombia",
+      "togo",
+      "tonga",
+      "uruguay",
+      "vietnam"
+    ],
+    "satellites": [
+      1,
+      2,
+      3
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "coastal_change",
   "fields": {
     "name": "Coastal Change",
     "color_scale": "/static/assets/images/color_scales/coastal_change_color_scale.png",
     "application_group": 3,
-    "areas": ["tonga", "togo", "vietnam"],
-    "satellites": [1, 3, 2]
+    "areas": [
+      "samoa",
+      "ghana",
+      "kenya",
+      "togo",
+      "tonga",
+      "vietnam"
+    ],
+    "satellites": [
+      1,
+      2,
+      3
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "custom_mosaic_tool",
   "fields": {
     "name": "Custom Mosaic",
     "color_scale": null,
-    "application_group": 1,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam", "uruguay", "bangladesh_bari", "caqueta"],
-    "satellites": [1, 3, 4, 6, 2]
+    "application_group": 2,
+    "areas": [
+      "samoa",
+      "ghana",
+      "bangladesh",
+      "bangladesh_bari",
+      "caqueta",
+      "colombia",
+      "kenya",
+      "lake_baringo",
+      "lake_chad_full",
+      "lake_cortijo",
+      "meta_river",
+      "salgar_colombia",
+      "togo",
+      "tonga",
+      "uruguay",
+      "vietnam"
+    ],
+    "satellites": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "fractional_cover",
   "fields": {
     "name": "Fractional Cover",
     "color_scale": "/static/assets/images/color_scales/fractional_cover_color_scale.png",
     "application_group": 2,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam", "uruguay", "bangladesh_bari", "caqueta"],
-    "satellites": [1, 3, 4, 6, 2]
+    "areas": [
+      "samoa",
+      "ghana",
+      "bangladesh",
+      "bangladesh_bari",
+      "caqueta",
+      "colombia",
+      "kenya",
+      "lake_baringo",
+      "lake_chad_full",
+      "lake_cortijo",
+      "meta_river",
+      "salgar_colombia",
+      "togo",
+      "tonga",
+      "uruguay",
+      "vietnam"
+    ],
+    "satellites": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
-  "pk": "ndvi_anomaly",
+  "pk": "spectral_anomaly",
   "fields": {
-    "name": "NDVI Anomaly",
-    "color_scale": "/static/assets/images/color_scales/ndvi_color_scale.png",
+    "name": "Spectral Anomaly",
+    "color_scale": "/static/assets/images/color_scales/spectral_anomaly_color_scale.png",
     "application_group": 2,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam", "uruguay", "bangladesh_bari", "caqueta"],
-    "satellites": [1, 3, 2]
+    "areas": [
+      "bangladesh_bari",
+      "lake_chad_full",
+      "uruguay",
+      "caqueta",
+      "lake_cortijo",
+      "togo",
+      "lake_baringo",
+      "salgar_colombia",
+      "meta_river",
+      "vietnam",
+      "bangladesh",
+      "ghana",
+      "tonga",
+      "samoa",
+      "kenya",
+      "colombia"
+    ],
+    "satellites": [
+      1,
+      2
+    ]
   }
-}, {
-  "model": "dc_algorithm.application",
-  "pk": "slip",
-  "fields": {
-    "name": "Slip",
-    "color_scale": null,
-    "application_group": 2,
-    "areas": ["salgar_colombia"],
-    "satellites": [1]
-  }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "spectral_indices",
   "fields": {
     "name": "Spectral Indices",
     "color_scale": null,
     "application_group": 2,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam"],
-    "satellites": [1, 3, 2]
+    "areas": [
+      "kenya",
+      "lake_cortijo",
+      "togo",
+      "tonga",
+      "vietnam",
+      "lake_baringo",
+      "bangladesh",
+      "ghana",
+      "meta_river",
+      "salgar_colombia",
+      "colombia",
+      "lake_chad_full",
+      "samoa"
+    ],
+    "satellites": [
+      1,
+      2,
+      3
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "tsm",
   "fields": {
     "name": "Water Quality TSM",
     "color_scale": "/static/assets/images/color_scales/tsm_color_scale.png",
     "application_group": 3,
-    "areas": ["lake_baringo", "meta_river", "lake_chad_full", "vietnam", "uruguay"],
-    "satellites": [1, 3, 4, 6, 2]
+    "areas": [
+      "samoa",
+      "ghana",
+      "kenya",
+      "lake_baringo",
+      "lake_chad_full",
+      "meta_river",
+      "uruguay",
+      "vietnam"
+    ],
+    "satellites": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "urbanization",
   "fields": {
-    "name": "Urbanization",
+    "name": "NDBI-NDVI-NDWI",
     "color_scale": "/static/assets/images/color_scales/urbanization.png",
     "application_group": 2,
-    "areas": ["amazon_river", "bangladesh", "colombia", "ghana", "kenya", "lake_baringo", "lake_chad_full", "lake_cortijo", "meta_river", "salgar_colombia", "togo", "tonga", "vietnam"],
-    "satellites": [1, 3, 2]
+    "areas": [
+      "kenya",
+      "lake_cortijo",
+      "togo",
+      "tonga",
+      "vietnam",
+      "lake_baringo",
+      "bangladesh",
+      "ghana",
+      "meta_river",
+      "salgar_colombia",
+      "colombia",
+      "lake_chad_full",
+      "samoa"
+    ],
+    "satellites": [
+      1,
+      2,
+      3
+    ]
   }
-}, {
+},
+{
   "model": "dc_algorithm.application",
   "pk": "water_detection",
   "fields": {
     "name": "Water Detection",
     "color_scale": "/static/assets/images/color_scales/water_detection_color_scale.png",
     "application_group": 3,
-    "areas": ["lake_baringo", "meta_river", "lake_chad_full", "vietnam", "uruguay"],
-    "satellites": [1, 3, 4, 6, 2]
+    "areas": [
+      "lake_baringo",
+      "uruguay",
+      "lake_chad_full",
+      "vietnam",
+      "meta_river",
+      "tonga",
+      "samoa",
+      "kenya",
+      "ghana"
+    ],
+    "satellites": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ]
   }
-}, {
-  "model": "dc_algorithm.applicationgroup",
-  "pk": 1,
-  "fields": {
-    "name": "General"
-  }
-}, {
+},
+{
   "model": "dc_algorithm.applicationgroup",
   "pk": 2,
   "fields": {
     "name": "Land"
   }
-}, {
+},
+{
   "model": "dc_algorithm.applicationgroup",
   "pk": 3,
   "fields": {
     "name": "Water"
   }
-}, {
+},
+{
+  "model": "dc_algorithm.compositor",
+  "pk": "geo_median",
+  "fields": {
+    "name": "GeoMed[under-development]"
+  }
+},
+{
   "model": "dc_algorithm.compositor",
   "pk": "least_recent",
   "fields": {
     "name": "Least Recent Pixel"
   }
-}, {
+},
+{
   "model": "dc_algorithm.compositor",
   "pk": "max_ndvi",
   "fields": {
     "name": "Max NDVI Pixel"
   }
-}, {
+},
+{
   "model": "dc_algorithm.compositor",
   "pk": "median_pixel",
   "fields": {
     "name": "Median Pixel"
   }
-}, {
+},
+{
   "model": "dc_algorithm.compositor",
   "pk": "min_ndvi",
   "fields": {
     "name": "Min NDVI Pixel"
   }
-}, {
+},
+{
   "model": "dc_algorithm.compositor",
   "pk": "most_recent",
   "fields": {
     "name": "Most Recent Pixel"
   }
-}, {
-  "model": "custom_mosaic_tool.toolinfo",
-  "pk": 1,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 139,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_1.png",
-    "image_title": "True Color Mosaics",
-    "image_description": "The Custom Mosaic Tool allows users to create detailed true or false color images of given areas using optical data from various Landsat satellites."
+    "user_id": 550,
+    "task_id": "83ef9f9d-642f-4cfb-b8c4-87a7e3721088"
   }
-}, {
-  "model": "custom_mosaic_tool.toolinfo",
-  "pk": 2,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 143,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_2.png",
-    "image_title": "Pixel Preference",
-    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max NDVI value pixel."
+    "user_id": 550,
+    "task_id": "2b34c0ae-bfd3-4b87-9571-ecbc41345a59"
   }
-}, {
-  "model": "custom_mosaic_tool.toolinfo",
-  "pk": 3,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 144,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_3.png",
-    "image_title": "Time Series",
-    "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image."
+    "user_id": 550,
+    "task_id": "c39aa05a-50df-4245-916a-eafce951848e"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 1,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 145,
   "fields": {
-    "result_id": "true_color",
-    "name": "True color",
-    "red": "red",
-    "green": "green",
-    "blue": "blue",
-    "fill": "red"
+    "user_id": 550,
+    "task_id": "4b10c527-af06-46d6-b452-fc988c2f2a97"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 2,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 146,
   "fields": {
-    "result_id": "nir_swir_swir",
-    "name": "NIR, SWIR1, SWIR2",
-    "red": "nir",
-    "green": "swir1",
-    "blue": "swir2",
-    "fill": "red"
+    "user_id": 550,
+    "task_id": "9934684a-7c5c-42ea-92b0-e26399f858d1"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 3,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 147,
   "fields": {
-    "result_id": "nir_swir_red",
-    "name": "NIR, SWIR1, RED",
-    "red": "nir",
-    "green": "swir1",
-    "blue": "red",
-    "fill": "red"
+    "user_id": 550,
+    "task_id": "9d0dc32d-4570-4f7c-ab8a-031741a9dd23"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 4,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 148,
   "fields": {
-    "result_id": "swir_nir_red",
-    "name": "SWIR1, NIR, RED",
-    "red": "swir1",
-    "green": "nir",
-    "blue": "red",
-    "fill": "blue"
+    "user_id": 550,
+    "task_id": "54e82fbe-74b4-4b85-a62f-d115eac1e84d"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 5,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 149,
   "fields": {
-    "result_id": "swir_nir_green",
-    "name": "SWIR2, NIR, GREEN",
-    "red": "swir2",
-    "green": "nir",
-    "blue": "green",
-    "fill": "red"
+    "user_id": 550,
+    "task_id": "e39b23c2-3e9f-4c7e-88eb-13c34e393071"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 6,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 154,
   "fields": {
-    "result_id": "swir_nir_blue",
-    "name": "SWIR1, NIR, BLUE",
-    "red": "swir1",
-    "green": "nir",
-    "blue": "blue",
-    "fill": "blue"
+    "user_id": 550,
+    "task_id": "0036ddc5-6c52-40da-a9a3-803cf05eede9"
   }
-}, {
-  "model": "custom_mosaic_tool.resulttype",
-  "pk": 7,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 155,
   "fields": {
-    "result_id": "nir_red_green",
-    "name": "NIR, RED, GREEN",
-    "red": "nir",
-    "green": "red",
-    "blue": "green",
-    "fill": "blue"
+    "user_id": 550,
+    "task_id": "4e64dfac-6a96-441c-b962-7f133eba905c"
   }
-}, {
-  "model": "custom_mosaic_tool.animationtype",
-  "pk": 0,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 156,
   "fields": {
-    "animation_id": "none",
-    "name": "None",
-    "data_variable": "None"
+    "user_id": 550,
+    "task_id": "c1b12a3a-f7f1-4e79-8474-38859958aec9"
   }
-}, {
-  "model": "custom_mosaic_tool.animationtype",
-  "pk": 1,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 158,
   "fields": {
-    "animation_id": "cumulative",
-    "name": "Cumulative",
-    "data_variable": "None"
+    "user_id": 550,
+    "task_id": "de4ba52f-259c-412d-82d1-7cd5ed6e957b"
   }
-}, {
-  "model": "custom_mosaic_tool.animationtype",
-  "pk": 2,
+},
+{
+  "model": "fractional_cover.userhistory",
+  "pk": 159,
   "fields": {
-    "animation_id": "scene",
-    "name": "Scene",
-    "data_variable": "None"
+    "user_id": 550,
+    "task_id": "5a012878-02a1-4262-a578-2f000fb688df"
   }
-}, {
-  "model": "coastal_change.toolinfo",
-  "pk": 18,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/coastal_change_1.png",
-    "image_title": "Coastline Identification",
-    "image_description": "Identify the coastline of a yearly mosaic and compare it to a baseline year."
-  }
-}, {
-  "model": "coastal_change.toolinfo",
-  "pk": 19,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/coastal_change_2.png",
-    "image_title": "Coastal Change",
-    "image_description": "Compute the area covered by receding coastline over a user defined period."
-  }
-}, {
-  "model": "coastal_change.animationtype",
-  "pk": 0,
-  "fields": {
-    "animation_id": "none",
-    "name": "None",
-    "data_variable": "None"
-  }
-}, {
-  "model": "coastal_change.animationtype",
-  "pk": 1,
-  "fields": {
-    "animation_id": "coastline_change",
-    "name": "Coastline Change",
-    "data_variable": "None"
-  }
-}, {
-  "model": "coastal_change.animationtype",
-  "pk": 2,
-  "fields": {
-    "animation_id": "coastal_change",
-    "name": "Coastal Change",
-    "data_variable": "None"
-  }
-}, {
+},
+{
   "model": "fractional_cover.toolinfo",
   "pk": 4,
   "fields": {
@@ -595,7 +1652,8 @@
     "image_title": "Fractional Coverage",
     "image_description": "The Fractional Coverage tool allows users to create a three band output product used to visualize the sub pixel composition of selected areas. Pixels are classified as a percentage of photosynthetic vegetation, non-photosynthetic vegetation, and bare soil."
   }
-}, {
+},
+{
   "model": "fractional_cover.toolinfo",
   "pk": 5,
   "fields": {
@@ -603,7 +1661,8 @@
     "image_title": "Pixel Preference",
     "image_description": "Pick a compositing algorithm (most recent, least recent, median, min/max NDVI pixel) that will produce the desired mosaic for the fractional cover application."
   }
-}, {
+},
+{
   "model": "fractional_cover.toolinfo",
   "pk": 6,
   "fields": {
@@ -611,7 +1670,748 @@
     "image_title": "Downloads",
     "image_description": "All products (both data and images) are available for download in various formats, including GeoTIFF, NetCDF, and PNG."
   }
-}, {
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "0036ddc5-6c52-40da-a9a3-803cf05eede9",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:52:56.682Z",
+    "execution_end": "2019-04-01T18:53:15.460Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1869903,
+    "clean_pixel_count": 115793,
+    "percentage_clean_pixels": 6.19246025061193,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14777,34658,13096,0,42615,10936,80319,40072,42967,26116,25258,11789,0",
+    "clean_pixel_percentages_per_acquisition": "0.7902548955747972,1.8534651262659079,0.700357184303143,0.0,2.2789952206076998,0.5848431710094053,4.2953564971017215,2.142998861438267,2.2978197264777904,1.3966499866570619,1.350765253598716,0.6304605105184601,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/fractional_cover/0036ddc5-6c52-40da-a9a3-803cf05eede9/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/0036ddc5-6c52-40da-a9a3-803cf05eede9/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/0036ddc5-6c52-40da-a9a3-803cf05eede9/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/0036ddc5-6c52-40da-a9a3-803cf05eede9/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/0036ddc5-6c52-40da-a9a3-803cf05eede9/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:30:05.084Z",
+    "execution_end": "2019-04-01T16:30:07.683Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.7184,
+    "latitude_max": 24.7876,
+    "longitude_min": 88.6228,
+    "longitude_max": 88.6852,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 54484,
+    "clean_pixel_count": 54484,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "38720,18378,38445,11940,38358,32945",
+    "clean_pixel_percentages_per_acquisition": "71.06673518831217,33.73100359738639,70.5619998531679,21.914690551354525,70.40231994714044,60.46729315028265",
+    "status": "CANCELLED",
+    "message": "The task has been cancelled.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/22a6db2a-b785-4ed4-a1e2-5ca6ca1fd244/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "2a9d60b0-4a94-4d05-944f-72e3b6bd6753",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:30:21.114Z",
+    "execution_end": "2019-04-01T16:30:21.114Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.0937,
+    "latitude_max": 24.397,
+    "longitude_min": 88.1378,
+    "longitude_max": 88.602,
+    "pixel_drill_task": false,
+    "complete": false,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "CANCELLED",
+    "message": "The task has been cancelled.",
+    "scenes_processed": 6,
+    "total_scenes": 192,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "2b34c0ae-bfd3-4b87-9571-ecbc41345a59",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:27:16.696Z",
+    "execution_end": "2019-04-01T16:27:26.165Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.8882,
+    "latitude_max": 25.0452,
+    "longitude_min": 88.2625,
+    "longitude_max": 88.5189,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 505470,
+    "clean_pixel_count": 358039,
+    "percentage_clean_pixels": 70.8328882030585,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "222525,81095,209286,124667,203947,193766",
+    "clean_pixel_percentages_per_acquisition": "44.0233841771025,16.043484281955408,41.40423764021604,24.663580430094765,40.347992957049875,38.33382792252755",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/2b34c0ae-bfd3-4b87-9571-ecbc41345a59/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/2b34c0ae-bfd3-4b87-9571-ecbc41345a59/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/2b34c0ae-bfd3-4b87-9571-ecbc41345a59/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/2b34c0ae-bfd3-4b87-9571-ecbc41345a59/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/2b34c0ae-bfd3-4b87-9571-ecbc41345a59/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "4b10c527-af06-46d6-b452-fc988c2f2a97",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:27:34.855Z",
+    "execution_end": "2019-04-01T16:28:27.397Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.4853,
+    "latitude_max": 24.9447,
+    "longitude_min": 87.9369,
+    "longitude_max": 88.5466,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 3515600,
+    "clean_pixel_count": 1531838,
+    "percentage_clean_pixels": 43.572590738423,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "983869,35837,943655,125376,926275,956881",
+    "clean_pixel_percentages_per_acquisition": "27.985806121287972,1.0193708044146093,26.84193309819092,3.5662760268517464,26.347565138240984,27.218141995676415",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/4b10c527-af06-46d6-b452-fc988c2f2a97/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/4b10c527-af06-46d6-b452-fc988c2f2a97/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/4b10c527-af06-46d6-b452-fc988c2f2a97/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/4b10c527-af06-46d6-b452-fc988c2f2a97/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/4b10c527-af06-46d6-b452-fc988c2f2a97/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "4e64dfac-6a96-441c-b962-7f133eba905c",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:01:30.995Z",
+    "execution_end": "2019-04-01T19:01:30.995Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.4383,
+    "latitude_max": 9.5724,
+    "longitude_min": -1.7904,
+    "longitude_max": -1.604,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There are no acquistions for this parameter set.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "54e82fbe-74b4-4b85-a62f-d115eac1e84d",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:29:03.021Z",
+    "execution_end": "2019-04-01T16:29:11.714Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 24.8442,
+    "latitude_max": 24.995,
+    "longitude_min": 88.2071,
+    "longitude_max": 88.4496,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 459234,
+    "clean_pixel_count": 232232,
+    "percentage_clean_pixels": 50.5694264797467,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "145073,36893,132941,40659,127778,134802",
+    "clean_pixel_percentages_per_acquisition": "31.590213268181362,8.033595073535496,28.948422808415753,8.853656305935536,27.82415936102292,29.353662838552896",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/54e82fbe-74b4-4b85-a62f-d115eac1e84d/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/54e82fbe-74b4-4b85-a62f-d115eac1e84d/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/54e82fbe-74b4-4b85-a62f-d115eac1e84d/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/54e82fbe-74b4-4b85-a62f-d115eac1e84d/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/54e82fbe-74b4-4b85-a62f-d115eac1e84d/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "5a012878-02a1-4262-a578-2f000fb688df",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-02T13:47:45.530Z",
+    "execution_end": "2019-04-02T13:47:47.835Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.2549,
+    "latitude_max": 8.2916,
+    "longitude_min": -2.4245,
+    "longitude_max": -2.408,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 8494,
+    "clean_pixel_count": 8494,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "3,6859,545,7128,4969,2827,7596,7585,7704,2799,7774,0,1263",
+    "clean_pixel_percentages_per_acquisition": "0.03531904874028726,80.75111843654344,6.416293854485519,83.91805980692253,58.500117730162465,33.282316929597364,89.42783141040735,89.29832823169296,90.69931716505769,32.952672474688015,91.52342830233106,0.0,14.869319519660937",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/fractional_cover/5a012878-02a1-4262-a578-2f000fb688df/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/5a012878-02a1-4262-a578-2f000fb688df/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/5a012878-02a1-4262-a578-2f000fb688df/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/5a012878-02a1-4262-a578-2f000fb688df/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/5a012878-02a1-4262-a578-2f000fb688df/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "7d414e2c-2642-42b5-add4-e7ccd01fb364",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:30:13.604Z",
+    "execution_end": "2019-04-01T16:30:13.604Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.9133,
+    "latitude_max": 25.1331,
+    "longitude_min": 88.3803,
+    "longitude_max": 88.6921,
+    "pixel_drill_task": false,
+    "complete": false,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "CANCELLED",
+    "message": "The task has been cancelled.",
+    "scenes_processed": 96,
+    "total_scenes": 96,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "83ef9f9d-642f-4cfb-b8c4-87a7e3721088",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:08:31.460Z",
+    "execution_end": "2019-04-01T16:08:31.460Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 25.0578,
+    "latitude_max": 25.3399,
+    "longitude_min": 87.9161,
+    "longitude_max": 88.214,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There are no acquistions for this parameter set.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "89580a61-7f64-4571-a1ce-4801605c0c35",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:08:39.970Z",
+    "execution_end": "2019-04-01T16:08:39.970Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.8505,
+    "latitude_max": 25.1958,
+    "longitude_min": 88.3803,
+    "longitude_max": 88.7198,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 144,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "9934684a-7c5c-42ea-92b0-e26399f858d1",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:28:52.626Z",
+    "execution_end": "2019-04-01T16:28:58.346Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 25.1895,
+    "latitude_max": 25.3336,
+    "longitude_min": 88.2556,
+    "longitude_max": 88.4219,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 301145,
+    "clean_pixel_count": 33148,
+    "percentage_clean_pixels": 11.00732205416,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "23935,12724,11235,13052,9201,6384",
+    "clean_pixel_percentages_per_acquisition": "7.9479984724966375,4.225207126135251,3.7307609291205233,4.334124757176776,3.0553387902837503,2.1199090139301666",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/9934684a-7c5c-42ea-92b0-e26399f858d1/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/9934684a-7c5c-42ea-92b0-e26399f858d1/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/9934684a-7c5c-42ea-92b0-e26399f858d1/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/9934684a-7c5c-42ea-92b0-e26399f858d1/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/9934684a-7c5c-42ea-92b0-e26399f858d1/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "9cbc33bf-8ca9-4f52-b5b1-90016c104b1e",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:30:17.041Z",
+    "execution_end": "2019-04-01T16:30:17.041Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.4474,
+    "latitude_max": 24.5861,
+    "longitude_min": 88.3595,
+    "longitude_max": 88.6228,
+    "pixel_drill_task": false,
+    "complete": false,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "CANCELLED",
+    "message": "The task has been cancelled.",
+    "scenes_processed": 30,
+    "total_scenes": 48,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "9d0dc32d-4570-4f7c-ab8a-031741a9dd23",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:28:57.245Z",
+    "execution_end": "2019-04-01T16:29:02.609Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 25.0452,
+    "latitude_max": 25.1644,
+    "longitude_min": 88.214,
+    "longitude_max": 88.415,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 301886,
+    "clean_pixel_count": 72502,
+    "percentage_clean_pixels": 24.0163505429202,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "45231,27196,35932,36002,32557,23194",
+    "clean_pixel_percentages_per_acquisition": "14.98280807987121,9.00869864783395,11.902506244078891,11.925693804946238,10.784534559403218,7.683032667960753",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/9d0dc32d-4570-4f7c-ab8a-031741a9dd23/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/9d0dc32d-4570-4f7c-ab8a-031741a9dd23/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/9d0dc32d-4570-4f7c-ab8a-031741a9dd23/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/9d0dc32d-4570-4f7c-ab8a-031741a9dd23/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/9d0dc32d-4570-4f7c-ab8a-031741a9dd23/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "c1b12a3a-f7f1-4e79-8474-38859958aec9",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:01:44.243Z",
+    "execution_end": "2019-04-01T19:01:44.243Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2013-06-06",
+    "time_end": "2014-06-06",
+    "latitude_min": 9.4383,
+    "latitude_max": 9.5724,
+    "longitude_min": -1.7904,
+    "longitude_max": -1.604,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There are no acquistions for this parameter set.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "c39aa05a-50df-4245-916a-eafce951848e",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:27:30.171Z",
+    "execution_end": "2019-04-01T16:28:18.980Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.9133,
+    "latitude_max": 25.0766,
+    "longitude_min": 88.609,
+    "longitude_max": 89.0178,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 839740,
+    "clean_pixel_count": 839545,
+    "percentage_clean_pixels": 99.9767785266868,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "633897,615831,630565,426240,628744,456208",
+    "clean_pixel_percentages_per_acquisition": "75.48729368614094,73.3359134970348,75.09050420368209,50.758568128230166,74.87365136828066,54.327291780789295",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/c39aa05a-50df-4245-916a-eafce951848e/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/c39aa05a-50df-4245-916a-eafce951848e/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/c39aa05a-50df-4245-916a-eafce951848e/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/c39aa05a-50df-4245-916a-eafce951848e/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/c39aa05a-50df-4245-916a-eafce951848e/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "de4ba52f-259c-412d-82d1-7cd5ed6e957b",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:02:30.896Z",
+    "execution_end": "2019-04-01T19:02:30.896Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2013-06-06",
+    "time_end": "2018-06-06",
+    "latitude_min": 9.4383,
+    "latitude_max": 9.5723,
+    "longitude_min": -1.7904,
+    "longitude_max": -1.604,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There are no acquistions for this parameter set.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "e39b23c2-3e9f-4c7e-88eb-13c34e393071",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:29:07.272Z",
+    "execution_end": "2019-04-01T16:29:15.575Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 24.5924,
+    "latitude_max": 24.7687,
+    "longitude_min": 88.1447,
+    "longitude_max": 88.3526,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 460312,
+    "clean_pixel_count": 178801,
+    "percentage_clean_pixels": 38.8434366255931,
+    "acquisition_list": "12/29/2015,12/13/2015,11/27/2015,11/11/2015,10/10/2015,09/08/2015",
+    "clean_pixels_per_acquisition": "115428,0,102158,134,96441,114324",
+    "clean_pixel_percentages_per_acquisition": "25.076035384695597,0.0,22.193208084951078,0.02911069014060029,20.951224386937554,24.836198056970055",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/fractional_cover/e39b23c2-3e9f-4c7e-88eb-13c34e393071/band_math.png",
+    "compositor": "least_recent",
+    "satellite_list": "LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7,LANDSAT_7",
+    "mosaic_path": "/datacube/ui_results/fractional_cover/e39b23c2-3e9f-4c7e-88eb-13c34e393071/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/fractional_cover/e39b23c2-3e9f-4c7e-88eb-13c34e393071/plot_path.png",
+    "data_path": "/datacube/ui_results/fractional_cover/e39b23c2-3e9f-4c7e-88eb-13c34e393071/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/fractional_cover/e39b23c2-3e9f-4c7e-88eb-13c34e393071/data_netcdf.nc"
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "fce83960-980b-47a7-ae96-ba8f2242ae67",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:11:34.076Z",
+    "execution_end": "2019-04-01T16:11:34.076Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.605,
+    "latitude_max": 24.8442,
+    "longitude_min": 88.5882,
+    "longitude_max": 88.7545,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 48,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "fractional_cover.fractionalcovertask",
+  "pk": "fda697df-c132-4745-a983-4a9dbba8ae09",
+  "fields": {
+    "title": "Fractional Cover Query",
+    "description": "None",
+    "execution_start": "2019-04-01T16:13:55.080Z",
+    "execution_end": "2019-04-01T16:13:55.081Z",
+    "area_id": "bangladesh_bari",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 24.605,
+    "latitude_max": 24.7876,
+    "longitude_min": 88.5882,
+    "longitude_max": 88.7406,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There was an unhandled exception during the processing of your task.",
+    "scenes_processed": 0,
+    "total_scenes": 48,
+    "result_path": "",
+    "compositor": "least_recent",
+    "satellite_list": "",
+    "mosaic_path": "",
+    "plot_path": "",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
   "model": "ndvi_anomaly.toolinfo",
   "pk": 9,
   "fields": {
@@ -619,7 +2419,8 @@
     "image_title": "NDVI Anomaly",
     "image_description": "The NDVI Anomaly tool allows users to calculate and visualize the NDVI change between a single scene and a user defined baseline composite of scenes preceding it."
   }
-}, {
+},
+{
   "model": "ndvi_anomaly.toolinfo",
   "pk": 10,
   "fields": {
@@ -627,7 +2428,8 @@
     "image_title": "Baselines for Seasons",
     "image_description": "Define a custom baseline of specific months to create seasonal baselines unique to your region."
   }
-}, {
+},
+{
   "model": "ndvi_anomaly.toolinfo",
   "pk": 11,
   "fields": {
@@ -635,7 +2437,8 @@
     "image_title": "Specific Scene Selection",
     "image_description": "Pick a specific acquisition date for analysis and calculate the difference and percentage change from a composite of all acquisitions prior to that date."
   }
-}, {
+},
+{
   "model": "slip.toolinfo",
   "pk": 7,
   "fields": {
@@ -643,7 +2446,8 @@
     "image_title": "Landslide Detection",
     "image_description": "The SLIP tools uses algorithms to combine optical and elevation data to determine possible locations for recent landslides"
   }
-}, {
+},
+{
   "model": "slip.toolinfo",
   "pk": 8,
   "fields": {
@@ -651,227 +2455,242 @@
     "image_title": "Threshold Control",
     "image_description": "Set the baseline thresholds to expand or narrow results of possible landslide data."
   }
-}, {
+},
+{
   "model": "slip.baselinemethod",
   "pk": "average",
   "fields": {
     "name": "Average"
   }
-}, {
+},
+{
   "model": "slip.baselinemethod",
   "pk": "composite",
   "fields": {
     "name": "Composite"
   }
-}, {
-  "model": "tsm.toolinfo",
-  "pk": 15,
+},
+{
+  "model": "spectral_anomaly.userhistory",
+  "pk": 1,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/tsm_1.png",
-    "image_title": "Total Suspended Matter",
-    "image_description": "The TSM tool allows users to run an algorithm to determine the average amount of suspended matter in a given area."
+    "user_id": 550,
+    "task_id": "c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c"
   }
-}, {
-  "model": "tsm.toolinfo",
-  "pk": 16,
+},
+{
+  "model": "spectral_anomaly.userhistory",
+  "pk": 2,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/tsm_2.png",
-    "image_title": "Time Series Analysis",
-    "image_description": "Run analyses over a given time period and geographic area to produce a single cumulative product from multiple time slices."
+    "user_id": 550,
+    "task_id": "4dbb1979-f93f-47c3-8246-348262a20475"
   }
-}, {
-  "model": "tsm.toolinfo",
-  "pk": 17,
+},
+{
+  "model": "spectral_anomaly.userhistory",
+  "pk": 3,
   "fields": {
-    "image_path": "/static/assets/images/thumbnails/tsm_3.png",
-    "image_title": "Animated Images",
-    "image_description": "Create animated GIFs of TSM values over time to show trends of increasing or decreasing suspended matter."
+    "user_id": 550,
+    "task_id": "c35e1940-a94b-46ed-a49e-dd6257cfc350"
   }
-}, {
-  "model": "tsm.resulttype",
+},
+{
+  "model": "spectral_anomaly.resulttype",
+  "pk": 1,
+  "fields": {
+    "result_id": "ndbi",
+    "name": "NDBI"
+  }
+},
+{
+  "model": "spectral_anomaly.resulttype",
+  "pk": 2,
+  "fields": {
+    "result_id": "ndwi",
+    "name": "NDWI"
+  }
+},
+{
+  "model": "spectral_anomaly.resulttype",
+  "pk": 3,
+  "fields": {
+    "result_id": "evi",
+    "name": "EVI"
+  }
+},
+{
+  "model": "spectral_anomaly.resulttype",
+  "pk": 4,
+  "fields": {
+    "result_id": "ndvi",
+    "name": "NDVI"
+  }
+},
+{
+  "model": "spectral_anomaly.resulttype",
   "pk": 5,
   "fields": {
-    "result_id": "normalized_data",
-    "name": "Average TSM",
-    "data_variable": "normalized_data"
+    "result_id": "fractional_cover",
+    "name": "Fractional Cover"
   }
-}, {
-  "model": "tsm.resulttype",
-  "pk": 6,
+},
+{
+  "model": "spectral_anomaly.spectralanomalytask",
+  "pk": "4dbb1979-f93f-47c3-8246-348262a20475",
   "fields": {
-    "result_id": "min",
-    "name": "Minimum TSM",
-    "data_variable": "min"
+    "title": "Spectral Anomaly Query",
+    "description": "None",
+    "execution_start": "2019-04-02T15:55:06.294Z",
+    "execution_end": "2019-04-02T15:55:08.300Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2005-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.2454,
+    "latitude_max": 8.2698,
+    "longitude_min": -2.4492,
+    "longitude_max": -2.4245,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 8556,
+    "clean_pixel_count": 8556,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015,04/07/2006,03/22/2006,03/06/2006,02/02/2006,01/17/2006,01/01/2006,12/16/2005,11/30/2005,11/14/2005,10/29/2005",
+    "clean_pixels_per_acquisition": "7877,7827,8014,7826,7800,7794,7771,7799,7799,7852,7970,7848,7913,7736,7542,7505,7732,7667,7611,7650,7728,7568,7717",
+    "clean_pixel_percentages_per_acquisition": "92.06404862085087,91.4796633941094,93.66526414212248,91.46797568957457,91.164095371669,91.09396914446003,90.82515194015895,91.15240766713417,91.15240766713417,91.77185600748012,93.15100514259,91.72510518934081,92.48480598410472,90.41608228143993,88.14866760168303,87.71622253389434,90.36933146330061,89.6096306685367,88.95511921458626,89.4109396914446,90.3225806451613,88.4525479195886,90.19401589527817",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 23,
+    "total_scenes": 23,
+    "result_path": "/datacube/ui_results/spectral_anomaly/4dbb1979-f93f-47c3-8246-348262a20475/png_mosaic.png",
+    "query_type": 1,
+    "compositor": "least_recent",
+    "baseline_time_start": "2005-06-06",
+    "baseline_time_end": "2006-06-06",
+    "analysis_time_start": "2015-06-06",
+    "analysis_time_end": "2016-06-06",
+    "composite_threshold_min": -1.0,
+    "composite_threshold_max": 1.0,
+    "change_threshold_min": null,
+    "change_threshold_max": null,
+    "data_netcdf_path": "/datacube/ui_results/spectral_anomaly/4dbb1979-f93f-47c3-8246-348262a20475/data_netcdf.nc",
+    "data_path": "/datacube/ui_results/spectral_anomaly/4dbb1979-f93f-47c3-8246-348262a20475/data_tif.tif",
+    "plot_path": "/datacube/ui_results/spectral_anomaly/4dbb1979-f93f-47c3-8246-348262a20475/plot_path.png"
   }
-}, {
-  "model": "tsm.resulttype",
-  "pk": 7,
+},
+{
+  "model": "spectral_anomaly.spectralanomalytask",
+  "pk": "c35e1940-a94b-46ed-a49e-dd6257cfc350",
   "fields": {
-    "result_id": "max",
-    "name": "Maximum TSM",
-    "data_variable": "max"
+    "title": "Spectral Anomaly Query",
+    "description": "None",
+    "execution_start": "2019-04-02T16:01:15.312Z",
+    "execution_end": "2019-04-02T16:01:20.761Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2013-06-06",
+    "time_end": "2018-06-06",
+    "latitude_min": 8.3079,
+    "latitude_max": 8.3201,
+    "longitude_min": -2.4451,
+    "longitude_max": -2.4286,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2852,
+    "clean_pixel_count": 2852,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/30/2016,12/14/2016,11/28/2016,11/12/2016,10/27/2016,10/11/2016,09/25/2016,05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015,04/16/2015,03/31/2015,02/27/2015,01/26/2015,01/10/2015,12/25/2014,11/23/2014,10/22/2014,03/28/2014,03/12/2014,02/24/2014,02/08/2014,01/23/2014,01/07/2014,12/22/2013,12/06/2013,11/20/2013,11/04/2013,10/19/2013,06/13/2013",
+    "clean_pixels_per_acquisition": "5370,5112,5048,5154,5352,5326,5184,5402,5112,5354,5216,5350,5162,5344,5320,5092,5300,5342,5132,5198,5244,5520,5410,5348,5372,5184,5416,5180,5422,5126,5166,5086,5040,5390,5246,5366,5430,5412,5378,5196",
+    "clean_pixel_percentages_per_acquisition": "188.28892005610098,179.24263674614306,176.99859747545582,180.71528751753155,187.6577840112202,186.7461430575035,181.7671809256662,189.4109396914446,179.24263674614306,187.72791023842916,182.88920056100983,187.5876577840112,180.99579242636747,187.37727910238428,186.53576437587657,178.5413744740533,185.8345021037868,187.30715287517532,179.94389901823283,182.25806451612902,183.8709677419355,193.5483870967742,189.6914446002805,187.51753155680225,188.35904628330997,181.7671809256662,189.90182328190744,181.62692847124825,190.11220196353437,179.7335203366059,181.13604488078542,178.33099579242636,176.71809256661993,188.99018232819074,183.94109396914445,188.14866760168303,190.39270687237027,189.7615708274895,188.5694249649369,182.18793828892007",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 40,
+    "total_scenes": 40,
+    "result_path": "/datacube/ui_results/spectral_anomaly/c35e1940-a94b-46ed-a49e-dd6257cfc350/png_mosaic.png",
+    "query_type": 1,
+    "compositor": "least_recent",
+    "baseline_time_start": "2013-06-06",
+    "baseline_time_end": "2018-06-06",
+    "analysis_time_start": "2013-06-06",
+    "analysis_time_end": "2018-06-06",
+    "composite_threshold_min": -1.0,
+    "composite_threshold_max": 1.0,
+    "change_threshold_min": null,
+    "change_threshold_max": null,
+    "data_netcdf_path": "/datacube/ui_results/spectral_anomaly/c35e1940-a94b-46ed-a49e-dd6257cfc350/data_netcdf.nc",
+    "data_path": "/datacube/ui_results/spectral_anomaly/c35e1940-a94b-46ed-a49e-dd6257cfc350/data_tif.tif",
+    "plot_path": "/datacube/ui_results/spectral_anomaly/c35e1940-a94b-46ed-a49e-dd6257cfc350/plot_path.png"
   }
-}, {
-  "model": "tsm.resulttype",
-  "pk": 8,
+},
+{
+  "model": "spectral_anomaly.spectralanomalytask",
+  "pk": "c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c",
   "fields": {
-    "result_id": "variability",
-    "name": "TSM Variability",
-    "data_variable": "variability"
+    "title": "Spectral Anomaly Query",
+    "description": "None",
+    "execution_start": "2019-04-02T15:54:21.450Z",
+    "execution_end": "2019-04-02T15:54:26.710Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2013-06-06",
+    "time_end": "2018-06-06",
+    "latitude_min": 8.2454,
+    "latitude_max": 8.2698,
+    "longitude_min": -2.4492,
+    "longitude_max": -2.4245,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 8556,
+    "clean_pixel_count": 8556,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/30/2016,12/14/2016,11/28/2016,11/12/2016,10/27/2016,10/11/2016,09/25/2016,05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015,04/16/2015,03/31/2015,02/27/2015,01/26/2015,01/10/2015,12/25/2014,11/23/2014,10/22/2014,03/28/2014,03/12/2014,02/24/2014,02/08/2014,01/23/2014,01/07/2014,12/22/2013,12/06/2013,11/20/2013,11/04/2013,10/19/2013,06/13/2013",
+    "clean_pixels_per_acquisition": "15716,15576,15482,15584,15404,15548,15646,15754,15654,16028,15652,15600,15588,15542,15598,15598,15704,15940,15696,15826,15734,16052,15868,15662,15662,15588,16022,15750,15838,15742,15580,14726,14866,15744,15832,15502,15828,15726,15706,15528",
+    "clean_pixel_percentages_per_acquisition": "183.68396446937822,182.0476858345021,180.94904160822816,182.14118747078075,180.03740065451146,181.72043010752688,182.86582515194016,184.12809724170174,182.9593267882188,187.33052828424496,182.93595137914915,182.328190743338,182.18793828892007,181.6503038803179,182.30481533426834,182.30481533426834,183.54371201496025,186.30201028518,183.45021037868162,184.96961196820945,183.89434315100513,187.61103319308089,185.46049555867228,183.05282842449742,183.05282842449742,182.18793828892007,187.260402057036,184.08134642356242,185.1098644226274,183.9878447872838,182.09443665264143,172.11313697989715,173.74941561477326,184.01122019635343,185.0397381954184,181.18279569892474,184.9929873772791,183.8008415147265,183.56708742402992,181.4866760168303",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 40,
+    "total_scenes": 40,
+    "result_path": "/datacube/ui_results/spectral_anomaly/c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c/png_mosaic.png",
+    "query_type": 1,
+    "compositor": "least_recent",
+    "baseline_time_start": "2013-06-06",
+    "baseline_time_end": "2018-06-06",
+    "analysis_time_start": "2013-06-06",
+    "analysis_time_end": "2018-06-06",
+    "composite_threshold_min": -1.0,
+    "composite_threshold_max": 1.0,
+    "change_threshold_min": null,
+    "change_threshold_max": null,
+    "data_netcdf_path": "/datacube/ui_results/spectral_anomaly/c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c/data_netcdf.nc",
+    "data_path": "/datacube/ui_results/spectral_anomaly/c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c/data_tif.tif",
+    "plot_path": "/datacube/ui_results/spectral_anomaly/c87eeae5-c2f4-4ba0-8da3-c8bfedaadf6c/plot_path.png"
   }
-}, {
-  "model": "tsm.animationtype",
-  "pk": 0,
+},
+{
+  "model": "spectral_indices.userhistory",
+  "pk": 291,
   "fields": {
-    "animation_id": "none",
-    "name": "None",
-    "data_variable": "None"
+    "user_id": 550,
+    "task_id": "56d2152b-728b-4356-8334-830d38e6fcd0"
   }
-}, {
-  "model": "tsm.animationtype",
-  "pk": 1,
+},
+{
+  "model": "spectral_indices.userhistory",
+  "pk": 292,
   "fields": {
-    "animation_id": "scene",
-    "name": "Scene",
-    "data_variable": "tsm"
+    "user_id": 550,
+    "task_id": "999145b9-1314-49de-b134-b6f74f48af89"
   }
-}, {
-  "model": "tsm.animationtype",
-  "pk": 2,
+},
+{
+  "model": "spectral_indices.userhistory",
+  "pk": 293,
   "fields": {
-    "animation_id": "cumulative_average",
-    "name": "Cumulative Average",
-    "data_variable": "normalized_data"
+    "user_id": 550,
+    "task_id": "6807ac01-a6ba-4de2-955f-0e870c9cd3d1"
   }
-}, {
-  "model": "water_detection.toolinfo",
-  "pk": 12,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/water_detection_1.png",
-    "image_title": "Water Detection",
-    "image_description": "The Water Detection tool allows users to determine a per pixel analysis of water vs not-water for a given scene over many acquisitions."
-  }
-}, {
-  "model": "water_detection.toolinfo",
-  "pk": 13,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/water_detection_2.png",
-    "image_title": "Time Series Analysis",
-    "image_description": "Run analyses over time producing outputs visualizing cumulative acquisitions, water observations, and water percentages."
-  }
-}, {
-  "model": "water_detection.toolinfo",
-  "pk": 14,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/water_detection_3.png",
-    "image_title": "Animated Images",
-    "image_description": "Create animated GIFs of water levels over time to show trends of increasing or decreasing water levels."
-  }
-}, {
-  "model": "water_detection.resulttype",
-  "pk": 1,
-  "fields": {
-    "result_id": "black_background",
-    "name": "Black",
-    "fill": "black"
-  }
-}, {
-  "model": "water_detection.resulttype",
-  "pk": 2,
-  "fields": {
-    "result_id": "white_background",
-    "name": "White",
-    "fill": "white"
-  }
-}, {
-  "model": "water_detection.resulttype",
-  "pk": 3,
-  "fields": {
-    "result_id": "transparent_background",
-    "name": "Transparent",
-    "fill": "transparent"
-  }
-}, {
-  "model": "water_detection.animationtype",
-  "pk": 0,
-  "fields": {
-    "animation_id": "none",
-    "name": "None",
-    "data_variable": "None"
-  }
-}, {
-  "model": "water_detection.animationtype",
-  "pk": 1,
-  "fields": {
-    "animation_id": "scene",
-    "name": "Scene",
-    "data_variable": "wofs"
-  }
-}, {
-  "model": "water_detection.animationtype",
-  "pk": 2,
-  "fields": {
-    "animation_id": "cumulative_percentage",
-    "name": "Cumulative Percentages",
-    "data_variable": "normalized_data"
-  }
-}, {
-  "model": "water_detection.animationtype",
-  "pk": 3,
-  "fields": {
-    "animation_id": "cumulative_observations",
-    "name": "Cumulative Observations",
-    "data_variable": "total_data"
-  }
-}, {
-  "model": "cloud_coverage.toolinfo",
-  "pk": 1,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_1.png",
-    "image_title": "Run Band Math Analyses on Mosaics",
-    "image_description": "Run arbitrary band math calculations on mosaics that are generated automatically."
-  }
-}, {
-  "model": "cloud_coverage.toolinfo",
-  "pk": 2,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_2.png",
-    "image_title": "Pixel Preference",
-    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max cloud_coverage value pixel."
-  }
-}, {
-  "model": "cloud_coverage.toolinfo",
-  "pk": 3,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_3.png",
-    "image_title": "Time Series",
-    "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image then calculates some band math equation."
-  }
-}, {
-  "model": "urbanization.toolinfo",
-  "pk": 1,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/urbanization_2.png",
-    "image_title": "Create Filtered Mosaics for Analysis Cases",
-    "image_description": "Create a filtered mosaic before analysis to increase accuracy and reduce execution time."
-  }
-}, {
-  "model": "urbanization.toolinfo",
-  "pk": 2,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/urbanization_1.png",
-    "image_title": "Pixel Preference",
-    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max urbanization value pixel."
-  }
-}, {
-  "model": "urbanization.toolinfo",
-  "pk": 3,
-  "fields": {
-    "image_path": "/static/assets/images/thumbnails/urbanization_3.png",
-    "image_title": "Compute Indices to Visualize Area Content",
-    "image_description": "Visualize area contents with the use of well known remote sensing indices."
-  }
-}, {
+},
+{
   "model": "spectral_indices.toolinfo",
   "pk": 1,
   "fields": {
@@ -879,7 +2698,8 @@
     "image_title": "Run Band Math Analyses on Mosaics",
     "image_description": "Calculate any common spectral index on time series data"
   }
-}, {
+},
+{
   "model": "spectral_indices.toolinfo",
   "pk": 2,
   "fields": {
@@ -887,7 +2707,8 @@
     "image_title": "Pixel Preference",
     "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max NDVI value pixel."
   }
-}, {
+},
+{
   "model": "spectral_indices.toolinfo",
   "pk": 3,
   "fields": {
@@ -895,53 +2716,932 @@
     "image_title": "Time Series",
     "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image then calculates the selected spectral index."
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 1,
   "fields": {
     "result_id": "ndvi",
     "name": "NDVI"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 2,
   "fields": {
     "result_id": "ndwi",
     "name": "NDWI"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 3,
   "fields": {
     "result_id": "ndbi",
     "name": "NDBI"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 4,
   "fields": {
     "result_id": "evi",
     "name": "EVI"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 5,
   "fields": {
     "result_id": "savi",
     "name": "SAVI"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 6,
   "fields": {
     "result_id": "nbr",
     "name": "NBR"
   }
-}, {
+},
+{
   "model": "spectral_indices.resulttype",
   "pk": 7,
   "fields": {
     "result_id": "nbr2",
     "name": "NBR2"
   }
-}]
+},
+{
+  "model": "spectral_indices.spectralindicestask",
+  "pk": "56d2152b-728b-4356-8334-830d38e6fcd0",
+  "fields": {
+    "title": "Spectral Index Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:54:16.865Z",
+    "execution_end": "2019-04-01T18:54:23.351Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1869903,
+    "clean_pixel_count": 115793,
+    "percentage_clean_pixels": 6.19246025061193,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14777,34658,13096,0,42615,10936,80319,40072,42967,26116,25258,11789,0",
+    "clean_pixel_percentages_per_acquisition": "0.7902548955747972,1.8534651262659079,0.700357184303143,0.0,2.2789952206076998,0.5848431710094053,4.2953564971017215,2.142998861438267,2.2978197264777904,1.3966499866570619,1.350765253598716,0.6304605105184601,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/spectral_indices/56d2152b-728b-4356-8334-830d38e6fcd0/band_math.png",
+    "compositor": "least_recent",
+    "query_type": 1,
+    "mosaic_path": "/datacube/ui_results/spectral_indices/56d2152b-728b-4356-8334-830d38e6fcd0/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/spectral_indices/56d2152b-728b-4356-8334-830d38e6fcd0/plot_path.png",
+    "data_path": "/datacube/ui_results/spectral_indices/56d2152b-728b-4356-8334-830d38e6fcd0/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/spectral_indices/56d2152b-728b-4356-8334-830d38e6fcd0/data_netcdf.nc"
+  }
+},
+{
+  "model": "spectral_indices.spectralindicestask",
+  "pk": "6807ac01-a6ba-4de2-955f-0e870c9cd3d1",
+  "fields": {
+    "title": "Spectral Index Query",
+    "description": "None",
+    "execution_start": "2019-04-02T15:59:44.096Z",
+    "execution_end": "2019-04-02T15:59:51.732Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2013-06-06",
+    "time_end": "2018-06-06",
+    "latitude_min": 8.3201,
+    "latitude_max": 8.3487,
+    "longitude_min": -2.4575,
+    "longitude_max": -2.4121,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 18083,
+    "clean_pixel_count": 18083,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/30/2016,12/14/2016,11/28/2016,11/12/2016,10/27/2016,10/11/2016,09/25/2016,05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015,04/16/2015,03/31/2015,02/27/2015,01/26/2015,01/10/2015,12/25/2014,11/23/2014,10/22/2014,03/28/2014,03/12/2014,02/24/2014,02/08/2014,01/23/2014,01/07/2014,12/22/2013,12/06/2013,11/20/2013,11/04/2013,10/19/2013,06/13/2013",
+    "clean_pixels_per_acquisition": "16564,15468,16706,0,4270,2106,0,810,15343,4982,16915,15068,16610,16460,16722,16766,7455,16414,0,2462,17230,15676,16786,10885,15670,16669,10778,16881,0,2023,16729,15390,15946,16692,16869,16622,7030,8777,6065,0",
+    "clean_pixel_percentages_per_acquisition": "91.5998451584361,85.53890394292982,92.3851130896422,0.0,23.613338494718796,11.646297627606039,0.0,4.479345241386938,84.8476469612343,27.550738262456452,93.5408947630371,83.32688160150417,91.85422772770005,91.02471934966543,92.47359398329922,92.71691644085605,41.22656638832052,90.77033678040148,0.0,13.614997511474867,95.2828623569098,86.68915556047116,92.82751755792734,60.194657966045455,86.65597522534978,92.18050102306033,59.6029419897141,93.35287286401592,0.0,11.187302991760216,92.51230437427418,85.10755958635183,88.18227064093347,92.3076923076923,93.28651219377316,91.92058839794282,38.87629265055577,48.53730022673229,33.539788751866396,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 40,
+    "total_scenes": 40,
+    "result_path": "/datacube/ui_results/spectral_indices/6807ac01-a6ba-4de2-955f-0e870c9cd3d1/band_math.png",
+    "compositor": "least_recent",
+    "query_type": 1,
+    "mosaic_path": "/datacube/ui_results/spectral_indices/6807ac01-a6ba-4de2-955f-0e870c9cd3d1/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/spectral_indices/6807ac01-a6ba-4de2-955f-0e870c9cd3d1/plot_path.png",
+    "data_path": "/datacube/ui_results/spectral_indices/6807ac01-a6ba-4de2-955f-0e870c9cd3d1/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/spectral_indices/6807ac01-a6ba-4de2-955f-0e870c9cd3d1/data_netcdf.nc"
+  }
+},
+{
+  "model": "spectral_indices.spectralindicestask",
+  "pk": "999145b9-1314-49de-b134-b6f74f48af89",
+  "fields": {
+    "title": "Spectral Index Query",
+    "description": "None",
+    "execution_start": "2019-04-02T13:47:05.355Z",
+    "execution_end": "2019-04-02T13:47:07.558Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.2386,
+    "latitude_max": 8.2631,
+    "longitude_min": -2.4163,
+    "longitude_max": -2.3957,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 7176,
+    "clean_pixel_count": 7176,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "19,5655,89,749,5953,5460,6427,6446,6360,3750,6393,0,38",
+    "clean_pixel_percentages_per_acquisition": "0.26477146042363436,78.80434782608695,1.2402452619843924,10.437569676700111,82.95707915273132,76.08695652173913,89.56243032329989,89.82720178372352,88.62876254180603,52.25752508361204,89.0886287625418,0.0,0.5295429208472687",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/spectral_indices/999145b9-1314-49de-b134-b6f74f48af89/band_math.png",
+    "compositor": "least_recent",
+    "query_type": 1,
+    "mosaic_path": "/datacube/ui_results/spectral_indices/999145b9-1314-49de-b134-b6f74f48af89/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/spectral_indices/999145b9-1314-49de-b134-b6f74f48af89/plot_path.png",
+    "data_path": "/datacube/ui_results/spectral_indices/999145b9-1314-49de-b134-b6f74f48af89/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/spectral_indices/999145b9-1314-49de-b134-b6f74f48af89/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 279,
+  "fields": {
+    "user_id": 550,
+    "task_id": "16b95475-0776-4b71-aab2-901b61fe1742"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 280,
+  "fields": {
+    "user_id": 550,
+    "task_id": "e3b26f49-510f-42fe-af36-a83ebe703e55"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 281,
+  "fields": {
+    "user_id": 550,
+    "task_id": "db1697ce-bef7-48b0-90e4-fab4f1e16bd3"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 282,
+  "fields": {
+    "user_id": 550,
+    "task_id": "1199461e-c043-4dc3-99f2-abb6f541bed1"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 283,
+  "fields": {
+    "user_id": 550,
+    "task_id": "811bab8f-242a-44d6-8876-434737479795"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 284,
+  "fields": {
+    "user_id": 550,
+    "task_id": "d137f02f-dd82-4ec2-b439-247bf85178b3"
+  }
+},
+{
+  "model": "tsm.userhistory",
+  "pk": 285,
+  "fields": {
+    "user_id": 550,
+    "task_id": "63a498d1-b7b0-4b4b-8b4f-524088b3b07a"
+  }
+},
+{
+  "model": "tsm.toolinfo",
+  "pk": 15,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/tsm_1.png",
+    "image_title": "Total Suspended Matter",
+    "image_description": "The TSM tool allows users to run an algorithm to determine the average amount of suspended matter in a given area."
+  }
+},
+{
+  "model": "tsm.toolinfo",
+  "pk": 16,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/tsm_2.png",
+    "image_title": "Time Series Analysis",
+    "image_description": "Run analyses over a given time period and geographic area to produce a single cumulative product from multiple time slices."
+  }
+},
+{
+  "model": "tsm.toolinfo",
+  "pk": 17,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/tsm_3.png",
+    "image_title": "Animated Images",
+    "image_description": "Create animated GIFs of TSM values over time to show trends of increasing or decreasing suspended matter."
+  }
+},
+{
+  "model": "tsm.resulttype",
+  "pk": 5,
+  "fields": {
+    "result_id": "normalized_data",
+    "name": "Average TSM",
+    "data_variable": "normalized_data"
+  }
+},
+{
+  "model": "tsm.resulttype",
+  "pk": 6,
+  "fields": {
+    "result_id": "min",
+    "name": "Minimum TSM",
+    "data_variable": "min"
+  }
+},
+{
+  "model": "tsm.resulttype",
+  "pk": 7,
+  "fields": {
+    "result_id": "max",
+    "name": "Maximum TSM",
+    "data_variable": "max"
+  }
+},
+{
+  "model": "tsm.resulttype",
+  "pk": 8,
+  "fields": {
+    "result_id": "variability",
+    "name": "TSM Variability",
+    "data_variable": "variability"
+  }
+},
+{
+  "model": "tsm.animationtype",
+  "pk": 0,
+  "fields": {
+    "animation_id": "none",
+    "name": "None",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "tsm.animationtype",
+  "pk": 1,
+  "fields": {
+    "animation_id": "scene",
+    "name": "Scene",
+    "data_variable": "tsm"
+  }
+},
+{
+  "model": "tsm.animationtype",
+  "pk": 2,
+  "fields": {
+    "animation_id": "cumulative_average",
+    "name": "Cumulative Average",
+    "data_variable": "normalized_data"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "1199461e-c043-4dc3-99f2-abb6f541bed1",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:20:25.167Z",
+    "execution_end": "2019-04-01T19:20:50.058Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 9.11686707124126,
+    "latitude_max": 9.67391237892407,
+    "longitude_min": -3.18663872312308,
+    "longitude_max": -2.6223170616389,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 4332460,
+    "clean_pixel_count": 4332460,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,1,0,0,179,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,2.3081574902018716e-05,0.0,0.0,0.0041316019074613495,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/1199461e-c043-4dc3-99f2-abb6f541bed1/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "16b95475-0776-4b71-aab2-901b61fe1742",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:55:15.568Z",
+    "execution_end": "2019-04-01T18:55:34.029Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.18612717964692,
+    "latitude_max": 9.64534595288906,
+    "longitude_min": -3.58629919302807,
+    "longitude_max": -3.20738980618625,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2398935,
+    "clean_pixel_count": 2398935,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,0,0,0,0,0,0,0,0,0,0,0,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/16b95475-0776-4b71-aab2-901b61fe1742/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "63a498d1-b7b0-4b4b-8b4f-524088b3b07a",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:21:18.171Z",
+    "execution_end": "2019-04-01T19:21:31.791Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 8.17606147418239,
+    "latitude_max": 8.56736761194506,
+    "longitude_min": -2.45738637547447,
+    "longitude_max": -2.17333908263572,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 1532915,
+    "clean_pixel_count": 1532915,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,0,90911,54605,0,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,0.0,5.93059628224657,3.562167504395221,0.0,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/63a498d1-b7b0-4b4b-8b4f-524088b3b07a/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "811bab8f-242a-44d6-8876-434737479795",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:20:35.181Z",
+    "execution_end": "2019-04-01T19:20:55.532Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 8.49002266598233,
+    "latitude_max": 9.12899432757688,
+    "longitude_min": -3.52862735178757,
+    "longitude_max": -3.08773421034147,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 3882964,
+    "clean_pixel_count": 3882964,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,0,0,0,0,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,0.0,0.0,0.0,0.0,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/811bab8f-242a-44d6-8876-434737479795/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "d137f02f-dd82-4ec2-b439-247bf85178b3",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:21:08.683Z",
+    "execution_end": "2019-04-01T19:21:41.130Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 8.48598024720379,
+    "latitude_max": 9.1777728475046,
+    "longitude_min": -3.09177662912001,
+    "longitude_max": -2.49457662823703,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 5693256,
+    "clean_pixel_count": 5693256,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,2,0,0,0,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,3.512928278651092e-05,0.0,0.0,0.0,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/d137f02f-dd82-4ec2-b439-247bf85178b3/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "db1697ce-bef7-48b0-90e4-fab4f1e16bd3",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:20:02.062Z",
+    "execution_end": "2019-04-01T19:20:16.820Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 9.12522140338358,
+    "latitude_max": 9.67391237892407,
+    "longitude_min": -3.54102410270842,
+    "longitude_max": -3.18663872312308,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2680692,
+    "clean_pixel_count": 2680692,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "0,0,0,0,0,0",
+    "clean_pixel_percentages_per_acquisition": "0.0,0.0,0.0,0.0,0.0,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 6,
+    "total_scenes": 6,
+    "result_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/tsm.png",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/clear_observations.png",
+    "water_percentage_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/water_percentage.png",
+    "plot_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/tsm/db1697ce-bef7-48b0-90e4-fab4f1e16bd3/data_netcdf.nc"
+  }
+},
+{
+  "model": "tsm.tsmtask",
+  "pk": "e3b26f49-510f-42fe-af36-a83ebe703e55",
+  "fields": {
+    "title": "TSM Query",
+    "description": "None",
+    "execution_start": "2019-04-01T19:19:52.351Z",
+    "execution_end": "2019-04-01T19:19:52.351Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-01-06",
+    "latitude_min": 9.4016,
+    "latitude_max": 9.5519,
+    "longitude_min": -3.4915,
+    "longitude_max": -3.3638,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 0,
+    "clean_pixel_count": 0,
+    "percentage_clean_pixels": 0.0,
+    "acquisition_list": "",
+    "clean_pixels_per_acquisition": "",
+    "clean_pixel_percentages_per_acquisition": "",
+    "status": "ERROR",
+    "message": "There are no acquistions for this parameter set.",
+    "scenes_processed": 0,
+    "total_scenes": 0,
+    "result_path": "",
+    "query_type": 5,
+    "animated_product": 0,
+    "clear_observations_path": "",
+    "water_percentage_path": "",
+    "plot_path": "",
+    "animation_path": "None",
+    "data_path": "",
+    "data_netcdf_path": ""
+  }
+},
+{
+  "model": "urbanization.userhistory",
+  "pk": 358,
+  "fields": {
+    "user_id": 550,
+    "task_id": "edd87976-603e-41b0-8e1b-8ca53b80179e"
+  }
+},
+{
+  "model": "urbanization.userhistory",
+  "pk": 359,
+  "fields": {
+    "user_id": 550,
+    "task_id": "49d920e9-dac0-46fb-890e-ce657c18537f"
+  }
+},
+{
+  "model": "urbanization.userhistory",
+  "pk": 360,
+  "fields": {
+    "user_id": 550,
+    "task_id": "95ac7bbf-4edb-4898-a2b7-e0d80006d9b8"
+  }
+},
+{
+  "model": "urbanization.userhistory",
+  "pk": 361,
+  "fields": {
+    "user_id": 550,
+    "task_id": "5d071634-143e-4321-ae4b-86d07eaf47b3"
+  }
+},
+{
+  "model": "urbanization.toolinfo",
+  "pk": 1,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/urbanization_2.png",
+    "image_title": "Create Filtered Mosaics for Analysis Cases",
+    "image_description": "Create a filtered mosaic before analysis to increase accuracy and reduce execution time."
+  }
+},
+{
+  "model": "urbanization.toolinfo",
+  "pk": 2,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/urbanization_1.png",
+    "image_title": "Pixel Preference",
+    "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max urbanization value pixel."
+  }
+},
+{
+  "model": "urbanization.toolinfo",
+  "pk": 3,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/urbanization_3.png",
+    "image_title": "Compute Indices to Visualize Area Content",
+    "image_description": "Visualize area contents with the use of well known remote sensing indices."
+  }
+},
+{
+  "model": "urbanization.urbanizationtask",
+  "pk": "49d920e9-dac0-46fb-890e-ce657c18537f",
+  "fields": {
+    "title": "Urbanization Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:56:24.447Z",
+    "execution_end": "2019-04-01T18:56:28.378Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.0559,
+    "latitude_max": 9.1983,
+    "longitude_min": -3.5492,
+    "longitude_max": -3.1496,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 784507,
+    "clean_pixel_count": 256745,
+    "percentage_clean_pixels": 32.7269227680569,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "112628,129631,42756,0,135413,54855,157164,130035,135579,111141,106816,231,20924",
+    "clean_pixel_percentages_per_acquisition": "14.356532191554695,16.523880602722475,5.450046972174881,0.0,17.260903981736302,6.992289425078425,20.033473251354035,16.575377912497913,17.28206376743611,14.166986400376286,13.615684754884278,0.0294452439557582,2.6671527468843492",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/urbanization/49d920e9-dac0-46fb-890e-ce657c18537f/urbanization.png",
+    "compositor": "least_recent",
+    "mosaic_path": "/datacube/ui_results/urbanization/49d920e9-dac0-46fb-890e-ce657c18537f/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/urbanization/49d920e9-dac0-46fb-890e-ce657c18537f/plot_path.png",
+    "data_path": "/datacube/ui_results/urbanization/49d920e9-dac0-46fb-890e-ce657c18537f/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/urbanization/49d920e9-dac0-46fb-890e-ce657c18537f/data_netcdf.nc"
+  }
+},
+{
+  "model": "urbanization.urbanizationtask",
+  "pk": "5d071634-143e-4321-ae4b-86d07eaf47b3",
+  "fields": {
+    "title": "Urbanization Query",
+    "description": "None",
+    "execution_start": "2019-04-02T13:48:25.437Z",
+    "execution_end": "2019-04-02T13:48:27.404Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 8.2875,
+    "latitude_max": 8.3079,
+    "longitude_min": -2.4616,
+    "longitude_max": -2.441,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 5928,
+    "clean_pixel_count": 5928,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "263,5139,0,5611,4376,4985,5384,5499,5578,1390,5227,0,408",
+    "clean_pixel_percentages_per_acquisition": "4.436572199730095,86.69028340080972,0.0,94.65249662618083,73.8191632928475,84.09244264507423,90.82321187584346,92.76315789473684,94.09581646423752,23.44804318488529,88.17476383265857,0.0,6.882591093117409",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/urbanization/5d071634-143e-4321-ae4b-86d07eaf47b3/urbanization.png",
+    "compositor": "least_recent",
+    "mosaic_path": "/datacube/ui_results/urbanization/5d071634-143e-4321-ae4b-86d07eaf47b3/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/urbanization/5d071634-143e-4321-ae4b-86d07eaf47b3/plot_path.png",
+    "data_path": "/datacube/ui_results/urbanization/5d071634-143e-4321-ae4b-86d07eaf47b3/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/urbanization/5d071634-143e-4321-ae4b-86d07eaf47b3/data_netcdf.nc"
+  }
+},
+{
+  "model": "urbanization.urbanizationtask",
+  "pk": "95ac7bbf-4edb-4898-a2b7-e0d80006d9b8",
+  "fields": {
+    "title": "Urbanization Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:56:28.064Z",
+    "execution_end": "2019-04-01T18:56:38.545Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.0966,
+    "latitude_max": 9.6169,
+    "longitude_min": -3.2238,
+    "longitude_max": -2.9395,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2039136,
+    "clean_pixel_count": 1917872,
+    "percentage_clean_pixels": 94.0531676160884,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "648530,1139964,804904,0,982596,270685,1198404,259898,1075864,1112460,1105925,659041,226180",
+    "clean_pixel_percentages_per_acquisition": "31.804156270106557,55.90426533590697,39.47279632157934,0.0,48.18687914881597,13.274494687946268,58.770185019537685,12.745496131694992,52.76077711344413,54.5554587825432,54.23497991306122,32.31961968206142,11.091952670150494",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/urbanization/95ac7bbf-4edb-4898-a2b7-e0d80006d9b8/urbanization.png",
+    "compositor": "least_recent",
+    "mosaic_path": "/datacube/ui_results/urbanization/95ac7bbf-4edb-4898-a2b7-e0d80006d9b8/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/urbanization/95ac7bbf-4edb-4898-a2b7-e0d80006d9b8/plot_path.png",
+    "data_path": "/datacube/ui_results/urbanization/95ac7bbf-4edb-4898-a2b7-e0d80006d9b8/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/urbanization/95ac7bbf-4edb-4898-a2b7-e0d80006d9b8/data_netcdf.nc"
+  }
+},
+{
+  "model": "urbanization.urbanizationtask",
+  "pk": "edd87976-603e-41b0-8e1b-8ca53b80179e",
+  "fields": {
+    "title": "Urbanization Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:56:08.533Z",
+    "execution_end": "2019-04-01T18:56:16.115Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2398935,
+    "clean_pixel_count": 115555,
+    "percentage_clean_pixels": 4.81692917898984,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14722,34556,13035,0,42374,10914,79997,39842,42771,25989,25195,11739,0",
+    "clean_pixel_percentages_per_acquisition": "0.6136889911564923,1.4404725430243004,0.5433661187151798,0.0,1.7663671587600331,0.4549518848989239,3.334688101178231,1.6608203223513767,1.782916169050016,1.0833557391092297,1.050257718529264,0.4893421455770998,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/urbanization/edd87976-603e-41b0-8e1b-8ca53b80179e/urbanization.png",
+    "compositor": "least_recent",
+    "mosaic_path": "/datacube/ui_results/urbanization/edd87976-603e-41b0-8e1b-8ca53b80179e/png_mosaic.png",
+    "plot_path": "/datacube/ui_results/urbanization/edd87976-603e-41b0-8e1b-8ca53b80179e/plot_path.png",
+    "data_path": "/datacube/ui_results/urbanization/edd87976-603e-41b0-8e1b-8ca53b80179e/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/urbanization/edd87976-603e-41b0-8e1b-8ca53b80179e/data_netcdf.nc"
+  }
+},
+{
+  "model": "water_detection.userhistory",
+  "pk": 745,
+  "fields": {
+    "user_id": 550,
+    "task_id": "95e8c5c7-17a6-418d-8b80-3ff6f22cebe2"
+  }
+},
+{
+  "model": "water_detection.toolinfo",
+  "pk": 12,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/water_detection_1.png",
+    "image_title": "Water Detection",
+    "image_description": "The Water Detection tool allows users to determine a per pixel analysis of water vs not-water for a given scene over many acquisitions."
+  }
+},
+{
+  "model": "water_detection.toolinfo",
+  "pk": 13,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/water_detection_2.png",
+    "image_title": "Time Series Analysis",
+    "image_description": "Run analyses over time producing outputs visualizing cumulative acquisitions, water observations, and water percentages."
+  }
+},
+{
+  "model": "water_detection.toolinfo",
+  "pk": 14,
+  "fields": {
+    "image_path": "/static/assets/images/thumbnails/water_detection_3.png",
+    "image_title": "Animated Images",
+    "image_description": "Create animated GIFs of water levels over time to show trends of increasing or decreasing water levels."
+  }
+},
+{
+  "model": "water_detection.resulttype",
+  "pk": 1,
+  "fields": {
+    "result_id": "black_background",
+    "name": "Black",
+    "fill": "black"
+  }
+},
+{
+  "model": "water_detection.resulttype",
+  "pk": 2,
+  "fields": {
+    "result_id": "white_background",
+    "name": "White",
+    "fill": "white"
+  }
+},
+{
+  "model": "water_detection.resulttype",
+  "pk": 3,
+  "fields": {
+    "result_id": "transparent_background",
+    "name": "Transparent",
+    "fill": "transparent"
+  }
+},
+{
+  "model": "water_detection.animationtype",
+  "pk": 0,
+  "fields": {
+    "animation_id": "none",
+    "name": "None",
+    "data_variable": "None"
+  }
+},
+{
+  "model": "water_detection.animationtype",
+  "pk": 1,
+  "fields": {
+    "animation_id": "scene",
+    "name": "Scene",
+    "data_variable": "wofs"
+  }
+},
+{
+  "model": "water_detection.animationtype",
+  "pk": 2,
+  "fields": {
+    "animation_id": "cumulative_percentage",
+    "name": "Cumulative Percentages",
+    "data_variable": "normalized_data"
+  }
+},
+{
+  "model": "water_detection.animationtype",
+  "pk": 3,
+  "fields": {
+    "animation_id": "cumulative_observations",
+    "name": "Cumulative Observations",
+    "data_variable": "total_data"
+  }
+},
+{
+  "model": "water_detection.waterdetectiontask",
+  "pk": "95e8c5c7-17a6-418d-8b80-3ff6f22cebe2",
+  "fields": {
+    "title": "Water Detection Query",
+    "description": "None",
+    "execution_start": "2019-04-01T18:57:09.863Z",
+    "execution_end": "2019-04-01T18:57:20.527Z",
+    "area_id": "ghana",
+    "satellite": 1,
+    "time_start": "2015-06-06",
+    "time_end": "2016-06-06",
+    "latitude_min": 9.1861,
+    "latitude_max": 9.6453,
+    "longitude_min": -3.5863,
+    "longitude_max": -3.2073,
+    "pixel_drill_task": false,
+    "complete": true,
+    "pixel_count": 2398935,
+    "clean_pixel_count": 2398935,
+    "percentage_clean_pixels": 100.0,
+    "acquisition_list": "05/20/2016,05/04/2016,04/02/2016,03/17/2016,02/14/2016,01/29/2016,01/13/2016,12/28/2015,12/12/2015,11/26/2015,11/10/2015,10/25/2015,08/06/2015",
+    "clean_pixels_per_acquisition": "14722,34556,13035,0,42374,10914,79997,39842,42771,25989,25195,11739,0",
+    "clean_pixel_percentages_per_acquisition": "0.6136889911564923,1.4404725430243004,0.5433661187151798,0.0,1.7663671587600331,0.4549518848989239,3.334688101178231,1.6608203223513767,1.782916169050016,1.0833557391092297,1.050257718529264,0.4893421455770998,0.0",
+    "status": "OK",
+    "message": "All products have been generated. Your result will be loaded on the map.",
+    "scenes_processed": 13,
+    "total_scenes": 13,
+    "result_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/water_percentage.png",
+    "query_type": 1,
+    "animated_product": 0,
+    "water_pixels_per_acquisition": "0,0,0,0,0,0,0,0,0,1,0,0,0",
+    "water_observations_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/water_observations.png",
+    "clear_observations_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/clear_observations.png",
+    "plot_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/plot_path.png",
+    "animation_path": "",
+    "data_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/data_tif.tif",
+    "data_netcdf_path": "/datacube/ui_results/water_detection/95e8c5c7-17a6-418d-8b80-3ff6f22cebe2/data_netcdf.nc"
+  }
+}
+]

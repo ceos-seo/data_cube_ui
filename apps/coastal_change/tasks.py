@@ -246,32 +246,36 @@ def processing_task(self,
     updated_params.update(geographic_chunk)
 
     def _compute_mosaic(time):
+        """
+        Loads data for some time range for the current geographic chunk,
+        returning 3 objects - the mosaic, the task metadata, and the number of
+        acquisitions that were in the retrieved data.
+        """
         updated_params.update({'time': time})
         data = dc.get_dataset_by_extent(**updated_params)
-
-        if check_cancel_task(self, task): return
-
         if data is None or 'time' not in data:
             logger.info("Invalid chunk.")
-            return None, None
+            return None, None, None
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
         metadata = task.metadata_from_dataset({}, data, clear_mask, updated_params)
         return task.get_processing_method()(data, clean_mask=clear_mask, no_data=task.satellite.no_data_value), \
                metadata, len(data['time'])
 
+    if check_cancel_task(self, task): return
     old_mosaic, old_metadata, num_scenes_old = _compute_mosaic(starting_year)
+    if old_mosaic is None: return None
     task.scenes_processed = F('scenes_processed') + num_scenes_old
     # Avoid overwriting the task's status if it is cancelled.
     task.save(update_fields=['scenes_processed'])
+
+    if check_cancel_task(self, task): return
     new_mosaic, new_metadata, num_scenes_new = _compute_mosaic(comparison_year)
+    if new_mosaic is None: return None
     task.scenes_processed = F('scenes_processed') + num_scenes_new
     task.save(update_fields=['scenes_processed'])
 
     if check_cancel_task(self, task): return
-
-    if old_mosaic is None or new_mosaic is None:
-        return None
 
     metadata = {**old_metadata, **new_metadata}
 

@@ -31,6 +31,7 @@ from apps.dc_algorithm.forms import DataSelectionForm
 from .models import Application, Satellite, Area
 from apps.dc_algorithm.tasks import task_clean_up
 
+import time
 
 class ToolClass:
     """Base class for all Tool related classes
@@ -819,6 +820,7 @@ class CancelRequest(View, ToolClass):
         task.update_status('CANCELLED', 'The task has been cancelled.')
 
         # Clean up asynchronously.
+        time.sleep(10) # Wait a few seconds for the task to stop.
         task_clean_up.s(task_id=task_id, task_model=task_model_name).apply_async()
 
         return JsonResponse({'status': "OK"})
