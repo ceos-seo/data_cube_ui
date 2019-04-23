@@ -56,7 +56,7 @@ def pixel_drill(task_id=None):
     datasets = [_apply_band_math(single_pixel).values.transpose()] + [clear_mask]
     data_labels = ["Band Math Result"] + ["Clear"]
     titles = ["Band Math"] + ["Clear Mask"]
-    style = ['r-o', '.']
+    style = ['ro', '.']
 
     task.plot_path = os.path.join(task.get_result_path(), "plot_path.png")
     create_2d_plot(task.plot_path, dates=dates, datasets=datasets, data_labels=data_labels, titles=titles, style=style)

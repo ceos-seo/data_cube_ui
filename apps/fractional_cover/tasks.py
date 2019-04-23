@@ -74,7 +74,7 @@ def pixel_drill(task_id=None):
         'Bare Soil Percentage', 'Photosynthetic Vegetation Percentage', 'Non-Photosynthetic Vegetation Percentage',
         'Clear Mask'
     ]
-    style = ['r-o', 'g-o', 'b-o', '.']
+    style = ['ro', 'go', 'bo', '.']
 
     task.plot_path = os.path.join(task.get_result_path(), "plot_path.png")
     create_2d_plot(task.plot_path, dates=dates, datasets=datasets, data_labels=data_labels, titles=titles, style=style)
