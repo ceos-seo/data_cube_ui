@@ -119,19 +119,12 @@ function DrawMap(container_id, options) {
  * Configure leaflet for rectangle drawing - adds a new control and starts the handlers.
  */
 DrawMap.prototype.set_rectangle_draw = function() {
-  /*
-  rectangle: {
-      shapeOptions: {
-          clickable: false
-      }
-  }
-  */
   var draw_options = {
     draw: {
       polyline: false,
       polygon: false,
       circle: false,
-      rectangle: false,
+      rectangle: true,
       marker: this.pixel_drill_callback != undefined
     },
     edit: false
@@ -149,11 +142,21 @@ DrawMap.prototype.set_rectangle_draw = function() {
  */
 DrawMap.prototype.set_rect_draw_handlers = function() {
   var self = this;
+
+  // Handler for draw completion - not draw initiation.
   this.map.on(L.Draw.Event.CREATED, function(e) {
     var type = e.layerType,
-      layer = e.layer;
+    layer = e.layer;
+
+    // First remove any existing drawings.
+    if (self.bb_rectangle != undefined)
+      self.map.removeLayer(self.bb_rectangle);
+    if (self.marker != undefined)
+      self.map.removeLayer(self.marker);
+
     if(type=="marker") {
-      // console.log(layer.getLatLng())
+      if(self.current_draw)
+        self.current_draw.disable();
       self.marker = layer;
       self.map.addLayer(self.marker);
     } else {
@@ -161,27 +164,6 @@ DrawMap.prototype.set_rect_draw_handlers = function() {
       self.bb_rectangle = L.rectangle(constrain_bounds(self.bounding_box, bounds));
       self.map.addLayer(self.bb_rectangle)
     }
-  });
-
-  this.map.on(L.Draw.Event.DRAWSTART, function(e) {
-    if(e.layerType == "marker" && self.current_draw) {
-      self.current_draw.disable();
-    }
-    if (self.bb_rectangle != undefined) {
-      self.map.removeLayer(self.bb_rectangle);
-    }
-    if (self.marker != undefined) {
-      self.map.removeLayer(self.marker);
-    }
-  });
-
-  this.map.on('click', function(e) {
-    self.current_draw = new L.Draw.Rectangle(self.map, {
-      shapeOptions: {
-        clickable: false
-      }
-    });
-    self.current_draw.enable();
   });
 }
 
@@ -497,6 +479,10 @@ DrawMap.prototype.remove_toggle_control_by_id = function(id) {
   }
 }
 
+/**
+ * @param {leaflet.LatLngBounds} constraint_bounds - the maximum bounds.
+ * @param {leaflet.LatLngBounds} bounds - the bounds of the selected area.
+ */
 function constrain_bounds(constraint_bounds, bounds) {
   if (bounds.getNorth) {
     return L.latLngBounds([
