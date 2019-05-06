@@ -32,7 +32,7 @@ function create_map_base_layer(tile_layer_name) {
         case 'googleSat':
             layer = new L.TileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
                 subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                attribution: 'Map data © <a href="http://google.com">Google</a>'
+                attribution: 'Map data © <a href="https://www.google.com/maps/">Google Maps</a>'
             });
             break;
         default: // default to the Google Satellite view.
