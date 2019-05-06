@@ -412,7 +412,7 @@ The next step is getting the projection and geo reference points from one of the
     projdict['valid_data'] = safe_valid_region(images_list)
 ```
 
-This is done using rasterio - any dataset that can be opened by rasterio should not require any modification. The last step is actually generating the dict that will be dumped to a .yaml file. Some unecessary fields have been stripped out below, including acquisition and satellite reference points.
+This is done using rasterio - any dataset that can be opened by rasterio should not require any modification. The last step is actually generating the dict that will be dumped to a .yaml file. Some unnecessary fields have been stripped out below, including acquisition and satellite reference points.
 
 ```
     # generating the .yaml document

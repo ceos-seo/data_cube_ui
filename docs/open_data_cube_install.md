@@ -50,7 +50,8 @@ Note that you will need to press the Enter key to actually perform the first com
 
 ```
 sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
-
+```
+```
 sudo apt-get update
 
 sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
@@ -59,7 +60,7 @@ sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-seria
 The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`. The next step will require a compatible installation of gdal. Again, as mentioned before, run the following command to see the version gdalinfo currently on the machine:
 
 ```
-gdalinfo --version  
+gdalinfo --version
 ```
 
 Run the following command where X.X.X is the version from the previous step, or as close to it as possible.
@@ -101,7 +102,7 @@ Install <b>PostgreSQL</b> database that will store the metadata that will point 
 sudo apt-get install postgresql-10 postgresql-client-10 postgresql-contrib-10 libhdf5-serial-dev postgresql-doc-10
 ```
 
-In the configuration file `/etc/postgresql/10/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `CLIENT CONNECTION DEFAULTS`. 
+In the configuration file `/etc/postgresql/10/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `Locale and Formatting`. 
 
 In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, change the `local` line to match the example below - it is one of the last lines in the configuration file.  The spacing matters as well so take care to preserve it.  Below is a more detailed example of both configuration files.
 
@@ -124,6 +125,8 @@ sudo service postgresql restart
 ```
 
 Create a <b>PostgreSQL</b> superuser to access the database. 
+We use a password of `localuser1234`, but you can use whater password you like, 
+as long as you record and remember it. 
 ```
 sudo -u postgres createuser --superuser dc_user
 sudo -u postgres psql -c "ALTER USER dc_user WITH PASSWORD 'localuser1234';"
@@ -151,11 +154,13 @@ The output should look something like this:
 ```
 Version:       1.6.1
 Config files:  /home/localuser/.datacube.conf
-Host:          localhost:5432
+Host:          127.0.0.1:5432
 Database:      datacube
 User:          dc_user
 Environment:   None
 Index Driver:  default
+
+Valid connection:       YES
 ```
 If you receive an error on this step then please ensure you have followed the previous steps and that there were no errors received during their execution.
 

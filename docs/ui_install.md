@@ -207,7 +207,9 @@ sudo cp ~/Datacube/data_cube_ui/config/.datacube.conf ~/.datacube.conf
 sudo cp ~/Datacube/data_cube_ui/config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
 ```
 
-The next step is to edit the credentials found in the Django settings. Open the `settings.py` file found at `~/Datacube/data_cube_ui/data_cube_ui/settings.py`. There are a few small changes that need to be made for consistency with your settings.
+The next step is to edit the credentials found in the Django settings. 
+Open the `settings.py` file found at `~/Datacube/data_cube_ui/data_cube_ui/settings.py`. 
+There are a few small changes that need to be made for consistency with your settings.
 
 The `MASTER_NODE` setting refers to a clustered/distributed setup. 
 This should remain `'127.0.0.1'` on the main machine, while the other machines will enter the IP address of the main machine here. 
@@ -262,7 +264,10 @@ sudo a2ensite dc_ui.conf
 sudo service apache2 restart
 ```
 
-Additionally, a `.pgpass` is required for the Data Cube On Demand functionality. Edit the `.pgpass` in the config directory with your database username and password from above and copy it into the home directory of your local user.
+Additionally, a `.pgpass` is required for the Data Cube On Demand functionality. 
+In `config/.pgpass`, replace `dc_user` with you database user name 
+and replace `localuser1234` with you database user password 
+and copy that file into the home directory of your local user.
 
 ```
 sudo cp config/.pgpass ~/.pgpass
@@ -280,7 +285,7 @@ Run the following commands:
 
 ```
 cd ~/Datacube/data_cube_ui
-python manage.py makemigrations {data_cube_ui,accounts,coastal_change,custom_mosaic_tool,fractional_cover,ndvi_anomaly,slip,task_manager,tsm,water_detection,dc_algorithm,data_cube_manager,cloud_coverage,urbanization,spectral_indices}
+python manage.py makemigrations {data_cube_ui,accounts,coastal_change,custom_mosaic_tool,fractional_cover,spectral_anomaly,slip,task_manager,tsm,water_detection,dc_algorithm,data_cube_manager,cloud_coverage,urbanization,spectral_indices}
 python manage.py makemigrations
 python manage.py migrate
 
@@ -309,7 +314,11 @@ Visit the administration panel by going to either `{IP}/admin` or `localhost/adm
 =================
 
 We use Celery workers in our application to handle the asynchronous task processing. 
-We use `tmux` to handle multiple detached windows to run things in the background. In the future, we will be moving to daemon processes, but for now we like to be able to see the debugging output. For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality. The Data Cube manager worker has a few specific parameters that make some of the database creation and deletion operations work a little more smoothly.
+We usually use `tmux` to handle multiple detached windows to run things in the background. 
+You can install `tmux` with the command `apt-get install tmux`.
+In the future, we will be moving to daemon processes, but for now we like to be able to see the debugging output. 
+For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality. 
+The Data Cube manager worker has a few specific parameters that make some of the database creation and deletion operations work a little more smoothly.
 
 Open two new terminal sessions and activate the virtual environment in both:
 
