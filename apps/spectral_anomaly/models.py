@@ -110,7 +110,7 @@ class Query(BaseQuery):
 
         """
         # This app does not support time chunking.
-        return {'time': None, 'geographic': 0.005}
+        return {'time': None, 'geographic': 0.05}
 
     def get_iterative(self):
         """implements get_iterative as required by the base class
