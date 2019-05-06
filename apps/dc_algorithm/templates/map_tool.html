@@ -34,11 +34,37 @@
 <script src="/static/assets/js/dcw.js"></script>
 
 <script>
-    var tasks = {};
-    var workers = {};
+    let tasks = {};
+    let workers = {};
 
-    var map;
+    let map;
     window.tool_name = '{{ tool_name }}';
+
+    {# Map Drawing Code #}
+    let min_lat = {{ area.latitude_min }};
+    let max_lat = {{ area.latitude_max }};
+    let min_lon = {{ area.longitude_min }};
+    let max_lon = {{ area.longitude_max }};
+    let base_tile_layer_names = ['osm', 'googleSat'];
+    {#let base_tile_layers = [for (create_map_base_layer(name) of base_tile_layer_names) layer];#}
+    let base_tile_layers = base_tile_layer_names.map(
+        (name) => {return create_map_base_layer(name)});
+    let tile_layer_index = base_tile_layer_names.indexOf('googleSat');
+    let tile_layer = base_tile_layers[tile_layer_index];
+    console.log("base_tile_layers");
+    console.log(base_tile_layers);
+    console.log("tile_layer");
+    console.log(tile_layer);
+
+    function UpdateMapTileLayer() {
+        console.log("map:");
+        console.log(map);
+        map.map.removeLayer(tile_layer);
+        tile_layer_index = (tile_layer_index + 1) % base_tile_layers.length;
+        tile_layer = base_tile_layers[tile_layer_index];
+        map.map.addLayer(tile_layer);
+    }
+    {# End Map Drawing Code #}
 
     $(function() {
         refresh_input_panel();
@@ -68,14 +94,15 @@
         }
 
         //container id, min lat, max lat, min lon, max lon
-        map = new DrawMap("map",  {
-          min_lat: {{ area.latitude_min }},
-          max_lat: {{ area.latitude_max }},
-          min_lon: {{ area.longitude_min }},
-          max_lon: {{ area.longitude_max }},
-          lat_lon_indicator: true,
-          {% if application.color_scale %}color_scale: "{{application.color_scale}}",{% endif %}
-          {% if allow_pixel_drilling %}pixel_drill_callback: submit_pixel_drill{% endif %}
+        map = new DrawMap("map", {
+            min_lat: min_lat,
+            max_lat: max_lat,
+            min_lon: min_lon,
+            max_lon: max_lon,
+            lat_lon_indicator: true,
+            {% if application.color_scale %}color_scale: "{{application.color_scale}}",{% endif %}
+            {% if allow_pixel_drilling %}pixel_drill_callback: submit_pixel_drill,{% endif %}
+            tile_layer_name: base_tile_layer_names[tile_layer_index]
         });
         map.set_rectangle_draw();
 
@@ -430,12 +457,19 @@
             </div>
           </div>
         </div>
+        {# Map Canvas #}
         <div class="col-lg-9 fullscreen-col seamless-col map-col">
           <div id="map-canvas" class="map">
             <div id="map" class="map">
             </div>
+            {# Button to change the map tile layer (e.g. OSM) #}
+            <div class="col-lg-3 map-tile-layer-change-button">
+              <button type="button" class="btn btn-primary"
+                      onclick="UpdateMapTileLayer()">Change Map Type</button>
+            </div>
           </div>
         </div>
+        {# Oil Drop Icon Containing Tooltip #}
         <div class="col-lg-3 right_panel fullscreen-col seamless-col hidden" style="">
           <h3 style="text-align:center;"><span class="glyphicon glyphicon-chevron-right pull-left" style="cursor:pointer;" onclick="toggle_right_panel(); map.toggle_control(selected_result);"></span><div id="right_panel_title"></div></h3>
           <hr>
