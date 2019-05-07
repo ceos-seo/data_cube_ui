@@ -332,7 +332,7 @@ sudo /etc/init.d/celerybeat start
 ```
 
 You can start, stop, kill, restart, etc. the workers using the resulting `data_cube_ui` service.
-For example `sudo service d;ata_cube_ui restart` will restart the Celery workers.
+For example `sudo service data_cube_ui restart` will restart the Celery workers.
 You can run `sudo service data_cube_ui` to print information about available commands.
 
 >##### Running Celery Non-Daemonized (troubleshooting)
@@ -341,7 +341,7 @@ If the above does not work, you may consider running Celery manually (non-daemon
 But only do this if you are sure that Celery is not functioning properly when daemonized.
 Otherwise, skip this subsection. 
 
-<!---For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality.--> 
+<!--For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality.--> 
 <!--The Data Cube manager worker has a few specific parameters that make some of the database creation and deletion operations work a little more smoothly.-->
 
 Open two new terminal sessions and activate the virtual environment in both.
@@ -482,14 +482,28 @@ A:
 ---
 
 Q: 	
->   I'm getting a "too many connections" error when I visit a UI page.
+> I'm getting a "too many connections" error when I visit a UI page.
+> 
+> OR
+> 
+> I am receiving error messages stating that there are too many connections to Postgres,
+> such as the following error message:
+> 
+> ```org.postgresql.util.PSQLException: FATAL: sorry, too many clients already.```
+> 
+> How can this be fixed? 
 
 A:  
->	The Celery worker processes have opened too many connections for your database setup. 
-    Edit the connection number allowed in your `postgresql.conf` file. 
-    If this number is already sufficient, that means that one of the celery workers is opening connections without closing them. 
-    To diagnose this issue, start the celery workers with a concurrency of 1 (e.g. `-c 1`) and check to see what tasks are opening postgres connections and not closing them. 
-    Ensure that you stop the daemon process before creating the console Celery worker process.
+> The Celery worker processes have opened too many connections for your database setup.
+> In `/var/lib/pgsql/data/postgresql.conf`, increase `max_connections` and `shared_buffers` in an equal proportion.
+> The `max_connections` setting is the maximum number of concurrent connections to Postgres. 
+> Note that every UI task can and often does make several connections to Postgres.
+> Also set `kernel.shmmax` to a value slightly large than `shared_buffers`.
+> Finally, run `sudo service postgresql restart`.
+> If the settings are already suitable, than the celery workers may be opening connections without closing them. 
+> To diagnose this issue, start the celery workers with a concurrency of 1 (i.e. `-c 1`) 
+> and check to see what tasks are opening postgres connections and not closing them. 
+> Ensure that you stop the daemon process before creating the console Celery worker process.
 
 ---
 
@@ -535,22 +549,5 @@ A:
  > then run this function, which should update the cache:<br/>
  > `import apps.data_cube_manager.tasks as dcmt`<br/>
  > `dcmt.update_data_cube_details()`
-
----
-
-Q:
-> I am receiving error messages stating that there are too many connections to Postgres,
-> such as the following error message:
-> 
-> ```org.postgresql.util.PSQLException: FATAL: sorry, too many clients already.```
-> 
-> How can this be fixed? 
-
-A:
-> In `/var/lib/pgsql/data/postgresql.conf`, increase `max_connections` and `shared_buffers` in an equal proportion.
-> The `max_connections` setting is the maximum number of concurrent connections to Postgres. 
-> Note that every UI task can and often does make several connections to Postgres.
-> Also set `kernel.shmmax` to a value slightly large than `shared_buffers`.
-> Finally, run `sudo service postgresql restart`.
 
 ---
