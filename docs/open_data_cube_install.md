@@ -227,7 +227,7 @@ A:
 ---  
 
 Q: 	
- >Does ingestion handle pre-processing or does data need to be processed before ingestion?
+>Does ingestion handle pre-processing or does data need to be processed before ingestion?
 
 A:  
 >The ingestion process is simply a reprojection and resampling process for existing data. Data should be pre-processed before ingestion.
@@ -235,7 +235,7 @@ A:
 ---
 
 Q: 	
- >I'm receiving an error stating: `ERROR 4: Unable to open EPSG support file gcs.csv. Try setting the GDAL_DATA environment variable to point to the directory containing EPSG csv files.` what do I do to fix this?
+>I'm receiving an error stating: `ERROR 4: Unable to open EPSG support file gcs.csv. Try setting the GDAL_DATA environment variable to point to the directory containing EPSG csv files.` what do I do to fix this?
 
 
 A:  

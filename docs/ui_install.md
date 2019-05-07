@@ -471,12 +471,15 @@ It can be helpful when debugging to check the Celery logs, which by default are 
 If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is
 to restart the UI: `sudo service data_cube_ui restart`
 
+---
 
 Q:
  >I’m getting a “Permission denied error.”  How do I fix this?  
 
 A:  
 >	More often than not the issue is caused by a lack of permissions on the folder where the application is located.  Grant full access to the folder and its subfolders and files (this can be done by using the command `chmod -R 777 FOLDER_NAME`).  
+
+---
 
 Q: 	
 >   I'm getting a "too many connections" error when I visit a UI page.
@@ -488,6 +491,8 @@ A:
     To diagnose this issue, start the celery workers with a concurrency of 1 (e.g. `-c 1`) and check to see what tasks are opening postgres connections and not closing them. 
     Ensure that you stop the daemon process before creating the console Celery worker process.
 
+---
+
 Q: 	
 >   My tasks won't run - there is an error produced and the UI creates an alert.
 
@@ -497,6 +502,8 @@ A:
     Run the task that is failing and observe any errors. 
     The terminal output will tell you what task caused the error and what the general problem is.
 
+---
+
 Q: 	
 >   Tasks don't start - when submitted on the UI, a progress bar is created but there is never any progress.
 
@@ -504,12 +511,16 @@ A:
 >   This state means that the Celery worker pool is not accepting your task. Check your server to ensure that a celery worker process is running with `ps aux | grep celery`. 
     If there is a Celery worker running, check that the `MASTER_NODE` setting is set in the `settings.py` file to point to your server and that Celery is able to connect - if you are currently using the daemon process, stop it and run the worker in the terminal.  
 
+---
+
 Q: 	
 >   I'm seeing some SQL related errors in the Celery logs that prevent tasks from running.
 
 A:  
 >	Run the Django migrations to ensure that you have the latest database schemas. If you have updated recently, ensure that you have a database table for each app. 
     If any are missing, run `python manage.py makemigrations {app_name}` followed by `python manage.py migrate`.
+
+---
 
 Q:
  > How do I refresh the Data Cube Visualization tool?<br/>
@@ -524,4 +535,22 @@ A:
  > then run this function, which should update the cache:<br/>
  > `import apps.data_cube_manager.tasks as dcmt`<br/>
  > `dcmt.update_data_cube_details()`
+
+---
+
+Q:
+> I am receiving error messages stating that there are too many connections to Postgres,
+> such as the following error message:
+> 
+> ```org.postgresql.util.PSQLException: FATAL: sorry, too many clients already.```
+> 
+> How can this be fixed? 
+
+A:
+> In `/var/lib/pgsql/data/postgresql.conf`, increase `max_connections` and `shared_buffers` in an equal proportion.
+> The `max_connections` setting is the maximum number of concurrent connections to Postgres. 
+> Note that every UI task can and often does make several connections to Postgres.
+> Also set `kernel.shmmax` to a value slightly large than `shared_buffers`.
+> Finally, run `sudo service postgresql restart`.
+
 ---
