@@ -314,13 +314,41 @@ Visit the administration panel by going to either `{IP}/admin` or `localhost/adm
 =================
 
 We use Celery workers in our application to handle the asynchronous task processing. 
-We usually use `tmux` to handle multiple detached windows to run things in the background. 
-You can install `tmux` with the command `apt-get install tmux`.
-In the future, we will be moving to daemon processes, but for now we like to be able to see the debugging output. 
-For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality. 
-The Data Cube manager worker has a few specific parameters that make some of the database creation and deletion operations work a little more smoothly.
 
-Open two new terminal sessions and activate the virtual environment in both:
+To test the workers we will need to add an area and dataset that you have ingested into the UI's database. This will happen in a separate section.
+
+Run the following commands to daemonize the Celery workers and start and create a `data_cube_ui` system service.
+
+```
+sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd /etc/init.d/data_cube_ui
+sudo chmod 777 /etc/init.d/data_cube_ui
+sudo chmod 644 /etc/default/data_cube_ui
+sudo /etc/init.d/data_cube_ui start
+
+sudo cp config/celerybeat_conf /etc/default/celerybeat && sudo cp config/celerybeat /etc/init.d/celerybeat
+sudo chmod 777 /etc/init.d/celerybeat
+sudo chmod 644 /etc/default/celerybeat
+sudo /etc/init.d/celerybeat start
+```
+
+You can start, stop, kill, restart, etc. the workers using the resulting `data_cube_ui` service.
+For example `sudo service d;ata_cube_ui restart` will restart the Celery workers.
+You can run `sudo service data_cube_ui` to print information about available commands.
+
+>##### Running Celery Non-Daemonized (troubleshooting)
+
+If the above does not work, you may consider running Celery manually (non-daemonized). 
+But only do this if you are sure that Celery is not functioning properly when daemonized.
+Otherwise, skip this subsection. 
+
+<!---For the current implementation, we use multiple worker instances - one for general task processing and one for the Data Cube manager functionality.--> 
+<!--The Data Cube manager worker has a few specific parameters that make some of the database creation and deletion operations work a little more smoothly.-->
+
+Open two new terminal sessions and activate the virtual environment in both.
+We usually use `tmux` to handle multiple detached windows to run commands in the background. 
+You can install `tmux` with the command `apt-get install tmux`. 
+A reference is available [here](https://gist.github.com/MohamedAlaa/2961058).
+For all terminals, ensure the virtual environment is activated and you are in the UI directory:
 
 ```
 source ~/Datacube/datacube_env/bin/activate
@@ -350,27 +378,6 @@ To start the task scheduler, run the following command:
 ```
 celery -A data_cube_ui beat
 ```
-
-To test the workers we will need to add an area and dataset that you have ingested into the UI's database. This will happen in a separate section.
-
-This process can be automated and daemonized with the following snippet:
-
-```
-sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd /etc/init.d/data_cube_ui
-sudo chmod 777 /etc/init.d/data_cube_ui
-sudo chmod 644 /etc/default/data_cube_ui
-sudo /etc/init.d/data_cube_ui start
-
-sudo cp config/celerybeat_conf /etc/default/celerybeat && sudo cp config/celerybeat /etc/init.d/celerybeat
-sudo chmod 777 /etc/init.d/celerybeat
-sudo chmod 644 /etc/default/celerybeat
-sudo /etc/init.d/celerybeat start
-```
-
-This is done in the initial setup script.
-
-You can alias the /etc/init.d/* script as whatever you like - you can start, stop, kill, restart, etc. the workers using this script.
-
 
 <a name="task_system_overview"></a> Task System Overview
 =================
@@ -439,12 +446,12 @@ Go back to the main site and navigate back to the Custom Mosaic Tool. You will s
 Upgrades can be pulled directly from our GitHub releases using Git. There are a few steps that will need to be taken to complete an upgrade from an earlier release version:
 
 * Pull the code from our repository
-* Make and run the Django migrations with 'python manage.py makemigrations && python manage.py migrate'. We do not keep our migrations in Git so these are specific to your system.
+* Make and run the Django migrations with `python manage.py makemigrations && python manage.py migrate`. We do not keep our migrations in Git so these are specific to your system.
 * If we have added any new applications (found in the apps directory) then you'll need to run the specific migration with `python manage.py makemigrations {app_name} && python manage.py migrate`
 * If there are any new migrations, load the new initial values from our .json file with `python manage.py loaddata db_backups/init_database.json`
 * Now that your database is working, stop your existing Celery workers (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`.
 * To test the current codebase for functionality, run `python manage.py runserver 0.0.0.0:8000`. Any errors will be printed to the console - make any required updates.
-* Restart apache2 for changes to appear on the live site and restart your Celery worker. Ensure that only one instance of the worker is running.
+* Restart Apache (`sudo service apache2 restart`) for changes to appear on the live site and restart your Celery worker. Ensure that only one instance of the worker is running.
 
 Occasionally there may be some issues that need to be debugged. Some of the common scenarios have been enumerated below, but the general workflow is found below:
 
@@ -453,7 +460,7 @@ Occasionally there may be some issues that need to be debugged. Some of the comm
 * If there is a 500 http error or a Django error page, ensure that `DEBUG` is set to `True` in `settings.py` and observe the error message in the logs or the error page.
 * Fix the error described by the message, restart apache, restart workers
 
-If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your server is running with `DEBUG = True` and your Celery worker process is running in the terminal with loglevel info.
+If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your server is running with `DEBUG = True` and your Celery worker process is running in the terminal with loglevel `info`.
 
 It can be helpful when debugging to check the Celery logs, which by default are at `/var/log/celery`. 
 
