@@ -72,38 +72,65 @@
     }
   },
   {
+    "model": "custom_mosaic_tool.toolinfo",
+    "pk": 1,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_1.png",
+      "image_title": "True Color Mosaics",
+      "image_description": "The Custom Mosaic Tool allows users to create detailed true or false color images of given areas using optical data from various Landsat satellites."
+    }
+  },
+  {
+    "model": "custom_mosaic_tool.toolinfo",
+    "pk": 2,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_2.png",
+      "image_title": "Pixel Preference",
+      "image_description": "Choose how the 'best' pixel will be chosen: Most recent, least recent, median, or min/max NDVI value pixel."
+    }
+  },
+  {
+    "model": "custom_mosaic_tool.toolinfo",
+    "pk": 3,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/custom_mosaic_tool_3.png",
+      "image_title": "Time Series",
+      "image_description": "Run powerful time series analyses that composites a series of acquisitions to produce a single image."
+    }
+  },
+  {
     "model": "custom_mosaic_tool.resulttype",
     "pk": 1,
     "fields": {
-      "result_id": "nir_red_green",
-      "name": "NIR, RED, GREEN",
-      "red": "nir",
-      "green": "red",
-      "blue": "green",
-      "fill": "blue"
+      "result_id": "true_color",
+      "name": "True color",
+      "red": "red",
+      "green": "green",
+      "blue": "blue",
+      "fill": "red"
     }
   },
   {
     "model": "custom_mosaic_tool.resulttype",
     "pk": 2,
     "fields": {
-      "result_id": "swir_nir_blue",
-      "name": "SWIR1, NIR, BLUE",
-      "red": "swir1",
-      "green": "nir",
-      "blue": "blue",
-      "fill": "blue"
+      "result_id": "nir_swir_swir",
+      "name": "NIR, SWIR1, SWIR2",
+      "red": "nir",
+      "green": "swir1",
+      "blue": "swir2",
+      "fill": "red"
     }
   },
   {
     "model": "custom_mosaic_tool.resulttype",
     "pk": 3,
     "fields": {
-      "result_id": "swir_nir_green",
-      "name": "SWIR2, NIR, GREEN",
-      "red": "swir2",
-      "green": "nir",
-      "blue": "green",
+      "result_id": "nir_swir_red",
+      "name": "NIR, SWIR1, RED",
+      "red": "nir",
+      "green": "swir1",
+      "blue": "red",
       "fill": "red"
     }
   },
@@ -123,11 +150,11 @@
     "model": "custom_mosaic_tool.resulttype",
     "pk": 5,
     "fields": {
-      "result_id": "nir_swir_red",
-      "name": "NIR, SWIR1, RED",
-      "red": "nir",
-      "green": "swir1",
-      "blue": "red",
+      "result_id": "swir_nir_green",
+      "name": "SWIR2, NIR, GREEN",
+      "red": "swir2",
+      "green": "nir",
+      "blue": "green",
       "fill": "red"
     }
   },
@@ -135,38 +162,38 @@
     "model": "custom_mosaic_tool.resulttype",
     "pk": 6,
     "fields": {
-      "result_id": "nir_swir_swir",
-      "name": "NIR, SWIR1, SWIR2",
-      "red": "nir",
-      "green": "swir1",
-      "blue": "swir2",
-      "fill": "red"
+      "result_id": "swir_nir_blue",
+      "name": "SWIR1, NIR, BLUE",
+      "red": "swir1",
+      "green": "nir",
+      "blue": "blue",
+      "fill": "blue"
     }
   },
   {
     "model": "custom_mosaic_tool.resulttype",
     "pk": 7,
     "fields": {
-      "result_id": "true_color",
-      "name": "True color",
-      "red": "red",
-      "green": "green",
-      "blue": "blue",
-      "fill": "red"
+      "result_id": "nir_red_green",
+      "name": "NIR, RED, GREEN",
+      "red": "nir",
+      "green": "red",
+      "blue": "green",
+      "fill": "blue"
     }
   },
   {
     "model": "custom_mosaic_tool.animationtype",
-    "pk": 1,
+    "pk": 0,
     "fields": {
-      "animation_id": "scene",
-      "name": "Scene",
+      "animation_id": "none",
+      "name": "None",
       "data_variable": "None"
     }
   },
   {
     "model": "custom_mosaic_tool.animationtype",
-    "pk": 2,
+    "pk": 1,
     "fields": {
       "animation_id": "cumulative",
       "name": "Cumulative",
@@ -175,10 +202,10 @@
   },
   {
     "model": "custom_mosaic_tool.animationtype",
-    "pk": 3,
+    "pk": 2,
     "fields": {
-      "animation_id": "none",
-      "name": "None",
+      "animation_id": "scene",
+      "name": "Scene",
       "data_variable": "None"
     }
   },
@@ -523,21 +550,6 @@
     }
   },
   {
-    "model": "dc_algorithm.area",
-    "pk": "vietnam_sample",
-    "fields": {
-      "name": "ls7_ledaps_vietnam_sample",
-      "latitude_min": 9.43231048326,
-      "latitude_max": 11.318772579912,
-      "longitude_min": 103.75541531586,
-      "longitude_max": 105.632175607444,
-      "thumbnail_imagery": "/static/assets/images/black.png",
-      "satellites": [
-        1
-      ]
-    }
-  },
-  {
     "model": "dc_algorithm.application",
     "pk": "cloud_coverage",
     "fields": {
@@ -555,7 +567,6 @@
         "kenya",
         "lake_baringo",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -578,7 +589,6 @@
       "color_scale": "/static/assets/images/color_scales/coastal_change_color_scale.png",
       "application_group": 3,
       "areas": [
-        "vietnam_sample",
         "togo",
         "tonga",
         "vietnam"
@@ -608,7 +618,6 @@
         "kenya",
         "lake_baringo",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -643,7 +652,6 @@
         "kenya",
         "lake_baringo",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -693,7 +701,6 @@
         "kenya",
         "lake_baringo",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -724,7 +731,6 @@
         "kenya",
         "lake_baringo",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -748,7 +754,6 @@
       "areas": [
         "lake_chad_full",
         "lake_baringo",
-        "vietnam_sample",
         "meta_river",
         "uruguay",
         "vietnam"
@@ -773,12 +778,11 @@
         "amazon_river",
         "bangladesh",
         "colombia",
-        "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
+        "lake_chad_full",
         "lake_cortijo",
-        "vietnam_sample",
         "meta_river",
         "salgar_colombia",
         "togo",
@@ -802,7 +806,6 @@
       "areas": [
         "lake_chad_full",
         "lake_baringo",
-        "vietnam_sample",
         "meta_river",
         "uruguay",
         "vietnam"
@@ -904,6 +907,38 @@
       "image_path": "/static/assets/images/thumbnails/fractional_cover_3.png",
       "image_title": "Downloads",
       "image_description": "All products (both data and images) are available for download in various formats, including GeoTIFF, NetCDF, and PNG."
+    }
+  },
+  {
+    "model": "slip.toolinfo",
+    "pk": 7,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/slip_1.png",
+      "image_title": "Landslide Detection",
+      "image_description": "The SLIP tools uses algorithms to combine optical and elevation data to determine possible locations for recent landslides"
+    }
+  },
+  {
+    "model": "slip.toolinfo",
+    "pk": 8,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/slip_2.png",
+      "image_title": "Threshold Control",
+      "image_description": "Set the baseline thresholds to expand or narrow results of possible landslide data."
+    }
+  },
+  {
+    "model": "slip.baselinemethod",
+    "pk": "average",
+    "fields": {
+      "name": "Average"
+    }
+  },
+  {
+    "model": "slip.baselinemethod",
+    "pk": "composite",
+    "fields": {
+      "name": "Composite"
     }
   },
   {
