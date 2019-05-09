@@ -87,7 +87,7 @@ run the command `export XDG_RUNTIME_DIR=""`.
 
 ```
 cd ~/Datacube/data_cube_notebooks
-jupyter notebook
+nohup jupyter notebook &
 ```
 
 Open a web browser and navigate to the notebook URL. If you are running your browser from the same machine that is 

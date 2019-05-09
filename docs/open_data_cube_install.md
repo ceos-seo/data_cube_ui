@@ -184,16 +184,6 @@ Valid connection:       YES
 ```
 If you receive an error on this step then please ensure you have followed the previous steps and that there were no errors received during their execution.
 
-## Temporary Fixes
-
-Currently, the following lines should be added to the bottom of your `/etc/profile` file
-to avoid errors related to a `GDAL_DATA` environment variable when loading data:
-```
-# Datacube environment variables
-export GDAL_DATA=/home/localuser/Datacube/datacube_env/lib/python3.6/site-packages/rasterio/gdal_data
-```
-and then run `source /etc/profile` in a terminal so restarting the system is not required to enable this fix.
-
 <a name="faqs"></a> Common problems/FAQs
 ========  
 ----  
