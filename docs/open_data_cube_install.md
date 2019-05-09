@@ -19,7 +19,7 @@ Before starting the installation of packages, it is a good idea to update the so
 ```
 sudo apt-get update
 sudo apt-get install tmux htop python3-dev python3-pip git
-sudo pip3 install --upgrade pip 
+sudo pip3 install --upgrade pip
 ```
 
 ## Prerequisites
@@ -46,25 +46,30 @@ Install GDAL's header libraries and other important libraries that the Data Cube
 
 The first two commands account for the GDAL version used by datacube-core being 2.4.0, 
 which, at the time of writing, is not available on the default repositories used by `apt-get`.
-Note that you will need to press the Enter key to actually perform the first command.
+Note that you will need to press the Enter key after initiating the first command
+to actually add the required repository.
 
 ```
 sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
 ```
 ```
 sudo apt-get update
-
 sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
 ```
 
-The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  Make sure it matches your GDAL Python bindings package or you will receive an error related to `x86_64-linux-gnu-gcc`. The next step will require a compatible installation of gdal. Again, as mentioned before, run the following command to see the version gdalinfo currently on the machine:
+The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  
+Make sure it matches your GDAL Python bindings package or you will receive 
+an error related to `x86_64-linux-gnu-gcc`. 
+The next step will require a compatible installation of gdal.
 
 ```
 gdalinfo --version
 ```
 
-Run the following command where X.X.X is the version from the previous step, or as close to it as possible.
-For instance, if 2.4.1 was shown but unable to install, try 2.4.0 and so forth:
+Run the following command where the version (e.g. `2.4.0`) is the version 
+from the previous step, or as close to it as possible.
+For instance, if 2.4.1 was shown by `gdalinfo --version`, but unable to install
+in this command, try 2.4.0, and so on:
 
 ```
 pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.0
@@ -104,7 +109,11 @@ sudo apt-get install postgresql-10 postgresql-client-10 postgresql-contrib-10 li
 
 In the configuration file `/etc/postgresql/10/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `Locale and Formatting`. 
 
-In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, change the `local` line to match the example below - it is one of the last lines in the configuration file.  The spacing matters as well so take care to preserve it.  Below is a more detailed example of both configuration files.
+In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, 
+change the `local` line to match the example below. 
+It is one of the last lines in the configuration file.  
+The spacing matters as well so take care to preserve it.  
+Below is a more detailed example of both configuration files.
 
 **pg_hba.conf**
 ```
@@ -125,15 +134,23 @@ sudo service postgresql restart
 ```
 
 Create a <b>PostgreSQL</b> superuser to access the database. 
-We use a password of `localuser1234`, but you can use whater password you like, 
-as long as you record and remember it. 
+We usually use a password of `localuser1234`, but you can use 
+whatever password you like, as long as you record and remember it. 
 ```
 sudo -u postgres createuser --superuser dc_user
 sudo -u postgres psql -c "ALTER USER dc_user WITH PASSWORD 'localuser1234';"
 createdb -U dc_user datacube
 ```
 
-Next, create the Data Cube configuration file to be read when initializing the Data Cube.  Create a file at `~/.datacube.conf`.  The hostname should be set to either `localhost` or `127.0.0.1`.  If you are attempting to access a Data Cube installed on a server, you will use the IP address of that server followed by the port number in order to connect.  Example: `192.168.1.5:8080` where `192.168.1.5` is the server IP and `8080` is the port number. It is critical that the password matches the password specified when the <b>PostgreSQL</b> database superuser was created. If it does not, the Data Cube will have an authorization failure. An example configuration file is shown below.
+Next, create the Data Cube configuration file to be read when initializing the Data Cube.  
+Create a file at `~/.datacube.conf`.  The hostname should be set to either `localhost` or `127.0.0.1`.  
+If you are attempting to access a Data Cube installed on a server, you will use the IP address 
+of that server followed by the port number in order to connect.  
+Example: `192.168.1.5:8080` where `192.168.1.5` is the server IP and `8080` is the port number. 
+It is critical that the password matches the password specified when 
+the <b>PostgreSQL</b> database superuser was created. 
+If it does not, the Data Cube will have an authorization failure. 
+An example configuration file is shown below.
 ```
 [datacube]
 db_hostname: 127.0.0.1
@@ -142,7 +159,10 @@ db_username: dc_user
 db_password: localuser1234
 ```
 
-Finally, initialize the database.  If this step fails, you must go over the previous steps and ensure that you have correctly set up all configuration files, the <b>PostgreSQL</b> database, as well as the <b>PostgreSQL</b> database superuser and password.
+Finally, initialize the database.  If this step fails, you must go over 
+the previous steps and ensure that you have correctly set up all configuration 
+files, the <b>PostgreSQL</b> database, as well as the <b>PostgreSQL</b> 
+database superuser and password.
 ```
 datacube -v system init
 ```

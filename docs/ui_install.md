@@ -78,9 +78,10 @@ cd data_cube_ui
 git submodule init && git submodule update
 ```
 
-The installation process includes both system-level packages and Python packages. You will need to have the virtual environment activated for this entire guide.
-
-Run the following commands to install Apache, Apache-related packages, Redis, and image processing libraries.
+The installation process includes both system-level packages and Python packages. 
+You will need to have the virtual environment activated for this entire guide.
+Run the following commands to install Apache, Apache-related packages, 
+Redis, and image processing libraries.
 
 ```
 sudo apt-get install apache2 libapache2-mod-wsgi-py3 redis-server libfreeimage3 imagemagick
@@ -130,13 +131,22 @@ With all of the packages above installed, you can now move on to the configurati
 <a name="configuration"></a> Configuring the Server
 =================
 
-The configuration of our application involves ensuring that all usernames and passwords are accurately listed in required configuration files, moving those configuration files to the correct locations, and enabling the entire system.
+The configuration of our application involves ensuring that all usernames 
+and passwords are accurately listed in required configuration files, moving those 
+configuration files to the correct locations, and enabling the entire system.
 
-The first step is to check the Data Cube and Apache configuration files. If these have not already been configured, open `~/Datacube/data_cube_ui/config/.datacube.conf` and ensure that your username, password, and database name all match. This should be the database and database username/password set **during the Data Cube Core installation process**. If these details are not correct, please correct them and save the file.
+The first step is to check the Data Cube and Apache configuration files. 
+If these have not already been configured, 
+open `~/Datacube/data_cube_ui/config/.datacube.conf` and ensure that your username, 
+password, and database name all match. This should be the database and database 
+username/password set **during the Data Cube Core installation process**. 
+If these details are not correct, please correct them and save the file.
 
-**Please note that our UI application uses this configuration file for everything rather than the default `~/.datacube.conf` file.**
+**Please note that our UI application uses this configuration file for everything 
+rather than the default `~/.datacube.conf` file.**
 
-Next, we'll need to update the Apache configuration file. Open the file found at `~/Datacube/data_cube_ui/config/dc_ui.conf`:
+Next, we'll need to update the Apache configuration file. 
+Open the file found at `~/Datacube/data_cube_ui/config/dc_ui.conf`:
 
 ```
 <VirtualHost *:80>
@@ -196,11 +206,15 @@ Next, we'll need to update the Apache configuration file. Open the file found at
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
 ```
 
-In this configuration file, note that all of the paths are absolute. If you used a different username (other than 'localuser'), change all instance of 'localuser' to your username. For instance, if your username is 'datacube_user', replace all instance of 'localuser' to 'datacube_user'. This file assumes a standard installation with a virtual environment located in the location specified in the installation documentation.
+In this configuration file, note that all of the paths are absolute. 
+If you used a different username (other than `localuser`), change all 
+instances of `localuser` to your username. For instance, if your username 
+is `datacube_user`, replace all instances of `localuser` with `datacube_user`. 
+This file assumes a standard installation with a virtual environment located 
+in the location specified in the installation documentation.
 
-**This refers to the system user - the user that you use to log in to Ubuntu and run all processes with.**
-
-We'll now copy the configuration files to where they need to be. The `.datacube.conf` file is copied to the home directory for consistency.
+We'll now copy the configuration files to where they need to be. 
+The `.datacube.conf` file is overwritten with the UI version for consistency.
 
 ```
 sudo cp ~/Datacube/data_cube_ui/config/.datacube.conf ~/.datacube.conf
@@ -212,19 +226,21 @@ Open the `settings.py` file found at `~/Datacube/data_cube_ui/data_cube_ui/setti
 There are a few small changes that need to be made for consistency with your settings.
 
 The `MASTER_NODE` setting refers to a clustered/distributed setup. 
-This should remain `'127.0.0.1'` on the main machine, while the other machines will enter the IP address of the main machine here. 
-For instance, if your main machine's public IP is 52.200.156.1, then the worker nodes will enter 52.200.156.1 as the `MASTER_NODE` value.
+This should remain `'127.0.0.1'` on the main machine, 
+while the other machines will enter the IP address of the main machine here. 
+For instance, if your main machine's public IP is 52.200.156.1, 
+then the worker nodes will enter `'52.200.156.1'` as the `MASTER_NODE` value.
 
 ```
 MASTER_NODE = '127.0.0.1'
 ```
 
 The application settings are definable as well. 
-Change the `BASE_HOST` setting to the URL that your application will be accessed with. 
-For example, for our internal development we have the server running on IP 192.168.100.13, so we will enter 192.168.100.13 there. 
-The `ADMIN_EMAIL` setting should be the email that you want the UI to send emails as. 
+Change the `BASE_HOST` setting to the URL that your application will be accessed with.  
+The `ADMIN_EMAIL` setting should be the email address that you want the UI to send emails as. 
 Email activation and feedback will be sent from the email address here. 
-The host and port are configurable based on where your mail server is. We leave it running locally on port 25.
+The host and port are configurable based on where your mail server is. 
+We leave it running locally on port 25.
 
 ```
 # Application definition
@@ -234,7 +250,7 @@ EMAIL_HOST = 'localhost'
 EMAIL_PORT = '25'
 ```
 
-Next, replace 'localuser' with whatever your local system user is. 
+Next, replace `localuser` with whatever your local system user is. 
 This corresponds to the values you entered in the Apache configuration file.
 
 ```
@@ -256,7 +272,9 @@ DATABASES = {
 }
 ```
 
-Now that the Apache configuration file is in place and the Django settings have been set, we will now enable the site and disable the default. Use the commands listed below:
+Now that the Apache configuration file is in place and the Django settings 
+have been set, we will now enable the site and disable the default. 
+Use the commands listed below:
 
 ```
 sudo a2dissite 000-default.conf
@@ -277,9 +295,13 @@ sudo chmod 600 ~/.pgpass
 <a name="database_initialization"></a> Initializing the Database
 =================
 
-Now that all of the requirements have been installed and all of the configuration details have been set, it is time to initialize the database.
+Now that all of the requirements have been installed and all of the configuration 
+details have been set, it is time to initialize the database.
 
-Django manages all database changes automatically through the ORM/migrations model. When there are changes in the `models.py` files, Django detects them and creates 'migrations' that make changes to the database according to the Python changes. This requires some initialization now to create the base schemas.
+Django manages all database changes automatically through the ORM/migrations model. 
+When there are changes in the `models.py` files, Django detects them and creates 
+'migrations' that make changes to the database according to the Python changes. 
+This requires some initialization now to create the base schemas.
 
 Run the following commands:
 
@@ -292,8 +314,10 @@ python manage.py migrate
 python manage.py loaddata db_backups/init_database.json
 ```
 
-This string of commands makes the migrations for all applications and creates all of the initial database schemas. 
-The last command loads in the default sample data that we use - including some areas, result types, etc.
+This string of commands makes the migrations for all applications 
+and creates all of the initial database schemas. 
+The last command loads in the default sample data that we use - 
+including some areas, result types, etc.
 
 Next, create a super user account on the UI for personal use:
 
@@ -301,23 +325,29 @@ Next, create a super user account on the UI for personal use:
 python manage.py createsuperuser
 ```
 
-Now that we have everything initialized, we can view the site and see what we've been creating. 
-Visit the site in your web browser - either by IP from an outside machine or at the URL `localhost` within the machine. 
-You should now see a introduction page. Log in using one of the buttons and view the Custom Mosaic Tool. 
-You'll see all of our default areas. **This does not give access to all of these areas because they are examples with no associated data. 
+Now that we have everything initialized, we can view 
+the site and see what we've been creating. 
+Visit the site in your web browser - either by IP 
+from an outside machine or at the URL `localhost` within the machine. 
+You should now see a introduction page. Log in using 
+one of the buttons and view the Custom Mosaic Tool. 
+You'll see all of our default areas. **This does not give access to all 
+of these areas because they are examples with no associated data. 
 You will need to add your own areas and remove the defaults.**
 
-Visit the administration panel by going to either `{IP}/admin` or `localhost/admin`. You'll see a page that shows all of the various models and default values.
-
+Visit the administration panel by going to either `{IP}/admin` or `localhost/admin`. 
+You'll see a page that shows all of the various models and default values.
 
 <a name="starting_workers"></a> Starting Workers
 =================
 
 We use Celery workers in our application to handle the asynchronous task processing. 
 
-To test the workers we will need to add an area and dataset that you have ingested into the UI's database. This will happen in a separate section.
+To test the workers we will need to add an area and dataset that you have ingested 
+into the UI's database. This will happen in a separate section.
 
-Run the following commands to daemonize the Celery workers and start and create a `data_cube_ui` system service.
+Run the following commands to daemonize the Celery workers and 
+start the `data_cube_ui` system service.
 
 ```
 sudo cp config/celeryd_conf /etc/default/data_cube_ui && sudo cp config/celeryd /etc/init.d/data_cube_ui
@@ -331,9 +361,9 @@ sudo chmod 644 /etc/default/celerybeat
 sudo /etc/init.d/celerybeat start
 ```
 
-You can start, stop, kill, restart, etc. the workers using the resulting `data_cube_ui` service.
-For example `sudo service data_cube_ui restart` will restart the Celery workers.
-You can run `sudo service data_cube_ui` to print information about available commands.
+You can start, stop, kill, restart, etc. the workers using `sudo /etc/init.d/data_cube_ui`.
+For example `sudo /etc/init.d/data_cube_ui restart` will restart the Celery workers.
+You can run `sudo /etc/init.d/data_cube_ui` to print information about available commands.
 
 >##### Running Celery Non-Daemonized (troubleshooting)
 
@@ -392,7 +422,6 @@ The worker system can seem complex at first, but the basic workflow is shown bel
 * The master process waits until all chunks have been processed then loads all of the result chunks. The chunks are combined into a single product and saved to disk
 * The master process uses the data product to create images and data products and saves them to disk, deleting all the remnant chunk products
 * The master process creates a Result and Metadata model based on what was just created and returns the details to the browser
-
 
 <a name="customization"></a> Customize the UI
 =================
@@ -469,7 +498,7 @@ It can be helpful when debugging to check the Celery logs, which by default are 
 ----  
 
 If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is
-to restart the UI: `sudo service data_cube_ui restart`
+to restart the UI: `sudo /etc/init.d/data_cube_ui restart`
 
 ---
 
