@@ -555,7 +555,7 @@
     "fields": {
       "name": "Cloud Coverage",
       "color_scale": "/static/assets/images/color_scales/cloud_coverage.png",
-      "application_group": 1,
+      "application_group": 2,
       "areas": [
         "amazon_river",
         "bangladesh",
@@ -589,6 +589,7 @@
       "color_scale": "/static/assets/images/color_scales/coastal_change_color_scale.png",
       "application_group": 3,
       "areas": [
+        "ghana",
         "togo",
         "tonga",
         "vietnam"
@@ -606,7 +607,7 @@
     "fields": {
       "name": "Custom Mosaic",
       "color_scale": null,
-      "application_group": 1,
+      "application_group": 2,
       "areas": [
         "amazon_river",
         "bangladesh",
@@ -665,21 +666,6 @@
         3,
         4,
         6
-      ]
-    }
-  },
-  {
-    "model": "dc_algorithm.application",
-    "pk": "slip",
-    "fields": {
-      "name": "Slip",
-      "color_scale": null,
-      "application_group": 2,
-      "areas": [
-        "salgar_colombia"
-      ],
-      "satellites": [
-        1
       ]
     }
   },
@@ -753,6 +739,7 @@
       "application_group": 3,
       "areas": [
         "lake_chad_full",
+        "ghana",
         "lake_baringo",
         "meta_river",
         "uruguay",
@@ -771,17 +758,17 @@
     "model": "dc_algorithm.application",
     "pk": "urbanization",
     "fields": {
-      "name": "Urbanization",
+      "name": "NDBI-NDVI-NDWI",
       "color_scale": "/static/assets/images/color_scales/urbanization.png",
       "application_group": 2,
       "areas": [
         "amazon_river",
         "bangladesh",
         "colombia",
+        "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_chad_full",
         "lake_cortijo",
         "meta_river",
         "salgar_colombia",
@@ -805,6 +792,7 @@
       "application_group": 3,
       "areas": [
         "lake_chad_full",
+        "ghana",
         "lake_baringo",
         "meta_river",
         "uruguay",
@@ -817,13 +805,6 @@
         4,
         6
       ]
-    }
-  },
-  {
-    "model": "dc_algorithm.applicationgroup",
-    "pk": 1,
-    "fields": {
-      "name": "General"
     }
   },
   {
@@ -907,38 +888,6 @@
       "image_path": "/static/assets/images/thumbnails/fractional_cover_3.png",
       "image_title": "Downloads",
       "image_description": "All products (both data and images) are available for download in various formats, including GeoTIFF, NetCDF, and PNG."
-    }
-  },
-  {
-    "model": "slip.toolinfo",
-    "pk": 7,
-    "fields": {
-      "image_path": "/static/assets/images/thumbnails/slip_1.png",
-      "image_title": "Landslide Detection",
-      "image_description": "The SLIP tools uses algorithms to combine optical and elevation data to determine possible locations for recent landslides"
-    }
-  },
-  {
-    "model": "slip.toolinfo",
-    "pk": 8,
-    "fields": {
-      "image_path": "/static/assets/images/thumbnails/slip_2.png",
-      "image_title": "Threshold Control",
-      "image_description": "Set the baseline thresholds to expand or narrow results of possible landslide data."
-    }
-  },
-  {
-    "model": "slip.baselinemethod",
-    "pk": "average",
-    "fields": {
-      "name": "Average"
-    }
-  },
-  {
-    "model": "slip.baselinemethod",
-    "pk": "composite",
-    "fields": {
-      "name": "Composite"
     }
   },
   {
