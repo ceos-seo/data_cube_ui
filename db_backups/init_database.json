@@ -551,38 +551,6 @@
   },
   {
     "model": "dc_algorithm.application",
-    "pk": "cloud_coverage",
-    "fields": {
-      "name": "Cloud Coverage",
-      "color_scale": "/static/assets/images/color_scales/cloud_coverage.png",
-      "application_group": 2,
-      "areas": [
-        "amazon_river",
-        "bangladesh",
-        "bangladesh_bari",
-        "caqueta",
-        "colombia",
-        "lake_chad_full",
-        "ghana",
-        "kenya",
-        "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
-        "togo",
-        "tonga",
-        "uruguay",
-        "vietnam"
-      ],
-      "satellites": [
-        1,
-        2,
-        3
-      ]
-    }
-  },
-  {
-    "model": "dc_algorithm.application",
     "pk": "coastal_change",
     "fields": {
       "name": "Coastal Change",
@@ -590,9 +558,7 @@
       "application_group": 3,
       "areas": [
         "ghana",
-        "togo",
-        "tonga",
-        "vietnam"
+        "togo"
       ],
       "satellites": [
         1,
@@ -609,22 +575,12 @@
       "color_scale": null,
       "application_group": 2,
       "areas": [
-        "amazon_river",
-        "bangladesh",
-        "bangladesh_bari",
-        "caqueta",
-        "colombia",
         "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
         "togo",
-        "tonga",
-        "uruguay",
-        "vietnam"
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -643,22 +599,12 @@
       "color_scale": "/static/assets/images/color_scales/fractional_cover_color_scale.png",
       "application_group": 2,
       "areas": [
-        "amazon_river",
-        "bangladesh",
-        "bangladesh_bari",
-        "caqueta",
-        "colombia",
         "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
         "togo",
-        "tonga",
-        "uruguay",
-        "vietnam"
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -677,22 +623,12 @@
       "color_scale": null,
       "application_group": 2,
       "areas": [
-        "amazon_river",
-        "bangladesh",
-        "bangladesh_bari",
-        "caqueta",
-        "colombia",
         "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
         "togo",
-        "tonga",
-        "uruguay",
-        "vietnam"
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -709,19 +645,12 @@
       "color_scale": null,
       "application_group": 2,
       "areas": [
-        "amazon_river",
-        "bangladesh",
-        "colombia",
         "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
         "togo",
-        "tonga",
-        "vietnam"
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -741,9 +670,8 @@
         "lake_chad_full",
         "ghana",
         "lake_baringo",
-        "meta_river",
-        "uruguay",
-        "vietnam"
+        "togo",
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -762,19 +690,12 @@
       "color_scale": "/static/assets/images/color_scales/urbanization.png",
       "application_group": 2,
       "areas": [
-        "amazon_river",
-        "bangladesh",
-        "colombia",
         "lake_chad_full",
         "ghana",
         "kenya",
         "lake_baringo",
-        "lake_cortijo",
-        "meta_river",
-        "salgar_colombia",
         "togo",
-        "tonga",
-        "vietnam"
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -793,10 +714,10 @@
       "areas": [
         "lake_chad_full",
         "ghana",
+        "kenya",
         "lake_baringo",
-        "meta_river",
-        "uruguay",
-        "vietnam"
+        "togo",
+        "uruguay"
       ],
       "satellites": [
         1,
@@ -888,6 +809,24 @@
       "image_path": "/static/assets/images/thumbnails/fractional_cover_3.png",
       "image_title": "Downloads",
       "image_description": "All products (both data and images) are available for download in various formats, including GeoTIFF, NetCDF, and PNG."
+    }
+  },
+  {
+    "model": "spectral_anomaly.toolinfo",
+    "pk": 1,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/spectral_anomaly_1.png",
+      "image_title": "Determine Changes in Spectral Indices",
+      "image_description": "Determine the amount of change in various spectral indices between two time periods. Red indicates negative change, yellow indicates no change, and green indicates positive change."
+    }
+  },
+  {
+    "model": "spectral_anomaly.toolinfo",
+    "pk": 2,
+    "fields": {
+      "image_path": "/static/assets/images/thumbnails/spectral_anomaly_2.png",
+      "image_title": "Detect Anomalies",
+      "image_description": "Specify a change value range to threshold on. Values outside the range will be colored black. Values inside the range will be colored red."
     }
   },
   {
