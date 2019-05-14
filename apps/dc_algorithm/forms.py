@@ -79,12 +79,21 @@ class DataSelectionForm(forms.Form):
     def clean(self):
         cleaned_data = super(DataSelectionForm, self).clean()
 
-        if cleaned_data.get('latitude_min') >= cleaned_data.get('latitude_max'):
+        latitude_min, latitude_max = cleaned_data.get('latitude_min'), cleaned_data.get('latitude_max')
+        longitude_min, longitude_max = cleaned_data.get('longitude_min'), cleaned_data.get('longitude_max')
+
+        if latitude_min >= latitude_max and longitude_min >= longitude_max:
+            self.add_error(
+                None,
+                "Please enter a valid pair of latitude and longitude values where the lower bounds "
+                "are less than the upper bounds.")
+
+        if latitude_min >= latitude_max:
             self.add_error(
                 'latitude_min',
                 "Please enter a valid pair of latitude values where the lower bound is less than the upper bound.")
 
-        if cleaned_data.get('longitude_min') >= cleaned_data.get('longitude_max'):
+        if longitude_min >= longitude_max:
             self.add_error(
                 'longitude_min',
                 "Please enter a valid pair of longitude values where the lower bound is less than the upper bound.")
@@ -96,8 +105,7 @@ class DataSelectionForm(forms.Form):
             self.add_error('time_start',
                            "Please enter a valid start and end time range where the start is before the end.")
 
-        area = (cleaned_data.get('latitude_max') - cleaned_data.get('latitude_min')) * (
-                cleaned_data.get('longitude_max') - cleaned_data.get('longitude_min'))
+        area = (latitude_max - latitude_min) * (longitude_max - longitude_min)
 
         # Limit the area allowed.
         max_area = 1
