@@ -82,21 +82,21 @@ class DataSelectionForm(forms.Form):
         latitude_min, latitude_max = cleaned_data.get('latitude_min'), cleaned_data.get('latitude_max')
         longitude_min, longitude_max = cleaned_data.get('longitude_min'), cleaned_data.get('longitude_max')
 
-        if latitude_min >= latitude_max and longitude_min >= longitude_max:
+        if latitude_min > latitude_max and longitude_min > longitude_max:
             self.add_error(
                 None,
                 "Please enter a valid pair of latitude and longitude values where the lower bounds "
-                "are less than the upper bounds.")
+                "are less than or equal to the upper bounds.")
 
-        if latitude_min >= latitude_max:
+        if latitude_min > latitude_max:
             self.add_error(
                 'latitude_min',
-                "Please enter a valid pair of latitude values where the lower bound is less than the upper bound.")
+                "Please enter a valid pair of latitude values where the lower bound is less than or equal to the upper bound.")
 
-        if longitude_min >= longitude_max:
+        if longitude_min > longitude_max:
             self.add_error(
                 'longitude_min',
-                "Please enter a valid pair of longitude values where the lower bound is less than the upper bound.")
+                "Please enter a valid pair of longitude values where the lower bound is less than or equal to the upper bound.")
 
         # The start and end time fields are removed in some apps (e.g. spectral_anomaly),
         # so we may not perform checks on these fields.
