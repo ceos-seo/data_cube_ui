@@ -1,19 +1,42 @@
 ﻿# Open Data Cube Core Install
 
-## System Requirements
-This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser` however as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
+This document will guide users through the process of installing and configuring Open Data Cube. 
+The ODC must be installed prior to installing additional components such as the web-based UI.
 
-This document is targeted at Ubuntu based development environment. The base requirements can be found below:
+Contents
+=================
+
+  * [System Requirements](#system_requirements)
+  * [Updates](#updates)
+  * [Directory Creation](#directory_creation)
+  * [Virtual Environment Setup](#venv_setup)
+  * [GDAL Libraries](#gdal_libs)
+  * [Python Dependencies](#python_deps)
+  * [Core](#core)
+  * [PostgreSQL Database](#postgres)
+  * [Confirm Installation](#confirm_install)
+  * [Next Steps](#next_steps)
+  * [Common problems/FAQs](#faqs)
+
+<a name="system_requirements"></a> System Requirements
+=================
+This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser`, however, as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
+
+This document is targeted at an Ubuntu development environment. The base requirements can be found below:
 
 * **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/server)
 * **Memory**: 8GiB
 * **Local Storage**: 50GiB
 * **Python Version**: Python 3
 
+Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
+it is acceptable in a given command block. Run each line individually.
+
 <!--* **Create your base directory structure to hold all of the relevant codebases**: We create everything in a directory 'Datacube' in the local user's directory. We also create a base directory structure for raw data and the ingested data in the root directory '/datacube/\*'-->
 <!--* **Create a virtual environment named 'datacube_env' in the ~/Datacube directory**: We use a single virtual environment for all of our Data Cube related packages/modules. To set this up, you must install virtualenv for Python3 and initialize the environment.-->
 
-## Updates 
+<a name="updates"></a> Updates
+=================
 Before starting the installation of packages, it is a good idea to update the software that will be retrieving those packages as well as the locations from which they will be retrieved.  The lines below will upgrade `apt-get` then install `Python3`, `npm`, `pip3`, and `git`. The other packages, `tmux` and `htop`, are useful tools for performance monitoring but are not required.  Then finally we attempt to upgrade `pip3`, just in case the version is not as new as it could be.
 
 ```
@@ -22,7 +45,8 @@ sudo apt-get install tmux htop python3-dev python3-pip git
 sudo pip3 install --upgrade pip
 ```
 
-## Prerequisites
+<a name="directory_creation"></a> Directory Creation
+=================
 The following commands will create the directories the Data Cube will require and set their permissions so that all users can read and write data to and from them.
 
 ```
@@ -32,7 +56,8 @@ sudo chmod -R 777 /datacube/
 mkdir -p ~/Datacube
 ```
 
-##### Virtual Environment Setup
+<a name="venv_setup"></a> Virtual Environment Setup
+=================
 Next, we need to install the virtual environment and source it before we start pip installing packages.  This is a way to compartmentalize the python packages and keep your operating environment unaffected by changes to Python made from within the virtual environment.
 
 ```
@@ -41,7 +66,8 @@ virtualenv ~/Datacube/datacube_env
 source ~/Datacube/datacube_env/bin/activate
 ```
 
-##### GDAL Libraries
+<a name="gdal_libs"></a> GDAL Libraries
+=================
 Install GDAL's header libraries and other important libraries that the Data Cube will rely on. 
 
 The first two commands account for the GDAL version used by datacube-core being 2.4.0, 
@@ -75,7 +101,8 @@ in this command, try 2.4.0, and so on:
 pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.0
 ```
 
-##### Python Dependencies
+<a name="python_deps"></a> Python Dependencies
+=================
 Use the following commands to install the requisite Python dependencies. 
 These packages are required for using the Data Cube, S3 indexing, and the Data Cube notebooks.
 Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
@@ -88,7 +115,8 @@ pip install sqlalchemy==1.2.18
 pip install psycopg2-binary
 ```
 
-## Core
+<a name="core"></a> Core
+=================
 Install the latest version of the Open Data Cube core from the [Open Data Cube Core github](https://github.com/opendatacube/datacube-core/releases).  It is critical that you select a version of `1.6.1` or later if you intend to use S3 indexing.  Afterwards, run the python setup development wheel.
 ```
 cd ~/Datacube
@@ -99,8 +127,8 @@ cd ~/Datacube/datacube-core
 python setup.py develop
 ```
 
-## PostgreSQL Database
-
+<a name="postgres"></a> PostgreSQL Database
+=================
 Install <b>PostgreSQL</b> database that will store the metadata that will point to the data location.  Also install prerequisite libraries that will be leveraged by the Data Cube.  
 
 ```
@@ -167,8 +195,8 @@ database superuser and password.
 datacube -v system init
 ```
 
-## Confirm Installation
-
+<a name="confirm_install"></a> Confirm Installation
+=================
 Run `datacube system check` to validate the installation.
 The output should look something like this:
 ```
@@ -183,6 +211,12 @@ Index Driver:  default
 Valid connection:       YES
 ```
 If you receive an error on this step then please ensure you have followed the previous steps and that there were no errors received during their execution.
+
+<a name="next_steps"></a> Next Steps
+========  
+Now that we have ODC core setup, you may install our web-based UI or a Jupyter Notebook server with some example ODC notebooks.
+The Jupyter Notebook server installation documentation can be found [here](./notebook_install.md).
+The web-based UI installation documentation can be found [here](./ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
 ========  

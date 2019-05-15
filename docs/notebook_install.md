@@ -28,6 +28,9 @@ To run our Jupyter notebook examples, the following prerequisites must be comple
   * You have a database user that is used to connect to your 'datacube' database.
   * The Data Cube is installed and you have successfully run `datacube system check`.
 
+Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
+it is acceptable in a given command block. Run each line individually.
+
 <a name="installation_process"></a> Installation Process
 ========  
 
@@ -81,7 +84,7 @@ c.NotebookApp.open_browser = False
 c.NotebookApp.port = 8080
 ```
 
-Save the file and then run the notebook server with the following command.
+Save the file and then run the notebook server with the following commands.
 If this fails with a permissions error (`OSError: [...] Permission denied [...]`),
 run the command `export XDG_RUNTIME_DIR=""`.
 
@@ -107,8 +110,8 @@ You'll see that a connection to the Data Cube is established, some product metad
 
 <a name="next_steps"></a> Next Steps
 ========  
-
-Now that we have the notebook server setup and our examples running, you are able to play with many of our algorithms and become more familiar with the Data Cube and accessing metadata and data. The next step is to set up our web based user interface. You can find that documentation [here](./ui_install.md).
+Now that we have the notebook server setup and our examples running, you are able to play with many of our algorithms and become more familiar with the Data Cube and accessing metadata and data. 
+You may also consider setting up our web-based user interface. You can find that documentation [here](./ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
 ========  

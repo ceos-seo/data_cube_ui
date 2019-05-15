@@ -16,6 +16,7 @@ Contents
   * [Task System Overview](#task_system_overview)
   * [Customize the UI](#customization)
   * [Maintenance, Upgrades, and Debugging](#maintenance)
+  * [Next Steps](#next_steps)
   * [Common problems/FAQs](#faqs)
 
 <a name="system_requirements"></a> System Requirements
@@ -66,6 +67,9 @@ The UI will work without any ingested data, but no analysis can occur. The steps
 * A sample Landsat 7 scene was downloaded and uncompressed in your `/datacube/original_data` directory
 * The ingestion process was completed for that sample Landsat 7 scene.
 
+Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
+it is acceptable in a given command block. Run each line individually.
+
 <a name="installation_process"></a> Installation Process
 =================
 
@@ -85,6 +89,7 @@ Redis, and image processing libraries.
 
 ```
 sudo apt-get install apache2 libapache2-mod-wsgi-py3 redis-server libfreeimage3 imagemagick
+
 sudo service redis-server start
 ```
 
@@ -365,6 +370,15 @@ You can start, stop, kill, restart, etc. the workers using `sudo /etc/init.d/dat
 For example `sudo /etc/init.d/data_cube_ui restart` will restart the Celery workers.
 You can run `sudo /etc/init.d/data_cube_ui` to print information about available commands.
 
+To instead access this service with `sudo service data_cube_ui [command]`, run the following command:
+
+```
+systemctl daemon-reload
+```
+
+You will need to select the localuser to authenticate as by entering a number,
+and then finally enter the password for your localuser.
+
 >##### Running Celery Non-Daemonized (troubleshooting)
 
 If the above does not work, you may consider running Celery manually (non-daemonized). 
@@ -493,12 +507,17 @@ If you are having trouble diagnosing issues with the UI, feel free to contact us
 
 It can be helpful when debugging to check the Celery logs, which by default are at `/var/log/celery`. 
 
+<a name="next_steps"></ha> Next Steps
+========  
+Now that we have the UI setup, you are able to play with many of our algorithms, such as water detection, coastal change detection, and more.
+You may also consider setting up a Jupyter Notebook server for accessing ODC. You can find that documentation [here](./notebook_install.md).
+
 <a name="faqs"></a> Common problems/FAQs
 ========  
 ----  
 
 If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is
-to restart the UI: `sudo /etc/init.d/data_cube_ui restart`
+to restart the UI: `sudo /etc/init.d/data_cube_ui restart` or `sudo service data_cube_ui restart`.
 
 ---
 
