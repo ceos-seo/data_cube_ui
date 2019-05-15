@@ -506,7 +506,6 @@ def create_output_products(self, data, task_id=None):
         png_filled_path=task.result_filled_path,
         fill_color=task.query_type.fill,
         scale=task.satellite.get_scale(),
-        low_res=True,
         no_data=task.satellite.no_data_value)
 
     if task.animated_product.animation_id != "none":
