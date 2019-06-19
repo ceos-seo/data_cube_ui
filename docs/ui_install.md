@@ -468,9 +468,16 @@ lat=(7.745543874267876, 9.617183768731897)
 lon=(-3.5136704023069685, -1.4288602909212722)
 ```
 
-Go back to the admin page, select dc_algorithm->Areas, delete all of the initial areas, then click the 'Add Area' button.
+Go back to the admin page, select `Dc_Algorithm -> Areas`, delete all of the initial areas, then click the 'Add Area' button.
 
-For the Area Id, enter `general`, or whatever area you've named that is prepended by the `ls7_ledaps_`. Give the area a name as well.
+Give the area an ID and a name.
+For the Area ID, enter `general`, or whatever area you've named that is prepended by `ls7_ledaps_`. 
+More generally, the Data Cube product name for your area must be the concatenation of 
+`Dc_Algorithm -> Satellites -> [selected satellite] -> Product prefix` 
+and the `Area` ID. For example, an `Area` with an `Id` of `general` should have 
+a product with a name of `ls7_ledaps_general` for the satellite `LANDSAT_7`, or `ls8_lasrc_general` for the satellite `LANDSAT_8`. 
+So the `Name` of an `Area` can be whatever you want, but the `Id` of an `Area` and 
+names of the corresponding Data Cube products are constrained in this way.
 
 Enter the latitude and longitude bounds in all of the latitude/longitude min/max fields for both the top and the detail fields.
 
@@ -478,9 +485,9 @@ For all of the imagery fields, enter `/static/assets/images/black.png` - this wi
 
 Select `LANDSAT_7` in the satellites field and save your new area.
 
-Navigate back to the main admin page and select dc_algorithm->Applications. Choose custom_mosaic_tool and select your area in the areas field. Save the model and exit.
+Navigate back to the main admin page and select `Dc_Algorithm -> Applications`. Choose `custom_mosaic_tool` and select your area in the `Areas` field. Save the model and exit.
 
-Go back to the main site and navigate back to the Custom Mosaic Tool. You will see that your area is the only one in the list - select this area to load the tool. Make sure your workers are running and submit a task over the default time over some area and watch it complete. The web page should load an image result.
+Go back to the main site and navigate back to the Custom Mosaic Tool. You will see that your area is the only one in the list - select this area to load the tool. Make sure your workers are running and submit a task over the default time over some area and watch it complete. The web page should overlay an image result.
 
 
 <a name="maintenance"></a> Maintenance, Upgrades, and Debugging
@@ -513,10 +520,9 @@ Now that we have the UI setup, you are able to play with many of our algorithms,
 You may also consider setting up a Jupyter Notebook server for accessing ODC. You can find that documentation [here](./notebook_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
-========  
-----  
+========   
 
-If you daemonized the UI, the first thing to try after any above advice when experiencing issues with the UI is
+If you daemonized the UI, the first thing to try when experiencing issues with the UI is
 to restart the UI: `sudo /etc/init.d/data_cube_ui restart` or `sudo service data_cube_ui restart`.
 
 ---
@@ -530,16 +536,9 @@ A:
 ---
 
 Q: 	
-> I'm getting a "too many connections" error when I visit a UI page.
-> 
-> OR
-> 
-> I am receiving error messages stating that there are too many connections to Postgres,
-> such as the following error message:
+> I'm getting a "too many connections" error when I run a task in the UI, such as
 > 
 > ```org.postgresql.util.PSQLException: FATAL: sorry, too many clients already.```
-> 
-> How can this be fixed? 
 
 A:  
 > The Celery worker processes have opened too many connections for your database setup.
@@ -548,10 +547,28 @@ A:
 > Note that every UI task can and often does make several connections to Postgres.
 > Also set `kernel.shmmax` to a value slightly large than `shared_buffers`.
 > Finally, run `sudo service postgresql restart`.
-> If the settings are already suitable, than the celery workers may be opening connections without closing them. 
+> If the settings are already suitable, then the celery workers may be opening connections without closing them. 
 > To diagnose this issue, start the celery workers with a concurrency of 1 (i.e. `-c 1`) 
 > and check to see what tasks are opening postgres connections and not closing them. 
 > Ensure that you stop the daemon process before creating the console Celery worker process.
+
+---
+
+Q:
+> When running tasks, I receive errors like `ValueError: No products match search terms {...}`.
+
+A:
+> First ensure the following is true:
+> 1. The area has been added 
+> to the app via the admin menu `Dc_Algorithm -> Applications -> [app_name]`.
+> 1. The selected area is the desired area.  
+> 1. The Data Cube product name abides by the naming constraints described in
+> the section titled `Customize the UI` in this document.
+> 1. The query extents overlap the Data Cube product for the selected satellite and area combination.
+> 
+> If these parameters really should be returning data, run `dc.load()` queries with 
+> `python manage.py shell` in the top-level `data_cube_ui` directory with parameters 
+> matching the ones in errors like this in your Celery log files.
 
 ---
 
