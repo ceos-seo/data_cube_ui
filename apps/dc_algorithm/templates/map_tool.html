@@ -49,12 +49,10 @@
     {#let base_tile_layers = [for (create_map_base_layer(name) of base_tile_layer_names) layer];#}
     let base_tile_layers = base_tile_layer_names.map(
         (name) => {return create_map_base_layer(name)});
-    let tile_layer_index = base_tile_layer_names.indexOf('googleSat');
+    let tile_layer_index = base_tile_layer_names.indexOf('osm');
     let tile_layer = base_tile_layers[tile_layer_index];
 
     function UpdateMapTileLayer() {
-        console.log("map:");
-        console.log(map);
         map.map.removeLayer(tile_layer);
         tile_layer_index = (tile_layer_index + 1) % base_tile_layers.length;
         tile_layer = base_tile_layers[tile_layer_index];
