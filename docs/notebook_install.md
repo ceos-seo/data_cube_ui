@@ -52,7 +52,7 @@ git submodule init && git submodule update
 Now install the following Python packages:
 
 ```
-pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8
+pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8 tqdm
 pip install bokeh geopandas descartes
 ```
 

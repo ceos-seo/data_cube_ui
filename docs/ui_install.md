@@ -379,7 +379,7 @@ systemctl daemon-reload
 You will need to select the localuser to authenticate as by entering a number,
 and then finally enter the password for your localuser.
 
->##### Running Celery Non-Daemonized (troubleshooting)
+>##### Running Celery Non-Daemonized (troubleshooting only)
 
 If the above does not work, you may consider running Celery manually (non-daemonized). 
 But only do this if you are sure that Celery is not functioning properly when daemonized.
