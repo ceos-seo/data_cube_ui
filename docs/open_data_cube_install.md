@@ -120,9 +120,7 @@ pip install psycopg2-binary
 Install the latest version of the Open Data Cube core from the [Open Data Cube Core github](https://github.com/opendatacube/datacube-core/releases).  It is critical that you select a version of `1.6.1` or later if you intend to use S3 indexing.  Afterwards, run the python setup development wheel.
 ```
 cd ~/Datacube
-wget https://github.com/opendatacube/datacube-core/archive/datacube-1.6.1.tar.gz
-tar -xf datacube-1.6.1.tar.gz
-sudo mv datacube-core-datacube-1.6.1/ datacube-core
+git clone https://github.com/opendatacube/datacube-core.git --branch datacube-1.7
 cd ~/Datacube/datacube-core
 python setup.py develop
 ```
