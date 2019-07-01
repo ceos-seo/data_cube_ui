@@ -4,6 +4,7 @@ from celery.task import task
 from celery import chain, group, chord
 from celery.utils.log import get_task_logger
 from datetime import datetime, timedelta
+import numpy as np
 import xarray as xr
 import os
 import imageio
@@ -56,10 +57,17 @@ def pixel_drill(task_id=None):
     tsm_data = tsm_data.where(tsm_data != task.satellite.no_data_value).isel(
         latitude=0, longitude=0).where((wofs_data.wofs.values == 1))
 
+    # Remove NaNs to avoid errors and yield a nicer plot.
+    water_non_nan_times = ~np.isnan(wofs_data.wofs.values)
+    wofs_data = wofs_data.isel(time=water_non_nan_times)
+    tsm_non_nan_times = ~np.isnan(tsm_data.tsm.values)
+    tsm_data = tsm_data.isel(time=tsm_non_nan_times)
+
     datasets = [wofs_data.wofs.values.transpose(), tsm_data.tsm.values.transpose()] + [clear_mask]
+    dates = [dates[water_non_nan_times], dates[tsm_non_nan_times]] + [dates]
     data_labels = ["Water/Non Water", "TSM (g/L)"] + ["Clear"]
     titles = ["Water/Non Water", "TSM Values"] + ["Clear Mask"]
-    style = ['.', 'r-o', '.']
+    style = ['.', 'ro', '.']
 
     task.plot_path = os.path.join(task.get_result_path(), "plot_path.png")
     create_2d_plot(task.plot_path, dates=dates, datasets=datasets, data_labels=data_labels, titles=titles, style=style)

@@ -65,7 +65,7 @@ class AppNameTool(ToolView):
     task_model_name = 'AppNameTask'
 
     # TODO: Ensure that this function creates all the forms required for your model.
-    def generate_form_dict(self, satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
             forms[satellite.pk] = {

@@ -65,7 +65,7 @@ class BandMathApp(ToolView):
     task_model_name = 'BandMathTask'
     allow_pixel_drilling = True
 
-    def generate_form_dict(self, satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
             forms[satellite.pk] = {

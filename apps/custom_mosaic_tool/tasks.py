@@ -54,7 +54,7 @@ def pixel_drill(task_id=None):
     datasets = [single_pixel[band].values.transpose() for band in plot_measurements] + [clear_mask]
     data_labels = [stringcase.titlecase("{} Units".format(band)) for band in plot_measurements] + ["Clear"]
     titles = [stringcase.titlecase("{} Band".format(band)) for band in plot_measurements] + ["Clear Mask"]
-    style = ['r-o', 'g-o', 'b-o', 'c-o', 'm-o', 'y-o', '.']
+    style = ['ro', 'go', 'bo', 'co', 'mo', 'yo', '.']
 
     task.plot_path = os.path.join(task.get_result_path(), "plot_path.png")
     create_2d_plot(task.plot_path, dates=dates, datasets=datasets, data_labels=data_labels, titles=titles, style=style)
@@ -506,7 +506,6 @@ def create_output_products(self, data, task_id=None):
         png_filled_path=task.result_filled_path,
         fill_color=task.query_type.fill,
         scale=task.satellite.get_scale(),
-        low_res=True,
         no_data=task.satellite.no_data_value)
 
     if task.animated_product.animation_id != "none":

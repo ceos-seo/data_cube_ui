@@ -73,8 +73,8 @@ class Query(BaseQuery):
         See the base query class docstring for more information.
         """
         if not self.compositor.is_iterative():
-            return {'time': None, 'geographic': 0.005}
-        return {'time': 25, 'geographic': 0.5}
+            return {'time': None, 'geographic': 0.05}
+        return {'time': 25, 'geographic': 0.1}
 
     def get_iterative(self):
         """implements get_iterative as required by the base class

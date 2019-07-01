@@ -85,8 +85,7 @@ class Query(BaseQuery):
 
         See the base query class docstring for more information.
         """
-        #Creating median mosaics on a yearly basis.
-        return {'time': None, 'geographic': 0.01}
+        return {'time': None, 'geographic': 0.05}
 
     def get_iterative(self):
         """implements get_iterative as required by the base class

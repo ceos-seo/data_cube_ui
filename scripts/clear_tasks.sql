@@ -16,6 +16,9 @@ TRUNCATE ndvi_anomaly_userhistory CASCADE;
 TRUNCATE slip_sliptask CASCADE;
 TRUNCATE slip_userhistory CASCADE;
 
+TRUNCATE spectral_anomaly_spectralanomalytask CASCADE;
+TRUNCATE spectral_anomaly_userhistory CASCADE;
+
 TRUNCATE spectral_indices_spectralindicestask CASCADE;
 TRUNCATE spectral_indices_userhistory CASCADE;
 

@@ -12,8 +12,8 @@ Contents
   * [Generating Base Files](#base_files)
   * [Basic Applications](#band_math_app)
   * [Complex Applications](#complex_app)
-  * [Templating Changes](#templates)
-  * [Common problems/FAQs](#faqs)
+  * [Template Changes](#templates)
+<!--  * [Common problems/FAQs](#faqs) -->
 
 <a name="introduction"></a> Introduction
 =================
