@@ -59,7 +59,7 @@ Product definitions define the attributes for entire datasets. These attributes 
 
 **Read the official ODC documentation on product definitions on [their readthedocs.io page](http://datacube-core.readthedocs.io/en/stable/ops/config.html)**
 
-We will be using our Landsat 7 SR product definition as an example - open the file located at '~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml' or view the full file [here](https://github.com/ceos-seo/agdc-v2/blob/develop/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml). We will go through this file and describe each attribute. The schema for the dataset type .yaml files can be found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). This outlines the required fields as well as the datatypes and what fields are allowed. This schema is used to validate any new product definitions that are added.
+We will be using our Landsat 7 SR product definition as an example - open the file located at '~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml' or view the full file [here](https://github.com/ceos-seo/agdc-v2/blob/master/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml). We will go through this file and describe each attribute. The schema for the dataset type .yaml files can be found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). This outlines the required fields as well as the datatypes and what fields are allowed. This schema is used to validate any new product definitions that are added.
 
 ```
 name: ls7_collections_sr_scene
