@@ -56,4 +56,4 @@ class Command(BaseCommand):
             "A default red-> green color scale will be used until you create your color scale. Change the path to the color scale in your new models.py - Query"
         )
         self.stdout.write("Run 'makemigrations' and 'migrate'")
-        self.stdout.write("Run 'python manage.py loaddata apps/" + app_name + "/fixtures/init.json'")
+        self.stdout.write("Run 'sudo service apache2 restart'")

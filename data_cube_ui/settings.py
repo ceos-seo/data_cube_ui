@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'apps.urbanization',
     'apps.cloud_coverage',
     'apps.spectral_indices',
+    'apps.spectral_anomaly',
     'apps.dc_algorithm',
     'apps.pages',
     'apps.accounts',
@@ -133,22 +134,30 @@ WSGI_APPLICATION = 'data_cube_ui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+db_user = os.environ.get('POSTGRES_USER', 'dc_user')
+db_pass = os.environ.get('POSTGRES_PASSWORD', 'localuser1234')
+db_name = os.environ.get('POSTGRES_DATABASE', 'datacube')
+db_host = os.environ.get('POSTGRES_HOSTNAME', '127.0.0.1')
+db_port = os.environ.get('POSTGRES_PORT', '5432')
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'datacube',
-        'USER': 'dc_user',
-        'PASSWORD': 'localuser1234',
-        'HOST': MASTER_NODE
+        'NAME':db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'HOST': db_host,
+        'PORT': db_port
     },
     'agdc': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
             'options': '-c search_path=agdc'
         },
-        'NAME': 'datacube',
-        'USER': 'dc_user',
-        'PASSWORD': 'localuser1234',
+        'NAME': db_name,
+        'USER': db_user,
+        'PASSWORD': db_pass,
     },
 }
 

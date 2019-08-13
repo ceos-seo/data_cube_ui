@@ -11,7 +11,7 @@ def create_2d_plot(path, dates=None, datasets=None, data_labels=None, style='', 
 
     Args:
         path: path to save the image
-        dates: list of datetimes, will be put on the x axis
+        dates: list of datetimes or list of list of datetimes, will be put on the x axis
         datasets: iterable or list of iterables, plot in seperate figures side by side.
         data_labels: string or list of strings of the same len as datasets, used as axis labels.
         title: string or list of strings of the same len as datasets, used as plot titles.
@@ -20,6 +20,9 @@ def create_2d_plot(path, dates=None, datasets=None, data_labels=None, style='', 
     _iterable = isinstance(datasets[0], list) or isinstance(datasets[0], np.ndarray)
 
     datasets = datasets if _iterable else [datasets]
+    # Check if `dates` is a list of dates for each dataset in `datasets`.
+    separate_dates = isinstance(dates[0], list) or isinstance(dates[0], np.ndarray)
+    dates = dates if separate_dates else [dates] * len(datasets)
     data_labels = data_labels if _iterable else [data_labels]
     titles = titles if _iterable else [titles]
 
@@ -28,7 +31,7 @@ def create_2d_plot(path, dates=None, datasets=None, data_labels=None, style='', 
     for index, dataset in enumerate(datasets):
         axes = figure.add_subplot(plot_count, 1, index + 1) if vertical else figure.add_subplot(1, plot_count,
                                                                                                 index + 1)
-        axes.plot(dates, datasets[index], style if isinstance(style, str) else style[index])
+        axes.plot(dates[index], datasets[index], style if isinstance(style, str) else style[index])
         axes.set_title(titles[index])
         axes.set_xlabel('Acquisition Date')
         axes.set_ylabel(data_labels[index])

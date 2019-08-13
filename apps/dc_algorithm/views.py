@@ -27,8 +27,11 @@ from django.forms.models import model_to_dict
 from django.views import View
 from django.apps import apps
 
+from apps.dc_algorithm.forms import DataSelectionForm
 from .models import Application, Satellite, Area
+from apps.dc_algorithm.tasks import task_clean_up
 
+import time
 
 class ToolClass:
     """Base class for all Tool related classes
@@ -159,34 +162,11 @@ class ToolView(View, ToolClass):
             A rendered HTML response based on the map_tool.html template with the context.
         """
 
-        user_id = request.user.id
-        tool_name = self._get_tool_name()
-
-        area = Area.objects.get(id=area_id)
-        app = Application.objects.get(id=tool_name)
-        satellites = area.satellites.all() & app.satellites.all()
-
-        forms = self.generate_form_dict(satellites, area)
-
-        task_model_class = self._get_tool_model(self._get_task_model_name())
-        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
-
-        running_tasks = task_model_class.get_queryset_from_history(user_history, complete=False, area_id=area_id)
-
-        context = {
-            'tool_name': tool_name,
-            'satellites': satellites,
-            'forms': forms,
-            'running_tasks': running_tasks,
-            'area': area,
-            'application': app,
-            'panels': self.panels,
-            'allow_pixel_drilling': self.allow_pixel_drilling
-        }
+        context = self.generate_context(request=request, area_id=area_id)
 
         return render(request, self.map_tool_template, context)
 
-    def generate_form_dict(satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         """Generate a dictionary of forms keyed by satellite for rendering
 
         Forms are generated for each satellite and dynamically hidden and shown by the UI.
@@ -210,6 +190,12 @@ class ToolView(View, ToolClass):
         Args:
             satellites: QueryDict of Satellite models that forms will need to be generated over.
             area: area model object.
+            user_id: The ID of the user this form is for.
+            user_history: Entries in an app-specific subclass of the UserHistory abstract model
+                          (`apps.dc_algorithm.models.abstract_base_models.UserHistory`), filtered by
+                          `user_id`.
+            task_model_class: The app-specific task model class
+                              (e.g. `apps.custom_mosaic_tool.models.CustomMosaicToolTask`).
 
         Returns
             Dictionary containing all forms and labels for each satellite.
@@ -226,6 +212,34 @@ class ToolView(View, ToolClass):
         raise NotImplementedError(
             "You must define a generate_form_dict(satellites, area) function in child classes of ToolInfo. See the ToolInfo.generate_form_dict docstring for more details."
         )
+
+    def generate_context(self, request, area_id):
+        user_id = request.user.id
+        tool_name = self._get_tool_name()
+
+        area = Area.objects.get(id=area_id)
+        app = Application.objects.get(id=tool_name)
+        satellites = area.satellites.all() & app.satellites.all()
+
+        task_model_class = self._get_tool_model(self._get_task_model_name())
+        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
+
+        forms = self.generate_form_dict(satellites, area, user_id, user_history, task_model_class)
+
+        running_tasks = task_model_class.get_queryset_from_history(user_history, complete=False, area_id=area_id)
+
+        context = {
+            'tool_name': tool_name,
+            'satellites': satellites,
+            'forms': forms,
+            'running_tasks': running_tasks,
+            'area': area,
+            'application': app,
+            'panels': self.panels,
+            'allow_pixel_drilling': self.allow_pixel_drilling
+        }
+
+        return context
 
 
 class RegionSelection(View, ToolClass):
@@ -453,25 +467,37 @@ class SubmitNewRequest(View, ToolClass):
         user_id = request.user.id
 
         response = {'status': "OK"}
-        task_model = self._get_tool_model(self._get_task_model_name())
-        forms = [form(request.POST) for form in self._get_form_list()]
+        task_model_class = self._get_tool_model(self._get_task_model_name())
+        user_history = self._get_tool_model('userhistory').objects.filter(user_id=user_id)
+        forms = []
+        for form in self._get_form_list():
+            forms.append(form(request.POST, user_id=user_id, user_history=user_history, task_model_class=task_model_class)
+                         if issubclass(form, DataSelectionForm) else form(request.POST))
         #validate all forms, print any/all errors
-        full_parameter_set = {}
+        parameter_set = {}
         for form in forms:
             if form.is_valid():
-                full_parameter_set.update(form.cleaned_data)
+                parameter_set.update(form.cleaned_data)
             else:
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
+        self.get_missing_parameters(parameter_set)
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set)
+        task, new_task = task_model_class.get_or_create_query_from_post(parameter_set)
         #associate task w/ history
-        history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
+        history_model, _ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         if new_task:
             self._get_celery_task_func().delay(task_id=task.pk)
         response.update(model_to_dict(task))
 
         return JsonResponse(response)
+
+    def get_missing_parameters(self, parameter_set):
+        """
+        Used to get parameters that aren't directly set by an app's form.
+        This modifies its `parameter_set` argument, which is a dictionary.
+        """
+        return None # In dc_algorithm, nothing more needs to be done.
 
     def _get_celery_task_func(self):
         """Gets the celery task function and raises an error if it is not defined.
@@ -549,15 +575,15 @@ class SubmitPixelDrillRequest(View, ToolClass):
         task_model = self._get_tool_model(self._get_task_model_name())
         forms = [form(request.POST) for form in self._get_form_list()]
         #validate all forms, print any/all errors
-        full_parameter_set = {}
+        parameter_set = {}
         for form in forms:
             if form.is_valid():
-                full_parameter_set.update(form.cleaned_data)
+                parameter_set.update(form.cleaned_data)
             else:
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set, pixel_drill=True)
+        task, new_task = task_model.get_or_create_query_from_post(parameter_set, pixel_drill=True)
         #associate task w/ history
         history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         try:
@@ -653,7 +679,6 @@ class GetTaskResult(View, ToolClass):
         except task_model.DoesNotExist:
             response['status'] = "ERROR"
             response['message'] = "Task matching id does not exist."
-
         return JsonResponse(response)
 
 
@@ -777,14 +802,25 @@ class CancelRequest(View, ToolClass):
         Returns:
             A JsonResponse containing:
                 status: WAIT, ERROR
-
         """
         user_id = request.user.id
         history_model = self._get_tool_model('userhistory')
+        task_id = request.GET['id']
+        # Remove the task's entry from the History tab.
         try:
-            history = history_model.objects.get(user_id=user_id, task_id=request.GET['id'])
+            history = history_model.objects.get(user_id=user_id, task_id=task_id)
             history.delete()
         except history_model.DoesNotExist:
             pass
+        task_model_name = self._get_task_model_name()
+        task_model = self._get_tool_model(task_model_name)
+        task = task_model.objects.get(pk=task_id)
+
+        # Mark the task as cancelled so it can know to stop if it is running.
+        task.update_status('CANCELLED', 'The task has been cancelled.')
+
+        # Clean up asynchronously.
+        time.sleep(10) # Wait a few seconds for the task to stop.
+        task_clean_up.s(task_id=task_id, task_model=task_model_name).apply_async()
 
         return JsonResponse({'status': "OK"})

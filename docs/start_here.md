@@ -7,7 +7,7 @@ This document assumes that a local user, not an admin user, will be used to run 
 files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username 
 as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
 
-#### configure user privelages 
+#### configure user privileges 
 The local user will need `sudo` privileges for the initial setup but you may want to remove the user from the `sudo` group after setup is completed. You can set up the OS with a single user and just use that as your local user if desired as well however. 
 
 To simplify this process, instructions for setting up a local user can be found below.  As an admin user, execute the following.

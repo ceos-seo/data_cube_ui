@@ -173,6 +173,9 @@ class Area(models.Model):
     def __str__(self):
         return self.id
 
+    class Meta:
+        ordering = ['name'] # Order by name, not id.
+
 
 class Application(models.Model):
     """Model containing the applications that are displayed on the UI.

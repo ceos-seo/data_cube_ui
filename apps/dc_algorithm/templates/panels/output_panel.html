@@ -42,12 +42,29 @@
     }
 
     function set_dl_url() {
-        dl_link = "";
-        if (tasks[selected_output]) {
+        console.log("tasks[selected_output]");
+        console.log(tasks[selected_output]);
+        console.log("$('#download_sel').val()");
+        console.log($('#download_sel').val());
+        console.log("tasks[selected_output].animation_path");
+        console.log(tasks[selected_output].animation_path);
+        console.log(typeof tasks[selected_output].animation_path);
+        let dl_link = "";
+        if (tasks[selected_output]) { // If no output has been selected yet
             dl_link += tasks[selected_output][$('#download_sel').val()];
-            if ($('#download_sel').val() == "animation_path" && tasks[selected_output].animation_path == "None")
+            // Handle trying to download an animation for an output with no animation.
+            if ($('#download_sel').val() == "animation_path" && tasks[selected_output].animation_path == ""){
+                $("#output_list_download_button").attr('href', '#');
+                $("#output_list_download_button").removeAttr('target');
+                $("#output_list_download_button").removeAttr('download');
+                $("#output_list_download_button").attr('disabled', true);
                 return;
+            }
+            $("#output_list_download_button").attr('target', '_blank');
+            $("#output_list_download_button").attr('disabled', false);
             //window.open(dl_link, '_blank');
+            console.log('dl_link');
+            console.log(dl_link);
             $("#output_list_download_button").attr("href", dl_link);
             $("#output_list_download_button").attr("download", $("#download_sel option:selected").text().replace(/ /g, "_") + "." + dl_link.split('.').pop());
         }

@@ -26,7 +26,6 @@ from apps.dc_algorithm.models import Area, Compositor, Satellite
 from apps.dc_algorithm.models import (Query as BaseQuery, Metadata as BaseMetadata, Result as BaseResult, ResultType as
                                       BaseResultType, UserHistory as BaseUserHistory, AnimationType as
                                       BaseAnimationType, ToolInfo as BaseToolInfo)
-
 from utils.data_cube_utilities.dc_mosaic import create_median_mosaic
 
 import datetime
@@ -54,20 +53,16 @@ class AnimationType(BaseAnimationType):
     Extends the base animation type, adding additional fields as required by app.
     See the dc_algorithm.AnimationType docstring for more information.
     """
-
     pass
 
 
 class Query(BaseQuery):
     """
-
     Extends base query, adds app specific elements. See the dc_algorithm.Query docstring for more information
     Defines the get_or_create_query_from_post as required, adds new fields, recreates the unique together
     field, and resets the abstract property. Functions are added to get human readable names for various properties,
     foreign keys should define __str__ for a human readable name.
-
     """
-
     #override the time start and time end properties of the base class - this is yearly.
     time_end = models.IntegerField()
     time_start = models.IntegerField()
@@ -89,16 +84,13 @@ class Query(BaseQuery):
         """Implements get_chunk_size as required by the base class
 
         See the base query class docstring for more information.
-
         """
-        #Creating median mosaics on a yearly basis.
         return {'time': None, 'geographic': 0.05}
 
     def get_iterative(self):
         """implements get_iterative as required by the base class
 
         See the base query class docstring for more information.
-
         """
         return False
 
@@ -106,7 +98,6 @@ class Query(BaseQuery):
         """implements get_reverse_time as required by the base class
 
         See the base query class docstring for more information.
-
         """
         return False
 
@@ -114,9 +105,7 @@ class Query(BaseQuery):
         """implements get_processing_method as required by the base class
 
         See the base query class docstring for more information.
-
         """
-
         return create_median_mosaic
 
     @classmethod
@@ -131,7 +120,6 @@ class Query(BaseQuery):
 
         Returns:
             Tuple containing the query model and a boolean value signifying if it was created or loaded.
-
         """
         query_data = form_data
         query_data['title'] = "Coastal Change Query" if 'title' not in form_data or form_data[
@@ -159,7 +147,6 @@ class Metadata(BaseMetadata):
 
     See the dc_algorithm.Metadata docstring for more information
     """
-
     land_converted = models.CharField(max_length=100000, default="")
     sea_converted = models.CharField(max_length=100000, default="")
 
@@ -174,7 +161,6 @@ class Metadata(BaseMetadata):
         """implements metadata_from_dataset as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         for metadata_index, time in enumerate(dataset.time.values.astype('M8[ms]').tolist()):
             clean_pixels = np.sum(clear_mask[metadata_index, :, :] == True)
@@ -188,7 +174,6 @@ class Metadata(BaseMetadata):
         """implements combine_metadata as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         for key in new:
             if key in old:
@@ -201,7 +186,6 @@ class Metadata(BaseMetadata):
         """implements final_metadata_from_dataset as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         self.pixel_count = len(dataset.latitude) * len(dataset.longitude)
         self.clean_pixel_count = np.sum(dataset[list(dataset.data_vars)[0]].values != -9999)
@@ -214,7 +198,6 @@ class Metadata(BaseMetadata):
         """implements metadata_from_dict as required by the base class
 
         See the base metadata class docstring for more information.
-
         """
         dates = list(metadata_dict.keys())
         dates.sort(reverse=True)
@@ -232,7 +215,6 @@ class Result(BaseResult):
     Extends base result, adding additional fields and adding abstract=True
     See the dc_algorithm.Result docstring for more information
     """
-
     result_coastal_change_path = models.CharField(max_length=250, default="")
     result_mosaic_path = models.CharField(max_length=250, default="")
     animation_path = models.CharField(max_length=250, default="None")

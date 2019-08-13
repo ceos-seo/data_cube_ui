@@ -46,7 +46,12 @@ under the License.
         {% block download_options %}
         {% endblock %}
     </select>
-    <a id="output_list_download_button" href="" target="_blank" download class="tooltipped btn btn-primary pull-right" title="Download the selected mosaic in your chosen format.">Download Selected</a>
+<!-- Note that set_dialog_modal_content() is defined in
+     apps/dc_algorithm/templates/map_tool.html -->
+    <a id="output_list_download_button"
+       href="javascript:set_dialog_modal_content('Alert', 'No output has been selected. To download an output product,\
+                                                           you must first select the output by clicking on it.')"
+       target="_blank" download class="tooltipped btn btn-primary pull-right" title="Download the selected mosaic in your chosen format.">Download Selected</a>
   </div>
 </div>
 <div class="col-lg-12">

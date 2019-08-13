@@ -11,7 +11,7 @@ try:
 except:
     print("Error importing the Data Cube. Please ensure that your environment has the Data Cube installed.")
     print("If you do not have the Data Cube installed, please do so by following the instructions at: ")
-    print("https://github.com/ceos-seo/data_cube_ui/blob/master/docs/datacube_install.md")
+    print("https://github.com/ceos-seo/data_cube_ui/blob/master/docs/open_data_cube_install.md")
     exit(1)
 
 files = [
@@ -277,7 +277,7 @@ if __name__ == "__main__":
 
     print("Requirements:")
     print(
-        "	An initialized Data Cube database named 'datacube'. More info found at https://github.com/ceos-seo/data_cube_ui/blob/master/docs/datacube_install.md"
+        "	An initialized Data Cube database named 'datacube'. More info found at https://github.com/ceos-seo/data_cube_ui/blob/master/docs/open_data_cube_install.md"
     )
     print("	A database role named 'dc_user' that has read/write access to 'datacube'")
     print("Next steps:")

@@ -27,7 +27,7 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 
 import json
-from datetime import datetime, timedelta
+import datetime
 
 from apps.dc_algorithm.models import Satellite, Area, Application
 from apps.dc_algorithm.forms import DataSelectionForm
@@ -39,6 +39,7 @@ from collections import OrderedDict
 from apps.dc_algorithm.views import (ToolView, SubmitNewRequest, GetTaskResult, SubmitNewSubsetRequest, CancelRequest,
                                      UserHistory, ResultList, OutputList, RegionSelection, TaskDetails)
 
+from apps.dc_algorithm.forms import MAX_NUM_YEARS
 
 class RegionSelection(RegionSelection):
     """Creates the region selection page for the tool by extending the RegionSelection class
@@ -63,19 +64,24 @@ class SlipTool(ToolView):
     tool_name = 'slip'
     task_model_name = 'SlipTask'
 
-    # TODO: Ensure that this function creates all the forms required for your model.
-    def generate_form_dict(self, satellites, area):
+    def generate_form_dict(self, satellites, area, user_id, user_history, task_model_class):
         forms = {}
         for satellite in satellites:
+            time_end = satellite.date_max
+            earliest_allowed_time = datetime.date(time_end.year - MAX_NUM_YEARS, time_end.month, time_end.day)
+            time_start = max(satellite.date_min, earliest_allowed_time)
             forms[satellite.pk] = {
                 'Data Selection':
                 AdditionalOptionsForm(
                     datacube_platform=satellite.datacube_platform, auto_id="{}_%s".format(satellite.pk)),
                 'Geospatial Bounds':
                 DataSelectionForm(
+                    user_id=user_id,
+                    user_history=user_history,
+                    task_model_class=task_model_class,
                     area=area,
-                    time_start=satellite.date_min,
-                    time_end=satellite.date_max,
+                    time_start=time_start,
+                    time_end=time_end,
                     auto_id="{}_%s".format(satellite.pk))
             }
         return forms
@@ -96,7 +102,6 @@ class SubmitNewRequest(SubmitNewRequest):
     task_model_name = 'SlipTask'
     #celery_task_func = create_cloudfree_mosaic
     celery_task_func = run
-    # TODO: Ensure that this list contains all the forms used to create your model
     form_list = [DataSelectionForm, AdditionalOptionsForm]
 
 
@@ -131,7 +136,7 @@ class SubmitNewSubsetRequest(SubmitNewSubsetRequest):
         needs to be changed, and results reset.
         """
         date = kwargs.get('date')[0]
-        date_datetime_format = datetime.strptime(date, '%m/%d/%Y') + timedelta(days=1)
+        date_datetime_format = datetime.strptime(date, '%m/%d/%Y') + datetime.timedelta(days=1)
         acquisition_dates = get_acquisition_list(task_model, task_model.area_id, task_model.satellite,
                                                  date_datetime_format)
         task_model.time_start = acquisition_dates[-1 * (task_model.baseline_length + 1)]

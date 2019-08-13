@@ -12,8 +12,8 @@ Contents
   * [Generating Base Files](#base_files)
   * [Basic Applications](#band_math_app)
   * [Complex Applications](#complex_app)
-  * [Templating Changes](#templates)
-  * [Common problems/FAQs](#faqs)
+  * [Template Changes](#templates)
+<!--  * [Common problems/FAQs](#faqs) -->
 
 <a name="introduction"></a> Introduction
 =================
@@ -317,15 +317,15 @@ class SubmitNewRequest(View, ToolClass):
         task_model = self._get_tool_model(self._get_task_model_name())
         forms = [form(request.POST) for form in self._get_form_list()]
         #validate all forms, print any/all errors
-        full_parameter_set = {}
+        parameter_set = {}
         for form in forms:
             if form.is_valid():
-                full_parameter_set.update(form.cleaned_data)
+                parameter_set.update(form.cleaned_data)
             else:
                 for error in form.errors:
                     return JsonResponse({'status': "ERROR", 'message': form.errors[error][0]})
 
-        task, new_task = task_model.get_or_create_query_from_post(full_parameter_set)
+        task, new_task = task_model.get_or_create_query_from_post(parameter_set)
         #associate task w/ history
         history_model, __ = self._get_tool_model('userhistory').objects.get_or_create(user_id=user_id, task_id=task.pk)
         if new_task:
