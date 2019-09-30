@@ -92,13 +92,13 @@ The next step will require a compatible installation of gdal.
 gdalinfo --version
 ```
 
-Run the following command where the version (e.g. `2.4.0`) is the version 
+Run the following command where the version (e.g. `2.4.2`) is the version 
 from the previous step, or as close to it as possible.
-For instance, if 2.4.1 was shown by `gdalinfo --version`, but unable to install
-in this command, try 2.4.0, and so on:
+For instance, if 2.4.2 was shown by `gdalinfo --version`, but unable to install
+in this command, try 2.4.1, and so on:
 
 ```
-pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.0
+pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.2
 ```
 
 <a name="python_deps"></a> Python Dependencies
@@ -108,10 +108,10 @@ These packages are required for using the Data Cube, S3 indexing, and the Data C
 Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
 the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 ```
-pip install rasterio==1.0.2
+pip install rasterio==1.0.24
 pip install numpy xarray
-pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
-pip install sqlalchemy==1.2.18
+pip install shapely scipy cloudpickle Cython netcdf4==1.3.1 boto3 folium hdmedians scikit-image ruamel.yaml
+pip install sqlalchemy==1.3.1
 pip install psycopg2-binary
 ```
 
@@ -198,7 +198,7 @@ datacube -v system init
 Run `datacube system check` to validate the installation.
 The output should look something like this:
 ```
-Version:       1.6.1
+Version:       1.7
 Config files:  /home/localuser/.datacube.conf
 Host:          127.0.0.1:5432
 Database:      datacube
