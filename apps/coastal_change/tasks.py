@@ -14,6 +14,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     write_png_from_xr, add_timestamp_data_to_xr, clear_attrs)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, group_datetimes_by_year,
                                                   combine_geographic_chunks)
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import CoastalChangeTask
 from apps.dc_algorithm.models import Satellite
@@ -284,7 +285,7 @@ def processing_task(self,
     if check_cancel_task(self, task): return
 
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    output_product.to_netcdf(path)
+    export_xarray_to_netcdf(output_product, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
@@ -334,7 +335,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
             no_data=task.satellite.no_data_value)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -406,7 +407,7 @@ def create_output_products(self, data, task_id=None):
     bands = task.satellite.get_measurements() + ['coastal_change', 'coastline_old', 'coastline_new']
     png_bands = ['red', 'green', 'blue']
 
-    dataset.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
     write_png_from_xr(
         task.result_path,

@@ -18,6 +18,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from apps.dc_algorithm.utils import create_2d_plot
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import CustomMosaicToolTask
 from apps.dc_algorithm.tasks import DCAlgorithmBase, check_cancel_task, task_clean_up
@@ -321,9 +322,9 @@ def processing_task(self,
                 #need to clear out all the metadata..
                 clear_attrs(data)
                 #can't reindex on time - weird?
-                data.isel(time=0).drop('time').to_netcdf(path)
+                export_xarray_to_netcdf(data.isel(time=0).drop('time'), path)
             elif task.animated_product.animation_id == "cumulative":
-                iteration_data.to_netcdf(path)
+                export_xarray_to_netcdf(iteration_data, path)
 
         task.scenes_processed = F('scenes_processed') + 1
         # Avoid overwriting the task's status if it is cancelled.
@@ -332,7 +333,7 @@ def processing_task(self,
     if iteration_data is None:
         return None
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    iteration_data.to_netcdf(path)
+    export_xarray_to_netcdf(iteration_data, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
@@ -383,10 +384,10 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
                     animated_data.append(xr.open_dataset(path))
             path = os.path.join(task.get_temp_path(), "animation_{}.nc".format(base_index + index))
             if len(animated_data) > 0:
-                combine_geographic_chunks(animated_data).to_netcdf(path)
+                export_xarray_to_netcdf(combine_geographic_chunks(animated_data), path)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -463,7 +464,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
             generate_animation(index, combined_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining time chunks for geo: " + str(geo_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -497,7 +498,7 @@ def create_output_products(self, data, task_id=None):
     bands = task.satellite.get_measurements()
     png_bands = [task.query_type.red, task.query_type.green, task.query_type.blue]
 
-    dataset.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
     write_png_from_xr(
         task.result_path,

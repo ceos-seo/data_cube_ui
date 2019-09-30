@@ -15,6 +15,7 @@ from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, gene
 from utils.data_cube_utilities.dc_slip import compute_slip, mask_mosaic_with_slip
 from utils.data_cube_utilities.dc_mosaic import create_mosaic
 from apps.dc_algorithm.utils import create_2d_plot
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import SlipTask
 from apps.dc_algorithm.models import Satellite
@@ -304,7 +305,7 @@ def processing_task(self,
 
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
     clear_attrs(target_data)
-    target_data.to_netcdf(path)
+    export_xarray_to_netcdf(target_data, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
@@ -365,7 +366,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
     # Since we added a time dim to combined_slip, we need to remove it here.
     combined_data['slip'] = combined_slip.isel(time=0, drop=True)
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining time chunks for geo: " + str(geo_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -401,7 +402,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     combined_data = combine_geographic_chunks(chunk_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -432,7 +433,7 @@ def create_output_products(self, data, task_id=None):
 
     bands = task.satellite.get_measurements() + ['slip']
 
-    dataset.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
     write_png_from_xr(
         task.result_path,

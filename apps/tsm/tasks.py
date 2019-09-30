@@ -17,6 +17,7 @@ from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, crea
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_water_quality import tsm, mask_water_quality
 from apps.dc_algorithm.utils import create_2d_plot
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import TsmTask
 from apps.dc_algorithm.models import Satellite
@@ -336,14 +337,14 @@ def processing_task(self,
                                 "animation_{}_{}.nc".format(str(geo_chunk_id), str(base_index + time_index)))
             animated_data = tsm_data.isel(
                 time=0, drop=True) if task.animated_product.animation_id == "scene" else combined_data
-            animated_data.to_netcdf(path)
+            export_xarray_to_netcdf(animated_data, path)
 
         task.scenes_processed = F('scenes_processed') + 1
         task.save(update_fields=['scenes_processed'])
     if combined_data is None:
         return None
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
@@ -395,10 +396,10 @@ def recombine_geographic_chunks(self, chunks, task_id=None, num_scn_per_chk=None
                     animated_data.append(xr.open_dataset(path))
             path = os.path.join(task.get_temp_path(), "animation_{}.nc".format(base_index + index))
             if len(animated_data) > 0:
-                combine_geographic_chunks(animated_data).to_netcdf(path)
+                export_xarray_to_netcdf(combine_geographic_chunks(animated_data), path)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -459,7 +460,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
                     combine_intermediates(combined_data, animated_data)
                 # need to wait until last step to mask out wofs < 0.8
                 path = os.path.join(task.get_temp_path(), "animation_final_{}.nc".format(base_index + index))
-                animated_data.to_netcdf(path)
+                export_xarray_to_netcdf(animated_data, path)
 
     combined_data = None
     for index, chunk in enumerate(total_chunks):
@@ -477,7 +478,7 @@ def recombine_time_chunks(self, chunks, task_id=None):
             generate_animation(index, combined_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining time chunks for geo: " + str(geo_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -516,7 +517,8 @@ def create_output_products(self, data, task_id=None):
     bands = [task.query_type.data_variable, 'total_clean', 'wofs']
     band_paths = [task.result_path, task.clear_observations_path, task.water_percentage_path]
 
-    dataset_masked.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(dataset_masked, task.data_netcdf_path)
+
     write_geotiff_from_xr(task.data_path, dataset_masked, bands=bands, no_data=task.satellite.no_data_value)
 
     for band, band_path in zip(bands, band_paths):
