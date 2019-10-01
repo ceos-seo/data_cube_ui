@@ -278,9 +278,6 @@ def processing_task(self,
     full_product = xr.merge([iteration_data, cloud_cover])
 
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    logger.info("path:" + path)
-    logger.info(str(os.path.exists(path)))
-    logger.info("path exists:" + str(os.path.exists(path)))
     export_xarray_to_netcdf(full_product, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)

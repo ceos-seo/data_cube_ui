@@ -66,6 +66,7 @@ Then run the following commands:
 ```
 cd ~/Datacube/data_cube_notebooks
 jupyter notebook --generate-config
+
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 

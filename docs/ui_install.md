@@ -372,10 +372,11 @@ You can start, stop, kill, restart, etc. the workers using `sudo /etc/init.d/dat
 For example `sudo /etc/init.d/data_cube_ui restart` will restart the Celery workers.
 You can run `sudo /etc/init.d/data_cube_ui` to print information about available commands.
 
-To instead access this service with `sudo service data_cube_ui [command]`, run the following command:
+To instead access this service with `sudo service data_cube_ui [command]`, run the following commands:
 
 ```
 systemctl daemon-reload
+sudo service data_cube_ui start
 ```
 
 You will need to select the localuser to authenticate as by entering a number,
