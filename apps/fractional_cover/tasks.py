@@ -17,6 +17,7 @@ from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, crea
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
 from utils.data_cube_utilities.dc_water_classifier import wofs_classify
 from apps.dc_algorithm.utils import create_2d_plot
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import FractionalCoverTask
 from apps.dc_algorithm.models import Satellite
@@ -343,7 +344,7 @@ def processing_task(self,
         return None
 
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    iteration_data.to_netcdf(path)
+    export_xarray_to_netcdf(iteration_data, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
@@ -403,7 +404,7 @@ def recombine_time_chunks(self, chunks, task_id=None, num_scn_per_chk=None):
         return None
 
     path = os.path.join(task.get_temp_path(), "recombined_time_{}.nc".format(geo_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining time chunks for geo: " + str(geo_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -438,7 +439,7 @@ def process_band_math(self, chunk, task_id=None, num_scn_per_chk=None):
     dataset = xr.merge([dataset, _apply_band_math(dataset)])
     #remove previous nc and write band math to disk
     os.remove(chunk[0])
-    dataset.to_netcdf(chunk[0])
+    export_xarray_to_netcdf(dataset, chunk[0])
     task.scenes_processed = F('scenes_processed') + num_scn_per_chk
     task.save(update_fields=['scenes_processed'])
     return chunk
@@ -476,7 +477,7 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     combined_data = combine_geographic_chunks(chunk_data)
 
     path = os.path.join(task.get_temp_path(), "recombined_geo_{}.nc".format(time_chunk_id))
-    combined_data.to_netcdf(path)
+    export_xarray_to_netcdf(combined_data, path)
     logger.info("Done combining geographic chunks for time: " + str(time_chunk_id))
     return path, metadata, {'geo_chunk_id': geo_chunk_id, 'time_chunk_id': time_chunk_id}
 
@@ -507,7 +508,7 @@ def create_output_products(self, data, task_id=None):
 
     bands = task.satellite.get_measurements() + ['pv', 'npv', 'bs']
 
-    dataset.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
     write_png_from_xr(
         task.mosaic_path,

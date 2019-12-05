@@ -1,6 +1,7 @@
 from django.db.models import F
 from celery.task import task
 from celery import chain, group, chord
+from celery.utils.log import get_task_logger
 from datetime import datetime, timedelta
 import shutil
 import xarray as xr
@@ -17,6 +18,7 @@ from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, crea
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.clean_mask import landsat_clean_mask_invalid
 from apps.dc_algorithm.utils import create_2d_plot
+from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import SpectralAnomalyTask
 from apps.dc_algorithm.models import Satellite
@@ -29,6 +31,9 @@ from utils.data_cube_utilities.dc_ndvi_anomaly import NDVI, EVI
 from utils.data_cube_utilities.dc_water_classifier import NDWI
 from utils.data_cube_utilities.urbanization import NDBI
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
+
+logger = get_task_logger(__name__)
+
 
 spectral_indices_function_map = {
     'ndvi': NDVI, 'ndwi': NDWI,
@@ -407,11 +412,12 @@ def processing_task(self,
     if check_cancel_task(self, task): return
 
     composite_path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
-    diff_composite.to_netcdf(composite_path)
+    export_xarray_to_netcdf(diff_composite, composite_path)
     composite_out_of_range_path = os.path.join(task.get_temp_path(), chunk_id + "_out_of_range.nc")
-    composite_out_of_range.to_netcdf(composite_out_of_range_path)
+    logger.info("composite_out_of_range:" + str(composite_out_of_range))
+    export_xarray_to_netcdf(composite_out_of_range, composite_out_of_range_path)
     composite_no_data_path = os.path.join(task.get_temp_path(), chunk_id + "_no_data.nc")
-    composite_no_data.to_netcdf(composite_no_data_path)
+    export_xarray_to_netcdf(composite_no_data, composite_no_data_path)
     return composite_path, composite_out_of_range_path, composite_no_data_path, \
            metadata, {'geo_chunk_id': geo_chunk_id}
 
@@ -451,11 +457,11 @@ def recombine_geographic_chunks(self, chunks, task_id=None):
     combined_no_data = combine_geographic_chunks(no_data_chunk_data)
 
     composite_path = os.path.join(task.get_temp_path(), "full_composite.nc")
-    combined_composite_data.to_netcdf(composite_path)
+    export_xarray_to_netcdf(combined_composite_data, composite_path)
     composite_out_of_range_path = os.path.join(task.get_temp_path(), "full_composite_out_of_range.nc")
-    combined_out_of_range_data.to_netcdf(composite_out_of_range_path)
+    export_xarray_to_netcdf(combined_out_of_range_data, composite_out_of_range_path)
     no_data_path = os.path.join(task.get_temp_path(), "full_composite_no_data.nc")
-    combined_no_data.to_netcdf(no_data_path)
+    export_xarray_to_netcdf(combined_no_data, no_data_path)
     return composite_path, composite_out_of_range_path, no_data_path, metadata
 
 
@@ -541,7 +547,7 @@ def create_output_products(self, data, task_id=None):
     image_data[composite_no_data] = composite_no_data_color
 
     # Create output products (NetCDF, GeoTIFF, PNG).
-    diff_composite.to_netcdf(task.data_netcdf_path)
+    export_xarray_to_netcdf(diff_composite, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, diff_composite.astype('float32'),
                           bands=bands, no_data=task.satellite.no_data_value)
     plt.imsave(task.result_path, image_data)

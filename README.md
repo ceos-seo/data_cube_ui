@@ -6,7 +6,7 @@ The CEOS Data Cube UI is a full stack Python web application used to perform ana
 * [**Celery + Redis**](http://www.celeryproject.org/): Asynchronous task processing
 * [**Data Cube**](http://datacube-core.readthedocs.io/en/stable/): API for data access and analysis
 * [**PostgreSQL**](https://www.postgresql.org/): Database backend for both the Data Cube and our UI
-* **Apache/Mod WSGI**: Standard service based application running our Django application while still providing hosting for static files
+* [**Apache/Mod WSGI**](https://en.wikipedia.org/wiki/Mod_wsgi): Standard service based application running our Django application while still providing hosting for static files
 * [**Bootstrap3**](http://getbootstrap.com/): Simple, standard, and easy front end styling
 
 Using these common technologies provides a good starting platform for users who want to develop Data Cube applications. Using Celery allows for simple distributed task processing while still being performant. Our UI is designed for high level use of the Data Cube and allow users to:

@@ -66,11 +66,12 @@ Then run the following commands:
 ```
 cd ~/Datacube/data_cube_notebooks
 jupyter notebook --generate-config
+
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 
 Jupyter will create a configuration file in `~/.jupyter/jupyter_notebook_config.py`. 
-Now set the password and edit the server details. Remember this password for future reference.
+Now set the password. Remember this password for future reference.
 
 ```
 jupyter notebook password

@@ -147,7 +147,8 @@ password, and database name all match. This should be the database and database
 username/password set **during the Data Cube Core installation process**. 
 If these details are not correct, please correct them and save the file.
 
-**Please note that our UI application uses this configuration file for everything 
+**Please note that our UI application uses the configuration file 
+`config/.datacube.conf` for everything 
 rather than the default `~/.datacube.conf` file.**
 
 Next, we'll need to update the Apache configuration file. 
@@ -207,8 +208,6 @@ Open the file found at `~/Datacube/data_cube_ui/config/dc_ui.conf`:
 	</Directory>
 
 </VirtualHost>
-
-# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
 ```
 
 In this configuration file, note that all of the paths are absolute. 
@@ -219,7 +218,7 @@ This file assumes a standard installation with a virtual environment located
 in the location specified in the installation documentation.
 
 We'll now copy the configuration files to where they need to be. 
-The `.datacube.conf` file is overwritten with the UI version for consistency.
+The `~/.datacube.conf` file is overwritten with the UI version for consistency.
 
 ```
 sudo cp ~/Datacube/data_cube_ui/config/.datacube.conf ~/.datacube.conf
@@ -266,15 +265,11 @@ The database credentials need to be entered here as well.
 Enter the database name, username, and password that you entered in your `.datacube.conf` file:
 
 ```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'datacube',
-      	'USER': 'dc_user',
-      	'PASSWORD': 'localuser1234',
-      	'HOST': MASTER_NODE
-    }
-}
+db_user = os.environ.get('POSTGRES_USER', 'dc_user')
+db_pass = os.environ.get('POSTGRES_PASSWORD', 'localuser1234')
+db_name = os.environ.get('POSTGRES_DATABASE', 'datacube')
+db_host = os.environ.get('POSTGRES_HOSTNAME', '127.0.0.1')
+db_port = os.environ.get('POSTGRES_PORT', '5432')
 ```
 
 Now that the Apache configuration file is in place and the Django settings 
@@ -312,7 +307,7 @@ Run the following commands:
 
 ```
 cd ~/Datacube/data_cube_ui
-python manage.py makemigrations {data_cube_ui,accounts,coastal_change,custom_mosaic_tool,fractional_cover,spectral_anomaly,slip,task_manager,tsm,water_detection,dc_algorithm,data_cube_manager,cloud_coverage,urbanization,spectral_indices}
+python manage.py makemigrations {data_cube_ui,accounts,cloud_coverage,coastal_change,custom_mosaic_tool,data_cube_manager,dc_algorithm,fractional_cover,slip,spectral_anomaly,spectral_indices,task_manager,tsm,urbanization,water_detection}
 python manage.py makemigrations
 python manage.py migrate
 
@@ -351,7 +346,14 @@ We use Celery workers in our application to handle the asynchronous task process
 To test the workers we will need to add an area and dataset that you have ingested 
 into the UI's database. This will happen in a separate section.
 
-Run the following commands to daemonize the Celery workers and 
+In the `config` directory, ensure the following for both the `celeryd_conf` 
+and `celerybeat_conf` files:
+1. `CELERY_BIN` is set to the path to Celery in your virtual environment.
+2. `CELERYD_CHDIR` is set to the path to the `data_cube_ui` directory.
+3. `CELERYD_USER` and `CELERYD_GROUP` are set to the username of the 
+local user.
+
+Then run the following commands to daemonize the Celery workers and 
 start the `data_cube_ui` system service.
 
 ```
@@ -370,10 +372,11 @@ You can start, stop, kill, restart, etc. the workers using `sudo /etc/init.d/dat
 For example `sudo /etc/init.d/data_cube_ui restart` will restart the Celery workers.
 You can run `sudo /etc/init.d/data_cube_ui` to print information about available commands.
 
-To instead access this service with `sudo service data_cube_ui [command]`, run the following command:
+To instead access this service with `sudo service data_cube_ui [command]`, run the following commands:
 
 ```
 systemctl daemon-reload
+sudo service data_cube_ui start
 ```
 
 You will need to select the localuser to authenticate as by entering a number,
