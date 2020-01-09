@@ -52,7 +52,15 @@ git submodule init && git submodule update
 Now install the following Python packages:
 
 ```
-pip install jupyter matplotlib scipy hdmedians rasterstats seaborn sklearn scikit-image lcmap-pyccd==2017.6.8 tqdm
+pip install hdmedians lcmap-pyccd==2017.6.8
+pip install rasterio
+pip install numpy xarray scipy
+pip install sklearn scikit-image
+pip install shapely cloudpickle Cython netcdf4
+pip install sqlalchemy psycopg2-binary
+pip install matplotlib seaborn
+
+pip install jupyter folium rasterstats tqdm
 pip install bokeh geopandas descartes
 ```
 
@@ -111,7 +119,7 @@ You'll see that a connection to the Data Cube is established, some product metad
 <a name="next_steps"></a> Next Steps
 ========  
 Now that we have the notebook server setup and our examples running, you are able to play with many of our algorithms and become more familiar with the Data Cube and accessing metadata and data. 
-You may also consider setting up our web-based user interface. You can find that documentation [here](./ui_install.md).
+You may also consider setting up our web-based user interface. You can find that documentation [here](ui/ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
 ========  

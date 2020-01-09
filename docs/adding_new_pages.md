@@ -1,4 +1,4 @@
-Data Cube Algorithm Addition Guide
+Open Data Cube UI Algorithm Addition Guide
 =================
 
 This document will guide users through the process of adding new algorithms or analysis cases to the UI, including the general Django files and the Celery workflow. This guide assumes that the user has a working Data Cube installation and has completed the full UI installation guide.

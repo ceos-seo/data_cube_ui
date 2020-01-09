@@ -50,30 +50,30 @@ ALLOWED_HOSTS = ['*']
 MASTER_NODE = '127.0.0.1'
 
 # Application definition
-BASE_HOST = "localhost:8000/"
-ADMIN_EMAIL = "example@your_domain.org"
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = '25'
+BASE_HOST = "localhost:{}/".format(os.environ.get('PORT', 80))
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'example@your_domain.org')
+EMAIL_HOST = "localhost"
+EMAIL_PORT = "25"
 
-LOCAL_USER = "localuser"
+LOCAL_USER = os.environ.get('USER', 'localuser')
 
 INSTALLED_APPS = [
+    'apps.accounts',
+    'apps.cloud_coverage',
+    'apps.coastal_change',
     'apps.custom_mosaic_tool',
-    'apps.water_detection',
+    'apps.data_cube_manager',
+    'apps.dc_algorithm',
+    'apps.fractional_cover',
+    'apps.ndvi_anomaly',
+    'apps.pages',
+    'apps.slip',
+    'apps.spectral_anomaly',
+    'apps.spectral_indices',
     'apps.task_manager',
     'apps.tsm',
-    'apps.fractional_cover',
-    'apps.slip',
-    'apps.coastal_change',
-    'apps.ndvi_anomaly',
     'apps.urbanization',
-    'apps.cloud_coverage',
-    'apps.spectral_indices',
-    'apps.spectral_anomaly',
-    'apps.dc_algorithm',
-    'apps.pages',
-    'apps.accounts',
-    'apps.data_cube_manager',
+    'apps.water_detection',
     'data_cube_ui',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -134,12 +134,11 @@ WSGI_APPLICATION = 'data_cube_ui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-db_user = os.environ.get('POSTGRES_USER', 'dc_user')
-db_pass = os.environ.get('POSTGRES_PASSWORD', 'localuser1234')
-db_name = os.environ.get('POSTGRES_DATABASE', 'datacube')
-db_host = os.environ.get('POSTGRES_HOSTNAME', '127.0.0.1')
-db_port = os.environ.get('POSTGRES_PORT', '5432')
-
+db_user = os.environ.get('DB_USER', 'dc_user')
+db_pass = os.environ.get('DB_PASSWORD', 'localuser1234')
+db_name = os.environ.get('DB_DATABASE', 'datacube')
+db_host = os.environ.get('DB_HOSTNAME', '127.0.0.1')
+db_port = os.environ.get('DB_PORT', '5432')
 
 DATABASES = {
     'default': {

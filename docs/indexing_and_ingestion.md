@@ -1,4 +1,4 @@
-Open Data Cube Ingestion Guide
+Open Data Cube Indexing and Ingestion Guide
 =================
 This document will guide users through the process of indexing and ingesting 
 ARD datasets into the Data Cube using the command line tool and required 
@@ -871,15 +871,7 @@ one for your original scene and one for each ingested tile.
 <a name="next_steps"></a> Next Steps
 ========  
 
-Now that you have a complete Data Cube install and at least one ingested scene, 
-we can move on into the application space. The next steps are setting up some 
-of the example apps that we have created that demonstrate some of the Data Cube 
-capabilities. First up is our Jupyter notebooks - these contain some example 
-applications such as NDVI anomaly, water detection, SLIP, and mosaicking. 
-The documentation for the Jupyter notebook setup can be found 
-[here](./notebook_install.md). If you'd rather skip ahead and set up and 
-configure our example web based user interface, see the documentation 
-[here](./ui_install.md)
+Now that you have a complete Data Cube install and at least one ingested scene, we can move on into the application space. The next steps are setting up some of the example apps that we have created that demonstrate some of the Data Cube capabilities. First up is our Jupyter notebooks - these contain some example applications such as NDVI anomaly, water detection, SLIP, and mosaicking. The documentation for the Jupyter notebook setup can be found [here](./notebook_install.md). If you'd rather skip ahead and set up and configure our example web based user interface, see the documentation [here](ui/ui_install.md)
 
 <a name="overview"></a> Brief Overview of Processes
 ========

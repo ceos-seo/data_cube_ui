@@ -113,10 +113,11 @@ These packages are required for using the Data Cube, S3 indexing, and the
 Data Cube notebooks.
 ```
 pip install rasterio
-pip install numpy xarray
-pip install shapely scipy cloudpickle Cython netcdf4==1.4.2 boto3 folium hdmedians scikit-image ruamel.yaml
+pip install numpy xarray scipy
+pip install shapely cloudpickle Cython netcdf4 scikit-image
 pip install sqlalchemy
 pip install psycopg2-binary
+pip install hdmedians
 ```
 
 <a name="core"></a> Core
@@ -173,9 +174,9 @@ sudo service postgresql restart
 
 Create a <b>PostgreSQL</b> superuser to access the database. 
 We usually use a password of `localuser1234`, but you can use 
-whatever password you like, as long as you record and remember it. 
-The `createdb` command will prompt for the password set for the user 
-in the `psql` command above it.
+whatever password you like, as long as you record and remember it.
+The `createdb` command will prompt for a password. Enter the password 
+set in the `ALTER USER` command.
 ```
 sudo -u postgres createuser --superuser dc_user
 sudo -u postgres psql -c "ALTER USER dc_user WITH PASSWORD 'localuser1234';"
@@ -227,10 +228,9 @@ previous steps and that there were no errors received during their execution.
 
 <a name="next_steps"></a> Next Steps
 ========  
-Now that we have ODC core setup, you may install our web-based UI or a 
-Jupyter Notebook server with some example ODC notebooks. The Jupyter Notebook 
-server installation documentation can be found [here](./notebook_install.md).
-The web-based UI installation documentation can be found [here](./ui_install.md).
+Now that we have ODC core setup, you may install our web-based UI or a Jupyter Notebook server with some example ODC notebooks.
+The Jupyter Notebook server installation documentation can be found [here](./notebook_install.md).
+The web-based UI installation documentation can be found [here](ui/ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
 ========  
