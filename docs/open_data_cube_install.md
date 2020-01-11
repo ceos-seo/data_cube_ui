@@ -84,21 +84,21 @@ sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-seria
 ```
 
 The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  
-Make sure it matches your GDAL Python bindings package or you will receive 
-an error related to `x86_64-linux-gnu-gcc`. 
+We'll need to ensure it matches your GDAL Python bindings package installed next 
+or you will receive an error related to `x86_64-linux-gnu-gcc`. 
 The next step will require a compatible installation of gdal.
 
 ```
 gdalinfo --version
 ```
 
-Run the following command where the version (e.g. `2.4.2`) is the version 
+Run the following command where the version (e.g. `3.0.2`) is the version 
 from the previous step, or as close to it as possible.
-For instance, if 2.4.2 was shown by `gdalinfo --version`, but unable to install
-in this command, try 2.4.1, and so on:
+For instance, if 3.0.2 was shown by `gdalinfo --version`, but unable to install
+in this command, try a newer version like 3.0.3, and so on:
 
 ```
-pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==2.4.2
+pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal==3.0.2
 ```
 
 <a name="python_deps"></a> Python Dependencies
@@ -108,10 +108,10 @@ These packages are required for using the Data Cube, S3 indexing, and the Data C
 Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
 the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 ```
-pip install rasterio==1.0.24
+pip install rasterio
 pip install numpy xarray
-pip install shapely scipy cloudpickle Cython netcdf4==1.3.1 boto3 folium hdmedians scikit-image ruamel.yaml
-pip install sqlalchemy==1.3.1
+pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
+pip install sqlalchemy
 pip install psycopg2-binary
 ```
 
@@ -120,8 +120,9 @@ pip install psycopg2-binary
 Install the latest version of the Open Data Cube core from the [Open Data Cube Core github](https://github.com/opendatacube/datacube-core/releases).  It is critical that you select a version of `1.6.1` or later if you intend to use S3 indexing.  Afterwards, run the python setup development wheel.
 ```
 cd ~/Datacube
-git clone https://github.com/opendatacube/datacube-core.git --branch datacube-1.7
+git clone https://github.com/opendatacube/datacube-core.git --branch develop 
 cd ~/Datacube/datacube-core
+git checkout 8d517db0520210a5ea590ae71edc6196ec4e0dc8
 python setup.py develop
 ```
 
@@ -162,6 +163,8 @@ sudo service postgresql restart
 Create a <b>PostgreSQL</b> superuser to access the database. 
 We usually use a password of `localuser1234`, but you can use 
 whatever password you like, as long as you record and remember it. 
+The `createdb` command will prompt for the password set for the user 
+in the `psql` command above it.
 ```
 sudo -u postgres createuser --superuser dc_user
 sudo -u postgres psql -c "ALTER USER dc_user WITH PASSWORD 'localuser1234';"

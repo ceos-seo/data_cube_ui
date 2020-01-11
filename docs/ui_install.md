@@ -96,7 +96,7 @@ sudo service redis-server start
 Next, you'll need various Python packages that are responsible for running the application:
 
 ```
-pip install django==1.11.13 redis imageio django-bootstrap3 matplotlib stringcase celery
+pip install django==1.11.15 redis imageio django-bootstrap3 matplotlib stringcase celery
 ```
 
 You will also need to create a base directory structure for results:
