@@ -1,7 +1,11 @@
 ﻿Data Cube UI Installation Guide
 =================
 
-This document will guide users through the process of installing and configuring our Data Cube user interface. Our interface is a full Python web server stack using Django, Celery, PostreSQL, and Boostrap3. In this guide, both Python and system packages will be installed and configured and users will learn how to start asynchronous task processing systems.
+This document will guide users through the process of installing and configuring 
+our Data Cube user interface. Our interface is a full Python web server stack 
+using Django, Celery, PostgreSQL, and Boostrap3. In this guide, both Python and 
+system packages will be installed and configured and users will learn how to start 
+the asynchronous task processing system.
 
 Contents
 =================
@@ -21,9 +25,17 @@ Contents
 
 <a name="system_requirements"></a> System Requirements
 =================
-This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser` however as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
+This document assumes that a local user, not an admin user, will be used to run all 
+of the processes.  We use `localuser` as the user name, but it can be anything you want. 
+We recommend the use of `localuser` however as a considerable number of our 
+configuration files assume the use of this name.  To use a different name may require
+the modification of several additional configuration files that otherwise would not need 
+modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or 
+<b>î</b> in this username as it can potentially cause issues in the future. 
+We recommend an all-lowercase underscore-separated string.
 
-This document targets an Ubuntu development environment. The base requirements can be found below:
+This document targets an Ubuntu development environment. The base requirements can 
+be found below:
 
 * **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/server)
 * **Memory**: 8GiB
@@ -33,19 +45,31 @@ This document targets an Ubuntu development environment. The base requirements c
 <a name="introduction"></a> Introduction
 =================
 
-The CEOS Data Cube UI is a full stack Python web application used to perform analysis on raster datasets using the Data Cube. Using common and widely accepted frameworks and libraries, our UI is a good tool for demonstrating the Data Cube capabilities and some possible applications and architectures. The UI's core technologies are:
+The CEOS Data Cube UI is a full stack Python web application used to perform analysis 
+on raster datasets using the Data Cube. Using common and widely accepted frameworks 
+and libraries, our UI is a good tool for demonstrating the Data Cube capabilities 
+and some possible applications and architectures. The UI's core technologies are:
 
-* [**Django**](https://www.djangoproject.com/): Web framework, ORM, template processor, entire MVC stack
-* [**Celery + Redis**](http://www.celeryproject.org/): Asynchronous task processing
-* [**Data Cube**](http://datacube-core.readthedocs.io/en/stable/): API for data access and analysis
-* [**PostgreSQL**](https://www.postgresql.org/): Database backend for both the Data Cube and our UI
-* [**Apache/Mod WSGI**](https://en.wikipedia.org/wiki/Mod_wsgi): Standard service based application running our Django application while still providing hosting for static files
-* [**Bootstrap3**](http://getbootstrap.com/): Simple, standard, and easy front end styling
+* [**Django**](https://www.djangoproject.com/): 
+Web framework, ORM, template processor, entire MVC stack
+* [**Celery + Redis**](http://www.celeryproject.org/): 
+Asynchronous task processing
+* [**Data Cube**](http://datacube-core.readthedocs.io/en/stable/): 
+API for data access and analysis
+* [**PostgreSQL**](https://www.postgresql.org/): 
+Database backend for both the Data Cube and our UI
+* [**Apache/Mod WSGI**](https://en.wikipedia.org/wiki/Mod_wsgi): 
+Standard service based application running our Django application while still providing hosting for static files
+* [**Bootstrap3**](http://getbootstrap.com/): 
+Simple, standard, and easy front end styling
 
-Using these common technologies provides a good starting platform for users who want to develop Data Cube applications. Using Celery allows for simple distributed task processing while still being performant. Our UI is designed for high level use of the Data Cube and allow users to:
+Using these common technologies provides a good starting platform for users 
+who want to develop Data Cube applications. Using Celery allows for simple 
+distributed task processing while still being performant. Our UI is designed 
+for high level use of the Data Cube and allows users to:
 
 * Access various datasets that we have ingested
-* Run custom analysis cases over user defined areas and time ranges
+* Run custom analysis cases over user-defined areas and time ranges
 * Generate both visual (image) and data products (GeoTIFF/NetCDF)
 * Provide easy access to metadata and previously run analysis cases
 
@@ -60,15 +84,19 @@ To set up and run our Data Cube UI, the following conditions must be met:
   * The Data Cube is installed and you have successfully run `datacube system check`.
   * You are in the Datacube virtual environment, having run `source ~/Datacube/datacube_env/bin/activate`.
 
-If these requirements are not met, please see the associated documentation. Please take some time to get familiar with the documentation of our core technologies - most of this guide is concerning setup and configuration and is not geared towards teaching about our tools.
+If these requirements are not met, please see the associated documentation. 
+Please take some time to get familiar with the documentation of our core 
+technologies - most of this guide is concerning setup and configuration 
+and is not geared towards teaching about our tools.
 
-If you want to analyze data from the UI, the ingestion guide must have been followed and completed. 
-The UI will work without any ingested data, but no analysis can occur. The steps include:
+If you want to analyze data from the UI, the ingestion guide must have been 
+followed and completed. The UI will work without any ingested data, 
+but no analysis can occur. The steps include:
 * A sample Landsat 7 scene was downloaded and uncompressed in your `/datacube/original_data` directory
 * The ingestion process was completed for that sample Landsat 7 scene.
 
-Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
-it is acceptable in a given command block. Run each line individually.
+Before we begin, note that multiple commands should not be copied and pasted 
+to be run simultaneously unless you know it is acceptable in a given command block. Run each line individually.
 
 <a name="installation_process"></a> Installation Process
 =================
@@ -96,14 +124,14 @@ sudo service redis-server start
 Next, you'll need various Python packages that are responsible for running the application:
 
 ```
-pip install django==1.11.15 redis imageio django-bootstrap3 matplotlib stringcase celery
+pip install django==2.2.9 redis imageio django-bootstrap3 matplotlib stringcase celery
 ```
 
 You will also need to create a base directory structure for results:
 
 ```
 sudo mkdir /datacube/ui_results
-sudo chmod 777 /datacube/ui_results
+sudo chmod 755 /datacube/ui_results
 ```
 
 The Data Cube UI also sends admin mail, so a mail server is required.
@@ -288,8 +316,8 @@ and replace `localuser1234` with you database user password
 and copy that file into the home directory of your local user.
 
 ```
-sudo cp config/.pgpass ~/.pgpass
-sudo chmod 600 ~/.pgpass
+cp config/.pgpass ~/.pgpass
+chmod 600 ~/.pgpass
 ```
 
 <a name="database_initialization"></a> Initializing the Database
@@ -431,14 +459,23 @@ celery -A data_cube_ui beat
 
 The worker system can seem complex at first, but the basic workflow is shown below:
 
-* The Django view receives form data from the web page. This form data is processed into a Query model for the application
-* The main Celery worker receives a task with a Query model and pulls all of the required parameters from this model
-* Using predefined chunking options, the main Celery task splits the parameters (latitude, longitude, time) into smaller chunks
-* These smaller chunks of (latitude, longitude, time) are sent off to the Celery worker processes - there should be more worker processes than master processes
-* The Celery worker processes load in the data in the parameters they received and perform some analysis. The results are saved to disk and the paths are returned
-* The master process waits until all chunks have been processed then loads all of the result chunks. The chunks are combined into a single product and saved to disk
-* The master process uses the data product to create images and data products and saves them to disk, deleting all the remnant chunk products
-* The master process creates a Result and Metadata model based on what was just created and returns the details to the browser
+* The Django view receives form data from the web page. 
+  This form data is processed into a Query model for the application
+* The main Celery worker receives a task with a Query model and pulls all of the 
+  required parameters from this model
+* Using predefined chunking options, the main Celery task splits the parameters 
+  (latitude, longitude, time) into smaller chunks
+* These smaller chunks of (latitude, longitude, time) are sent off to the Celery 
+  worker processes - there should be more worker processes than master processes
+* The Celery worker processes load in the data in the parameters they received 
+  and perform some analysis. The results are saved to disk and the paths are returned
+* The master process waits until all chunks have been processed then loads all 
+  of the result chunks. The chunks are combined into a single product and saved 
+  to disk
+* The master process uses the data product to create images and data products 
+  and saves them to disk, deleting all the remnant chunk products
+* The master process creates a Result and Metadata model based on what was just 
+  created and returns the details to the browser
 
 <a name="customization"></a> Customize the UI
 =================
@@ -449,7 +486,8 @@ For this section, we make a few assumptions:
 * Your ingested product definition's name is `'ls7_ledaps_general'`.
 * You have ingested a Landsat 7 scene.
 
-First, we need to find the bounding box of your area. Open a Django Python shell and use the following commands:
+First, we need to find the bounding box of your area. Open a Django Python 
+shell and use the following commands:
 
 ```
 source ~/Datacube/datacube_env/bin/activate
@@ -471,62 +509,94 @@ lat=(7.745543874267876, 9.617183768731897)
 lon=(-3.5136704023069685, -1.4288602909212722)
 ```
 
-Go back to the admin page, select `Dc_Algorithm -> Areas`, delete all of the initial areas, then click the 'Add Area' button.
+Go back to the admin page, select `Dc_Algorithm -> Areas`, delete all of the 
+initial areas, then click the 'Add Area' button.
 
 Give the area an ID and a name.
-For the Area ID, enter `general`, or whatever area you've named that is prepended by `ls7_ledaps_`. 
+For the Area ID, enter `general`, or whatever area you've named that is 
+prepended by `ls7_ledaps_`. 
 More generally, the Data Cube product name for your area must be the concatenation of 
 `Dc_Algorithm -> Satellites -> [selected satellite] -> Product prefix` 
 and the `Area` ID. For example, an `Area` with an `Id` of `general` should have 
-a product with a name of `ls7_ledaps_general` for the satellite `LANDSAT_7`, or `ls8_lasrc_general` for the satellite `LANDSAT_8`. 
-So the `Name` of an `Area` can be whatever you want, but the `Id` of an `Area` and 
-names of the corresponding Data Cube products are constrained in this way.
+a product with a name of `ls7_ledaps_general` for the satellite `LANDSAT_7`, or 
+`ls8_lasrc_general` for the satellite `LANDSAT_8`. So the `Name` of an `Area` can be 
+whatever you want, but the `Id` of an `Area` and names of the corresponding Data Cube 
+products are constrained in this way.
 
-Enter the latitude and longitude bounds in all of the latitude/longitude min/max fields for both the top and the detail fields.
+Enter the latitude and longitude bounds in all of the latitude/longitude min/max fields 
+for both the top and the detail fields.
 
-For all of the imagery fields, enter `/static/assets/images/black.png` - this will give a black area preview, but will still contain the data we specify.
+For all of the imagery fields, enter `/static/assets/images/black.png` - this will give 
+a black area preview, but will still contain the data we specify.
 
 Select `LANDSAT_7` in the satellites field and save your new area.
 
-Navigate back to the main admin page and select `Dc_Algorithm -> Applications`. Choose `custom_mosaic_tool` and select your area in the `Areas` field. Save the model and exit.
+Navigate back to the main admin page and select `Dc_Algorithm -> Applications`. 
+Choose `custom_mosaic_tool` and select your area in the `Areas` field. 
+Save the model and exit.
 
-Go back to the main site and navigate back to the Custom Mosaic Tool. You will see that your area is the only one in the list - select this area to load the tool. Make sure your workers are running and submit a task over the default time over some area and watch it complete. The web page should overlay an image result.
+Go back to the main site and navigate back to the Custom Mosaic Tool. 
+You will see that your area is the only one in the list - select this area to 
+load the tool. Make sure your workers are running and submit a task over the 
+default time over some area and watch it complete. The web page should overlay 
+an image result.
 
 
 <a name="maintenance"></a> Maintenance, Upgrades, and Debugging
 =================
 
-Upgrades can be pulled directly from our GitHub releases using Git. There are a few steps that will need to be taken to complete an upgrade from an earlier release version:
+Upgrades can be pulled directly from our GitHub releases using Git. There are a 
+few steps that will need to be taken to complete an upgrade from an earlier 
+release version:
 
 * Pull the code from our repository
-* Make and run the Django migrations with `python manage.py makemigrations && python manage.py migrate`. We do not keep our migrations in Git so these are specific to your system.
-* If we have added any new applications (found in the apps directory) then you'll need to run the specific migration with `python manage.py makemigrations {app_name} && python manage.py migrate`
-* If there are any new migrations, load the new initial values from our .json file with `python manage.py loaddata db_backups/init_database.json`
-* Now that your database is working, stop your existing Celery workers (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`.
-* To test the current codebase for functionality, run `python manage.py runserver 0.0.0.0:8000`. Any errors will be printed to the console - make any required updates.
-* Restart Apache (`sudo service apache2 restart`) for changes to appear on the live site and restart your Celery worker. Ensure that only one instance of the worker is running.
+* Make and run the Django migrations with `python manage.py makemigrations && python manage.py migrate`. 
+  We do not keep our migrations in Git so these are specific to your system.
+* If we have added any new applications (found in the apps directory) then you'll 
+  need to run the specific migration with `python manage.py makemigrations {app_name} && python manage.py migrate`
+* If there are any new migrations, load the new initial values from our .json file with 
+  `python manage.py loaddata db_backups/init_database.json`
+* Now that your database is working, stop your existing Celery workers 
+  (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`.
+* To test the current codebase for functionality, run `python manage.py runserver 0.0.0.0:8000`. 
+  Any errors will be printed to the console - make any required updates.
+* Restart Apache (`sudo service apache2 restart`) for changes to appear on the 
+  live site and restart your Celery worker. Ensure that only one instance of the 
+  worker is running.
 
-Occasionally there may be some issues that need to be debugged. Some of the common scenarios have been enumerated below, but the general workflow is found below:
+Occasionally there may be some issues that need to be debugged. 
+The general workflow is found below:
 
 * Stop the daemon Celery process and start a console instance
-* Run the task that is causing your error and observe the error message in the console
-* If there is a 500 http error or a Django error page, ensure that `DEBUG` is set to `True` in `settings.py` and observe the error message in the logs or the error page.
+* Run the task that is causing your error and observe the error message 
+  in the console
+* If there is a 500 http error or a Django error page, ensure that `DEBUG` 
+  is set to `True` in `settings.py` and observe the error message in the logs 
+  or the error page.
 * Fix the error described by the message, restart apache, restart workers
 
-If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your server is running with `DEBUG = True` and your Celery worker process is running in the terminal with loglevel `info`.
+If you are having trouble diagnosing issues with the UI, feel free to contact us 
+with a description of the issue and all relevant logs or screenshots. To ensure 
+that we are able to assist you quickly and efficiently, please verify that your 
+server is running with `DEBUG = True` and your Celery worker process is running 
+in the terminal with loglevel `info`.
 
-It can be helpful when debugging to check the Celery logs, which by default are at `/var/log/celery`. 
+It can be helpful when debugging to check the Celery logs, which by default are 
+at `/var/log/celery`. 
 
 <a name="next_steps"></ha> Next Steps
 ========  
-Now that we have the UI setup, you are able to play with many of our algorithms, such as water detection, coastal change detection, and more.
-You may also consider setting up a Jupyter Notebook server for accessing ODC. You can find that documentation [here](./notebook_install.md).
+Now that we have the UI setup, you are able to play with many of our algorithms, 
+such as water detection, coastal change detection, and more.
+You may also consider setting up a Jupyter Notebook server for accessing ODC. 
+You can find that documentation [here](./notebook_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
 ========   
 
-If you daemonized the UI, the first thing to try when experiencing issues with the UI is
-to restart the UI: `sudo /etc/init.d/data_cube_ui restart` or `sudo service data_cube_ui restart`.
+If you daemonized the UI, the first thing to try when experiencing issues 
+with the UI is to restart the UI: `sudo /etc/init.d/data_cube_ui restart` 
+or `sudo service data_cube_ui restart`.
 
 ---
 
@@ -534,31 +604,37 @@ Q:
  >I’m getting a “Permission denied error.”  How do I fix this?  
 
 A:  
->	More often than not the issue is caused by a lack of permissions on the folder where the application is located.  Grant full access to the folder and its subfolders and files (this can be done by using the command `chmod -R 777 FOLDER_NAME`).  
+>	More often than not the issue is caused by a lack of permissions on the 
+>   folder where the application is located.  Grant full access to the folder 
+>   and its subfolders and files (this can be done by using the command 
+>   `chmod -R 777 FOLDER_NAME`).  
 
 ---
 
 Q: 	
-> I'm getting a "too many connections" error when I run a task in the UI, such as
-> 
+> I'm getting a "too many connections" error when I run a task in the UI, 
+> such as
 > ```org.postgresql.util.PSQLException: FATAL: sorry, too many clients already.```
 
 A:  
-> The Celery worker processes have opened too many connections for your database setup.
-> In `/var/lib/pgsql/data/postgresql.conf`, increase `max_connections` and `shared_buffers` in an equal proportion.
-> The `max_connections` setting is the maximum number of concurrent connections to Postgres. 
-> Note that every UI task can and often does make several connections to Postgres.
+> The Celery worker processes have opened too many connections for your database 
+> setup. In `/var/lib/pgsql/data/postgresql.conf`, increase `max_connections` 
+> and `shared_buffers` in an equal proportion. The `max_connections` setting 
+> is the maximum number of concurrent connections to Postgres. Note that 
+> every UI task can and often does make several connections to Postgres.
 > Also set `kernel.shmmax` to a value slightly large than `shared_buffers`.
 > Finally, run `sudo service postgresql restart`.
-> If the settings are already suitable, then the celery workers may be opening connections without closing them. 
-> To diagnose this issue, start the celery workers with a concurrency of 1 (i.e. `-c 1`) 
-> and check to see what tasks are opening postgres connections and not closing them. 
-> Ensure that you stop the daemon process before creating the console Celery worker process.
+> If the settings are already suitable, then the celery workers may be opening 
+> connections without closing them. To diagnose this issue, start the celery 
+> workers with a concurrency of 1 (i.e. `-c 1`) and check to see what tasks are 
+> opening postgres connections and not closing them. Ensure that you stop the 
+> daemon process before creating the console Celery worker process.
 
 ---
 
 Q:
-> When running tasks, I receive errors like `ValueError: No products match search terms {...}`.
+> When running tasks, I receive errors like 
+>`ValueError: No products match search terms {...}`.
 
 A:
 > First ensure the following is true:
@@ -587,20 +663,28 @@ A:
 ---
 
 Q: 	
->   Tasks don't start - when submitted on the UI, a progress bar is created but there is never any progress.
+> Tasks don't start - when submitted on the UI, a progress bar is created but 
+> there is never any progress.
 
 A:  
->   This state means that the Celery worker pool is not accepting your task. Check your server to ensure that a celery worker process is running with `ps aux | grep celery`. 
-    If there is a Celery worker running, check that the `MASTER_NODE` setting is set in the `settings.py` file to point to your server and that Celery is able to connect - if you are currently using the daemon process, stop it and run the worker in the terminal.  
+> This state means that the Celery worker pool is not accepting your task. 
+> Check your server to ensure that a celery worker process is running with 
+> `ps aux | grep celery`. If there is a Celery worker running, check that 
+> the `MASTER_NODE` setting is set in the `settings.py` file to point to 
+> your server and that Celery is able to connect - if you are currently using 
+> the daemon process, stop it and run the worker in the terminal.  
 
 ---
 
 Q: 	
->   I'm seeing some SQL related errors in the Celery logs that prevent tasks from running.
+> I'm seeing some SQL-related errors in the Celery logs that prevent tasks from 
+> running.
 
 A:  
->	Run the Django migrations to ensure that you have the latest database schemas. If you have updated recently, ensure that you have a database table for each app. 
-    If any are missing, run `python manage.py makemigrations {app_name}` followed by `python manage.py migrate`.
+> Run the Django migrations to ensure that you have the latest database schemas. 
+> If you have updated recently, ensure that you have a database table for each app. 
+> If any are missing, run `python manage.py makemigrations {app_name}` followed 
+> by `python manage.py migrate`.
 
 ---
 

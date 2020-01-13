@@ -1,4 +1,5 @@
-﻿# Open Data Cube Core Install
+﻿Open Data Cube Core Installation Guide
+=================
 
 This document will guide users through the process of installing and configuring Open Data Cube. 
 The ODC must be installed prior to installing additional components such as the web-based UI.
@@ -84,7 +85,7 @@ sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-seria
 ```
 
 The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  
-We'll need to ensure it matches your GDAL Python bindings package installed next 
+Make sure it matches your GDAL Python bindings package installed next 
 or you will receive an error related to `x86_64-linux-gnu-gcc`. 
 The next step will require a compatible installation of gdal.
 
@@ -110,7 +111,7 @@ the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
 ```
 pip install rasterio
 pip install numpy xarray
-pip install shapely scipy cloudpickle Cython netcdf4 boto3 folium hdmedians scikit-image ruamel.yaml
+pip install shapely scipy cloudpickle Cython netcdf4==1.4.2 boto3 folium hdmedians scikit-image ruamel.yaml
 pip install sqlalchemy
 pip install psycopg2-binary
 ```
@@ -122,7 +123,7 @@ Install the latest version of the Open Data Cube core from the [Open Data Cube C
 cd ~/Datacube
 git clone https://github.com/opendatacube/datacube-core.git --branch develop 
 cd ~/Datacube/datacube-core
-git checkout 8d517db0520210a5ea590ae71edc6196ec4e0dc8
+git checkout 8d517db0520210a5ea590ae71edc6196ec4e0dc8 # This commit should work well with GDAL 3.0.2.
 python setup.py develop
 ```
 
@@ -201,7 +202,7 @@ datacube -v system init
 Run `datacube system check` to validate the installation.
 The output should look something like this:
 ```
-Version:       1.7
+Version:       1.7+247.g8d517db0
 Config files:  /home/localuser/.datacube.conf
 Host:          127.0.0.1:5432
 Database:      datacube

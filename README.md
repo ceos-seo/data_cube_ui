@@ -15,6 +15,12 @@ Using these common technologies provides a good starting platform for users who 
 * Generate both visual (image) and data products (GeoTiff/NetCDF)
 * Provide easy access to metadata and previously run analysis cases
 
+To install Open Data Cube Core (ODC Core), see the 
+[Open Data Cube Core Installation Guide](docs/open_data_cube_install.md).
+
+Once you have ODC Core installed, you can install the UI by following the 
+[Data Cube UI Installation Guide](docs/ui_install.md).
+
 Requirements
 =================
 
