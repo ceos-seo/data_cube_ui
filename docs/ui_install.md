@@ -1,4 +1,4 @@
-Data Cube UI Installation Guide
+﻿Data Cube UI Installation Guide
 =================
 
 This document will guide users through the process of installing and configuring our Data Cube user interface. Our interface is a full Python web server stack using Django, Celery, PostreSQL, and Boostrap3. In this guide, both Python and system packages will be installed and configured and users will learn how to start asynchronous task processing systems.

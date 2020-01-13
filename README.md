@@ -15,14 +15,6 @@ Using these common technologies provides a good starting platform for users who 
 * Generate both visual (image) and data products (GeoTiff/NetCDF)
 * Provide easy access to metadata and previously run analysis cases
 
-Installation
-=================
-```
-git clone https://github.com/ceos-seo/data_cube_ui.git -b master
-cd ~/Datacube/data_cube_ui
-git submodule init && git submodule update
-```
-
 Requirements
 =================
 
