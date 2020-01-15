@@ -25,15 +25,6 @@ Contents
 
 <a name="system_requirements"></a> System Requirements
 =================
-This document assumes that a local user, not an admin user, will be used to run all 
-of the processes.  We use `localuser` as the user name, but it can be anything you want. 
-We recommend the use of `localuser` however as a considerable number of our 
-configuration files assume the use of this name.  To use a different name may require
-the modification of several additional configuration files that otherwise would not need 
-modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or 
-<b>î</b> in this username as it can potentially cause issues in the future. 
-We recommend an all-lowercase underscore-separated string.
-
 This document targets an Ubuntu development environment. The base requirements can 
 be found below:
 
@@ -44,7 +35,6 @@ be found below:
 
 <a name="introduction"></a> Introduction
 =================
-
 The CEOS Data Cube UI is a full stack Python web application used to perform analysis 
 on raster datasets using the Data Cube. Using common and widely accepted frameworks 
 and libraries, our UI is a good tool for demonstrating the Data Cube capabilities 
@@ -75,11 +65,30 @@ for high level use of the Data Cube and allows users to:
 
 <a name="prerequisites"></a> Prerequisites
 =================
+These documents assume the username is `localuser`, but it can be anything 
+you want.  We recommend the use of `localuser`, however, as a considerable 
+number of our configuration files for the UI assume the use of this name. 
+To use a different name may require the modification of several additional 
+configuration files that otherwise would not need modification. 
+Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in 
+this username as it can potentially cause issues in the future. 
+We recommend an all-lowercase underscore-separated string.
+
+You can execute the following commands to create this user:
+```
+sudo adduser localuser
+sudo usermod -aG sudo localuser
+sudo su localuser
+```
+This user has sudo (or "admin" or "root") privileges for now to make installing
+things convenient, but we will remove these privileges from this user later for 
+security reasons.
 
 To set up and run our Data Cube UI, the following conditions must be met:
 
-* The full Data Cube Core Installation Guide must have been followed and completed. This includes:
-  * You have a local user that is used to run the Data Cube commands/applications.
+* The [Open Data Cube Core Installation Guide](open_data_cube_install.md) 
+  must have been followed and completed. This includes:
+  * You have a user that is used to run the Data Cube commands/applications.
   * You have a database user that is used to connect to your `datacube` database.
   * The Data Cube is installed and you have successfully run `datacube system check`.
   * You are in the Datacube virtual environment, having run `source ~/Datacube/datacube_env/bin/activate`.
@@ -89,14 +98,16 @@ Please take some time to get familiar with the documentation of our core
 technologies - most of this guide is concerning setup and configuration 
 and is not geared towards teaching about our tools.
 
-If you want to analyze data from the UI, the ingestion guide must have been 
+If you want to analyze data from the UI, the 
+[Open Data Cube Ingestion Guide](ingestion.md) must have been 
 followed and completed. The UI will work without any ingested data, 
 but no analysis can occur. The steps include:
 * A sample Landsat 7 scene was downloaded and uncompressed in your `/datacube/original_data` directory
 * The ingestion process was completed for that sample Landsat 7 scene.
 
 Before we begin, note that multiple commands should not be copied and pasted 
-to be run simultaneously unless you know it is acceptable in a given command block. Run each line individually.
+to be run simultaneously unless you know it is acceptable in a given command block. 
+Run each line individually.
 
 <a name="installation_process"></a> Installation Process
 =================
@@ -313,7 +324,7 @@ sudo service apache2 restart
 Additionally, a `.pgpass` is required for the Data Cube On Demand functionality. 
 In `config/.pgpass`, replace `dc_user` with you database user name 
 and replace `localuser1234` with you database user password 
-and copy that file into the home directory of your local user.
+and copy that file into the home directory of your user.
 
 ```
 cp config/.pgpass ~/.pgpass
@@ -378,8 +389,7 @@ In the `config` directory, ensure the following for both the `celeryd_conf`
 and `celerybeat_conf` files:
 1. `CELERY_BIN` is set to the path to Celery in your virtual environment.
 2. `CELERYD_CHDIR` is set to the path to the `data_cube_ui` directory.
-3. `CELERYD_USER` and `CELERYD_GROUP` are set to the username of the 
-local user.
+3. `CELERYD_USER` and `CELERYD_GROUP` are set to the username of the user.
 
 Then run the following commands to daemonize the Celery workers and 
 start the `data_cube_ui` system service.
@@ -407,8 +417,8 @@ systemctl daemon-reload
 sudo service data_cube_ui start
 ```
 
-You will need to select the localuser to authenticate as by entering a number,
-and then finally enter the password for your localuser.
+You will need to select the user to authenticate as by entering a number,
+and then finally enter the password for your user.
 
 >##### Running Celery Non-Daemonized (troubleshooting only)
 

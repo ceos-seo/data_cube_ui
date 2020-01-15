@@ -1,6 +1,11 @@
-Data Cube Ingestion Guide
+Open Data Cube Ingestion Guide
 =================
-This document will guide users through the process of indexing and ingesting ARD datasets into the Data Cube using the command line tool and required configuration files. This document contains information and snippets from the [official ODC user guide](http://datacube-core.readthedocs.io/en/latest/user/intro.html). This document describes the process for indexing and ingesting a Landsat 7 SR scene, but can be applied to indexing and ingesting any dataset. For the Installation, UI and Jupyter examples, please refer to the documentation in the associated repository.
+This document will guide users through the process of indexing and ingesting 
+ARD datasets into the Data Cube using the command line tool and required 
+configuration files. This document contains information and snippets from 
+the [official ODC user guide](http://datacube-core.readthedocs.io/en/latest/user/intro.html). 
+This document describes the process for indexing and ingesting a Landsat 7 
+surface reflectance (SR) scene, but can be applied to indexing and ingesting any dataset. 
 
 Contents
 =================
@@ -10,46 +15,70 @@ Contents
   * [Generating Metadata](#generating_metadata)
   * [Indexing Datasets](#indexing_datasets)
   * [Ingesting Datasets](#ingesting_datasets)
+  * [Testing Indexed Datasets](#testing_indexed_datasets)
   * [Brief Overview of Processes](#overview)
   * [Next Steps](#next_steps)
   * [Common problems/FAQs](#faqs)
 
-
 <a name="introduction"></a> Introduction
 =================
-The indexing and ingestion workflow is required to add data to the Data Cube and provide access to the data via a Python API. Data is loaded by querying the Data Cube for data that matches certain metadata attributes, such as measurement name, product and platform type, geospatial and temporal extents.
+The indexing and ingestion workflow is required to add data to the Data Cube 
+and provide access to the data via a Python API. Data is loaded by querying 
+the Data Cube for data that matches certain metadata attributes, such as 
+measurement names, product and platform names, and geospatial and temporal extents.
 
 **Read the official ODC documentation on [their readthedocs.io page](https://datacube-core.readthedocs.io/en/latest/ops/indexing.html)**
 
-The ingestion workflow consists of: Adding a product definition to the Data Cube that describes the dataset attributes, generating required metadata for an ARD dataset, indexing the ARD dataset's metadata in the Data Cube, and running the ingestion process on indexed datasets. A brief description of these steps can be found below:
+The ingestion workflow consists of: 
+1. Adding a product definition to the Data Cube that describes the dataset attributes
+2. Generating required metadata for an ARD dataset, indexing the ARD dataset's metadata 
+   in the Data Cube
+3. Running the ingestion process on indexed datasets. 
+A brief description of these steps can be found below:
 
-* **Adding a product definition**: Product definitions include a name, description, basic metadata, and a list of measurements with relevant properties in the dataset.
-* **Generating required metadata**: A metadata .yaml file that describes a dataset is required for indexing in the Data Cube. This metadata file will include properties such as measurements with paths to the data, platform and sensor names, geospatial extents and projection, and acquisition dates. This is generally done using Python preparation scripts.
-* **Indexing dataset metadata**: Indexing a dataset involves recording the content of the metadata file in the database. This allows access to the metadata via the Python API and for programmatic loading of data based on metadata.
-* **Ingesting indexed datasets**: The ingestion process defines a mapping between a source dataset and a dataset with more desirable properties. A new product definition will be added to the Data Cube with the properties defined in the ingestion configuration file and datasets that match the provided criteria will be modified according to the new product definition and written to disk in the new format. Each modified dataset (or dataset tile) is indexed in the Data Cube.
+* **Adding a product definition**: 
+  Product definitions include a name, description, basic metadata, and a list 
+  of measurements with relevant properties in the dataset.
+* **Generating required metadata**: 
+  A metadata .yaml file that describes a dataset is required for indexing in the 
+  Data Cube. This metadata file will include properties such as measurements with 
+  paths to the data, platform and sensor names, geospatial extents and projection, 
+  and acquisition dates. This is generally done using Python preparation scripts.
+* **Indexing dataset metadata**: 
+  Indexing a dataset involves recording the content of the metadata file in the 
+  database. This allows access to the metadata via the Python API and for 
+  programmatic loading of data based on metadata.
+* **Ingesting indexed datasets**: 
+  The ingestion process defines a mapping between a source dataset and a dataset 
+  with more desirable properties. A new product definition will be added to the 
+  Data Cube with the properties defined in the ingestion configuration file and 
+  datasets that match the provided criteria will be modified according to the 
+  new product definition and written to disk in the new format. Each modified 
+  dataset (or dataset tile) is indexed in the Data Cube.
 
 <a name="prerequisites"></a> Prerequisites
 =================
 To index and ingest data into the Data Cube, the following prerequisites must be complete:
 
-* The full Data Cube Installation Guide must have been followed and completed. This includes:
-  * You have a local user that is used to run the Data Cube commands/applications
-  * You have a database user that is used to connect to your 'datacube' database
-  * The Data Cube is installed and you have successfully run 'datacube system init'
-  * All code is checked out and you have a virtual environment in the correct directories: `~/Datacube/{data_cube_ui, data_cube_notebooks, datacube_env, agdc-v2}`
-* This guide will use a Landsat 7 SR product as an example. Please download a Landsat SR product from [our AWS site](http://ec2-52-201-154-0.compute-1.amazonaws.com/datacube/data/LE071950542015121201T1-SC20170427222707.tar.gz). We are providing a Landsat 7 Collection 1 scene over Ghana for our examples. This will ensure that the entire workflow can be completed by all users. Place the .tar.gz file in your `/datacube/original_data` directory.
+* Open Data Cube Core (ODC Core) must be installed.
+  This can be achieved by following our 
+  [Open Data Cube Core Installation Guide](open_data_cube_install.md) - which is
+  currently the required means of installing ODC Core to be able to use the UI - 
+  but just having the `datacube` CLI and Python libraries work is sufficient
+  for this guide.
+* This guide will use a Landsat 7 SR product as an example. 
+  Please download a Landsat SR product from [our AWS site](http://ec2-52-201-154-0.compute-1.amazonaws.com/datacube/data/LE071950542015121201T1-SC20170427222707.tar.gz). We are providing a Landsat 7 Collection 1 scene over Ghana for our examples. This will ensure that the entire workflow can be completed by all users. Place the .tar.gz file in your `/datacube/original_data` directory.
 
-Note that the ingestion file hyperlinked above by "our AWS site" can be downloaded with the command:<br>
+Note that the ingestion file hyperlinked above by "our AWS site" can be downloaded with the command:
 ```
 wget -p /datacube/original_data http://ec2-52-201-154-0.compute-1.amazonaws.com/datacube/data/LE071950542015121201T1-SC20170427222707.tar.gz
 ```
 
-If you have not yet completed our Data Cube Installation Guide, please do so before continuing.
-
 <a name="product_definition"></a> Product Definitions
 ========  
 
-Product definitions define the attributes for entire datasets. These attributes include:
+Product definitions define the attributes for entire datasets. 
+These attributes include:
 
 * A short name for the dataset
 * A short description of what the dataset is
@@ -59,7 +88,14 @@ Product definitions define the attributes for entire datasets. These attributes 
 
 **Read the official ODC documentation on product definitions on [their readthedocs.io page](http://datacube-core.readthedocs.io/en/stable/ops/config.html)**
 
-We will be using our Landsat 7 SR product definition as an example - open the file located at '~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml' or view the full file [here](https://github.com/ceos-seo/agdc-v2/blob/master/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml). We will go through this file and describe each attribute. The schema for the dataset type .yaml files can be found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). This outlines the required fields as well as the datatypes and what fields are allowed. This schema is used to validate any new product definitions that are added.
+We will be using our Landsat 7 SR product definition as an example - open the file 
+located at `~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml` 
+or view the full file [here](https://github.com/ceos-seo/agdc-v2/blob/master/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml). 
+We will go through this file and describe each attribute. The schema for the 
+dataset type .yaml files can be found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). 
+This outlines the required fields as well as the datatypes and what fields 
+are allowed. This schema is used to validate any new product definitions 
+that are added.
 
 ```
 name: ls7_collections_sr_scene
@@ -67,52 +103,85 @@ description: Landsat 7 USGS Collection 1 Higher Level SR scene processed using L
 metadata_type: eo
 ```
 
-The name is a short name for the dataset - we generally stick with an all lower case, underscore separated string. This is the name that will be used to access datasets of this type programmatically and during ingestion.
+The `name` is a short name for the dataset - we generally stick with an 
+all lower-case, underscore-separated string. This is the name that will be 
+used to access datasets of this type programmatically and during ingestion.
 
-An optional element, 'storage', can be included as well. This can be seen in the [dataset type schema](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml) - This can be included to describe the format of the data on disk, including the CRS, resolution, and driver. These are used in the ingestion process to specify projection/tiling/file type, but for now it is completely optional.  
+An optional element, `storage`, can be included as well. This can be seen 
+in the [dataset type schema](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). 
+This can be included to describe the format of the data on disk, including the CRS, 
+resolution, and driver. These are used in the ingestion process to specify 
+projection/tiling/file type, but for now it is completely optional.  
 
-Description is just a short description of what each dataset type encompasses. In this case, its describing Landsat 7 LEDAPS SR scenes.
+The `description` is just a short description of the dataset type. 
+In this case, it's describing Landsat 7 SR scenes.
 
-The metadata type refers to another .yaml schema and describes what metadata will be collected during the [Generating Metadata](#generating_metadata) section. You can create your own metadata type if custom fields or metadata sets are desired, but we will stick with the default metadata type for this example.
+The `metadata_type` refers to another YAML schema and describes what 
+metadata will be collected during the [Generating Metadata](#generating_metadata) 
+section. You can create your own metadata type if custom fields or metadata sets 
+are desired, but we will use the default metadata type for this example.
 
-The metadata type schema can be found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/metadata-type-schema.yaml), with the default metadata type ('eo') being found [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml). You can see in the default metadata type that the name is 'eo', corresponding to our dataset type. Additionally, you'll see that the dataset field in that file includes an id, creation date, measurements, etc. These fields correspond with what needs to be generated in the next step and the structure of the .yaml/.json file - for now, just note that each product definition must be associated with a metadata type.
+The metadata type schema can be found 
+[here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/metadata-type-schema.yaml), 
+with the default metadata type ('eo') being found 
+[here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml). You can see in the default metadata type that the name is 'eo', corresponding to our dataset type. Additionally, you'll see that the dataset field in that file includes an id, creation date, measurements, etc. These fields correspond with what needs to be generated in the next step and the structure of the .yaml/.json file - for now, just note that each product definition must be associated with a metadata type.
 
 Next in the file is the metadata field:
 
 ```
 metadata:
-    platform:
-        code: LANDSAT_7
+  platform:
+    code: LANDSAT_7
     instrument:
-        name: ETM
+      name: ETM
     product_type: LEDAPS
     format:
-        name: GeoTiff
+      name: GeoTiff
 ```
 
-The metadata as defined by the product definition schema [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml) is an object - any number of fields and any schemas can be put here, as long as they are defined in the metadata type definition. If you open the [default metadata type file](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml), you'll see that the format is expected to be nested in format -> name, the product type is just in product type, etc. This is described using an 'offset' from the document root. This metadata is used to 'match' datasets to their appropriate product type, so the script in the next section that generates the metadata files must produce the same platform and product type as what is listed above.
+The `metadata` as defined by the product definition schema 
+[here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml) 
+is an object - any number of fields and any schemas can be put here, as long as 
+they are defined in the metadata type definition. If you open the 
+[default metadata type file](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml), 
+you'll see that the format is expected to be nested in format -> name, the product type is just in product 
+type, etc. This is described using an 'offset' from the document root. 
+This metadata is used to 'match' datasets to their appropriate product type, 
+so the script in the next section that generates the metadata files must produce 
+the same platform and product type as what is listed above.
 
-The last element (or list of elements) in the product definition is the measurement, seen below.
+The last element (or list of elements) in the product definition is the 
+measurement, seen below.
 
 ```
 - name: 'sr_band7'
-      aliases: [band_7, swir2]
-      dtype: int16
-      nodata: -9999
-      units: 'reflectance'
+    aliases: [band_7, swir2]
+    dtype: int16
+    nodata: -9999
+    units: 'reflectance'
 ```
 
-The full measurement schema with all possible formats can be found in the [dataset type schema](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). The example above includes the optional spectral definition, but flag definitions are also allowed. The only properties that are required are **name, dtype, nodata, and units**. If you were to create a product definition for Sentinel 1 data, you would use the data guide to find out what bands are available, the datatype of those bands, what the no data value is, and the units and enumerate them here.
+The full measurement schema with all possible formats can be found in the 
+[dataset type schema](https://github.com/opendatacube/datacube-core/blob/develop/datacube/model/schema/dataset-type-schema.yaml). 
+The example above includes the optional spectral definition, but flag definitions 
+are also allowed. The only properties that are required are 
+**name, dtype, nodata, and units**. If you were to create a product definition 
+for Sentinel-1 data, you would use the data guide to find out what bands are 
+available, the datatype of those bands, what the no data value is, and the 
+units and enumerate them here.
 
 There should be one measurement entry for each expected band in the dataset.
 
-Once your product definition has all required information, you add it to the Data Cube. For our Landsat 7 example, this is done with the following command:
+Once your product definition has all required information, you add it to the 
+Data Cube. For our Landsat 7 example, this is done with the following command:
 
 ```
 datacube -v product add ~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_collections_sr_scene.yaml
 ```
 
-This command should be run from within the virtual environment. This will validate your product definition and, if valid, will index it in the Data Cube. The expected output should look like below:
+This command should be run from within the Datacube virtual environment. 
+This will validate your product definition and, if valid, will index it 
+in the Data Cube. The expected output should look like below:
 
 ```
 2017-04-19 11:23:39,861 21121 datacube INFO Running datacube command: /home/localuser/Datacube/datacube_env/bin/datacube -v product add ~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls7_sr_scenes_agdc.yaml
@@ -121,15 +190,19 @@ This command should be run from within the virtual environment. This will valida
 Added "ls7_collections_sr_scene"
 ```
 
-The 'Added \*' statement should read that it has added the name defined within the product definition.
+The 'Added \*' statement should read that it has added the name defined within 
+the product definition.
 
-If you open pgAdmin3 and examine the data in the dataset_type table, you'll see that there is now a row for the added product with all associated metadata. With the product definition added to the Data Cube, the next step is generating the required metadata to add a dataset.
-
+If you open pgAdmin3 and examine the data in the `dataset_type` table, you'll see 
+that there is now a row for the added product with all associated metadata. 
+With the product definition added to the Data Cube, the next step is generating 
+the required metadata to add a dataset.
 
 <a name="generating_metadata"></a> Generating Metadata
 ========  
 
-Before starting this step, you'll need to make sure that you have your Landsat 7 scene downloaded (.tar.gz format) in the `/datacube/original_data` directory.
+Before starting this step, you'll need to make sure that you have your Landsat 7 
+scene downloaded (.tar.gz format) in the `/datacube/original_data` directory.
 
 Uncompress this scene into the default location with the following commands:
 
@@ -139,41 +212,73 @@ mkdir LE071950542015121201T1-SC20170427222707
 tar -xzf LE071950542015121201T1-SC20170427222707.tar.gz -C LE071950542015121201T1-SC20170427222707
 ```
 
-This will result in a directory with the same name as your archive file with the contents of the archive extracted to the directory. There are scripted versions of this process in our checkout of the agdc-v2 codebase in `~/Datacube/agdc-v2/ingest`
+This will result in a directory with the same name as your archive file with the 
+contents of the archive extracted to the directory. There are scripted versions 
+of this process in our checkout of the agdc-v2 codebase in `~/Datacube/agdc-v2/ingest`
 
-Now that we have the data extracted into a named directory, we can generate the required metadata .yaml file. This is done with Python scripts found in `~/Datacube/agdc-v2/ingest/prepare_scripts/*`. There are a variety of scripts provided, including USGS Landsat, Sentinel 1, and ALOS.
+Now that we have the data extracted into a named directory, we can generate 
+the required metadata YAML file. This is done with Python scripts found in 
+`~/Datacube/agdc-v2/ingest/prepare_scripts/*`. There are a variety of scripts 
+provided, including USGS Landsat, Sentinel 1, and ALOS.
 
-**Read the official ODC documentation on dataset definitions on [their readthedocs.io page](http://datacube-core.readthedocs.io/en/stable/ops/config.html)**
+**Read the official ODC documentation on dataset documents 
+[here](https://datacube-core.readthedocs.io/en/latest/ops/indexing.html#dataset-documents)**
 
-These scripts are responsible for creating a .yaml metadata file that contains all required metadata fields. The required and available metadata fields are defined in the metadata type definition that is associated with the product definition. In the previous section, we added a product definition with a metadata type of 'eo', the default metadata type. We can view the default metadata types at [this url](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml). In this file, you'll see the properties that the preparation scripts need to produce and the structure of the file. The fields in the 'search_fields' section list the fields that can be used to query the Data Cube for data while the fields not in that section are just general metadata. For instance:
+These scripts are responsible for creating a YAML metadata file that contains 
+all required metadata fields. The required and available metadata fields are 
+defined in the metadata type definition that is associated with the product 
+definition. In the previous section, we added a product definition with a 
+metadata type of 'eo', the default metadata type. We can view the default 
+metadata types [here](https://github.com/opendatacube/datacube-core/blob/develop/datacube/index/default-metadata-types.yaml). 
+In that file, you'll see the properties that preparation scripts need to produce 
+and the structure of the file. The fields in the `search_fields` section list 
+the fields that can be used to query the Data Cube for data while the fields 
+not in that section are just general metadata. For instance:
 
-> The 'id' field is listed as "id: ['id']", so the id metadata field will be found in the metadata .yaml file in the root of the document
+> The 'id' field is listed as "id: ['id']", so the id metadata field will be 
+> found in the metadata YAML file in the root of the document
 
-> The 'measurements' field is described in comments as a dict with certain attributes with an offset of ['image', 'bands'], so the measurements will be a dictionary keyed by measurement name found in the document as image: bands: {key: val, ...}
+> The 'measurements' field is described in comments as a dict with certain 
+> attributes with an offset of ['image', 'bands'], so the measurements will be 
+> a dictionary keyed by measurement name found in the document as 
+> image: bands: {key: val, ...}
 
-> platform, product type, lat, and lon are all search fields, so the user will be able to select storage units based on these attributes with the API.
+> platform, product type, lat, and lon are all search fields, so the user 
+> will be able to select storage units based on these attributes with the API.
 
-Each of the fields defined in the metadata type reference should be filled in the dataset metadata .yaml file. Please note that only the 'search fields' are required, but there should be as much metadata collected as possible. We are also able to add metadata to the document that is not listed in the metadata type, everything will be stored in the database. We will verify that this is correct after generating the .yaml file for our Landsat 7 scene.
+Each of the fields defined in the metadata type reference should be filled 
+in the dataset metadata YAML file. Please note that only the `search_fields` 
+are required, but there should be as much metadata collected as possible. 
+We are also able to add metadata to the document that is not listed in the 
+metadata type. All of this will be stored in the database. We will verify 
+that this is correct after generating the YAML file for our Landsat 7 scene.
 
-Since we are processing a Landsat scene, we'll use the script titled 'usgs_ls_ard_prepare.py'. Run this script on your uncompressed scene with the following command (please note that you should run this command on the **directory**):
+Since we are processing a Landsat scene, we'll use the script titled 
+'usgs_ls_ard_prepare.py'. Run this script on your uncompressed scene 
+with the following command (please note that you should run this command 
+on the **directory**):
 
 ```
 #if you are not already in the virtual environment, please activate that now with 'source ~/Datacube/datacube_env/bin/activate'
 #This is dependent on what data you have - Collection 1 Higher level data uses usgs_ls_ard_prepare.py
 cd ~/Datacube/agdc-v2/ingest/prepare_scripts/landsat_collection
-python usgs_ls_ard_prepare.py /datacube/original_data/LE071950542015121201T1-SC20170427222707
+`python` usgs_ls_ard_prepare.py /datacube/original_data/LE071950542015121201T1-SC20170427222707
 ```
 
-These scripts can run on a single directory of a list of directories specified with a wildcard (\*). The output should resemble what is shown below:
+These scripts can run on a single directory of a list of directories specified 
+with a wildcard (\*). The output should resemble what is shown below:
 
 ```
 2017-06-09 18:24:18,821 INFO Processing /datacube/original_data/LE071950542015121201T1-SC20170427222707
 2017-06-09 18:27:27,356 INFO Writing /datacube/original_data/LE071950542015121201T1-SC20170427222707/datacube-metadata.yaml
 ```
 
-You'll see that the script has created a .yaml file titled datacube-metadata.yaml in the same directory as your GeoTiff data files.
+You'll see that the script has created a YAML file called `datacube-metadata.yaml` 
+in the same directory as your GeoTIFF data files.
 
-Opening this metadata .yaml file, you'll see that is contains all of the fields listed in the 'eo' metadata definition. The nested fields will also correspond to the 'offset' or listed fields in the metadata definition.
+This metadata YAML file contains all of the fields listed in the 'eo' metadata 
+definition. The nested fields will also correspond to the 'offset' or listed 
+fields in the metadata definition.
 
 ```
 acquisition:
@@ -249,17 +354,24 @@ processing_level: T1
 product_type: LEDAPS
 ```
 
-If you are looking to create a new script to process a dataset that we don't have a script for already, the easiest path is to use an existing script as a template and change only what is required to process your new dataset.
+If you are looking to create a new script to process a dataset that we don't 
+have a script for already, the easiest path is to use an existing script as 
+a template and change only what is required to process your new dataset.
 
 <a name="indexing_datasets"></a> Indexing Datasets
 ========  
 
-Indexing Datasets in the Database
---------
+Now that you have a product definition added and a `datacube-metadata.yaml` file 
+generated for your scene, it is now time to index the dataset and associate it 
+with the product definition. This is done with a datacube command from the CLI. 
+Please note that indexing the dataset in the database creates an absolute 
+reference to the path on disk - you cannot move the dataset on disk after 
+indexing or it won't be found and will create problems.
 
-Now that you have a product definition added and a datacube-metadata.yaml file generated for your scene, it is now time to index the dataset and associate it with the product definition. This is done with a datacube command from the CLI. Please note that indexing the dataset in the database creates an absolute reference to the path on disk - you cannot move the dataset on disk after indexing or it won't be found and will create problems.
-
-Run the `datacube dataset add` command on the directory or metadata .yaml file generated for the dataset. This command will load the .yaml metadata file and create a Dataset class object from the contents. It will then try to match the dataset to a product definition using the provided metadata.
+Run the `datacube dataset add` command on the directory or metadata YAML file 
+generated for the dataset. This command will load the YAML metadata file 
+and create a Dataset class object from the contents. It will then try to 
+match the dataset to a product definition using the provided metadata.
 
 ```
 #ensure that you are doing this from within the virtual environment. If not, activate it with 'source ~/Datacube/datacube_env/bin/activate'
@@ -276,16 +388,29 @@ Indexing datasets  [####################################]  100%2017-06-09 18:32:
 2017-06-09 18:32:32,123 5086 datacube.index._datasets INFO Indexing 18163152-7388-4607-a75b-1f20e7b70045
 ```
 
-Please note that you are able to run these 'datacube' command line tools on wildcard inputs, e.g. `datacube dataset add /datacube/original_data/LE*/*.yaml` to batch process directories.
+Please note that you are able to run these `datacube` command line commands on 
+wildcard inputs. For example, a command like
+`datacube dataset add /datacube/original_data/LE*/*.yaml` will process 
+all the YAML files in the path `/datacube/original_data/LE*`.
 
-Now that the dataset has been added, you can open up pgAdmin3 and view the data in the 'datasets' table - you'll notice that there is now an entry for the dataset you've just added that includes the id, a reference to the metadata definition corresponding to a primary key in the 'metadata_type' table and a reference to the dataset type corresponding to a primary key in the 'dataset_type' table. If you look at the 'metadata_type' and 'dataset_type' tables with the listed ids, you'll see the full metadata and dataset type definitions from the previous steps.
+Now that the dataset has been added, you can open up pgAdmin3 and view the data 
+in the `datasets` table. There is now an entry for the dataset you've just added 
+that includes the ID, a reference to the metadata definition corresponding to a 
+primary key in the `metadata_type` table and a reference to the dataset type 
+corresponding to a primary key in the `dataset_type` table. If you look at the 
+`metadata_type` and `dataset_type` tables with the listed IDs, you'll see the 
+full metadata and dataset type definitions from the previous steps.
 
-***Since dataset references in the database use absolute paths, please ensure that your datasets are organized and in a location that you want to keep before indexing***
+***Since dataset references in the database use absolute paths, please ensure that 
+your datasets are organized and in a location that you want to keep before indexing.***
 
-Testing the Indexed Data
---------
+<a name="testing_indexed_datasets"></a> Testing Indexed Datasets
+========
 
-Now that we have a single dataset indexed, we can test out the Data Cube API access. This example will involve loading the entire dataset that we've just indexed into an in-memory array in the form of an xArray dataset. To simplify things, we can just use a Python console:
+Now that we have a single dataset indexed, we can test out the Data Cube API access. 
+This example will involve loading the entire dataset that we've just indexed into 
+an in-memory array in the form of an xarray dataset. To simplify things, we can 
+just use a Python console:
 
 ```
 #first, start a Python console
@@ -335,7 +460,8 @@ data_partial = dc.load(product='ls7_collections_sr_scene', output_crs='EPSG:4326
 print(data_partial)
 ```
 
-The output of our script can be seen below - feel free to copy and paste the commands one at a time and to take some time to familiarize yourself with the commands.
+The output of our script can be seen below - feel free to copy and paste the 
+commands one at a time and to take some time to familiarize yourself with the commands.
 
 ```
 >>> #import the datacube
@@ -446,26 +572,52 @@ Attributes:
 >>>
 ```
 
-The Data Cube loads data into xArray datasets - [documentation found here](http://xarray.pydata.org/en/stable/index.html). All normal numpy and xArray functions can be applied to Data Cube data.
+The Data Cube loads data into xarray `Dataset` objects - 
+[documentation found here](http://xarray.pydata.org/en/stable/index.html). 
+All normal numpy and xarray functions can be applied to Data Cube data.
 
-Now that we have demonstrated the indexing process and data access, we can ingest the dataset.
+Now that we have demonstrated the indexing process and data access, we can 
+ingest the dataset.
 
 <a name="ingesting_datasets"></a> Ingesting Datasets
 ========  
 
 With a newly indexed dataset, the next step is ingestion.
 
-Ingestion is the process of transforming original datasets into more accessible format that can be used by the Data Cube. Like the previous steps, ingestion relies on the use of a .yaml configuration file that specifies all of the input and output details for the data. The ingestion configuration file contains all of the information required for a product definition - it uses the information to create a new product definition and index it in the Data Cube. Next, indexed source datasets that fit the criteria are identified, tiled, reprojected, and resampled (if required) and written to disk as NetCDF storage units. The required metadata is generated and the newly created datasets are indexed (added) to the Data Cube.
+Ingestion is the process of transforming original datasets into more accessible 
+format that can be used by the Data Cube. Like the previous steps, ingestion 
+relies on the use of a YAML configuration file that specifies all of the input 
+and output details for the data. The ingestion configuration file contains all 
+of the information required for a product definition - it uses the information to 
+create a new product definition and index it in the Data Cube. Next, indexed source 
+datasets that fit the criteria are identified, tiled, reprojected, and resampled 
+(if required) and written to disk as NetCDF storage units. The required metadata 
+is generated and the newly created datasets are indexed (added) to the Data Cube.
 
-The ingestion configuration file is essentially defining a transformation between the source and the output data - you can define attributes such as resolution, projection, tile sizes, bounds, and measurements, along with file type and other metadata in a configuration file. When you run the ingestion process, the Data Cube determines what data fits the input data attributes by product type and bounds, applies the defined transformation, and saves the result to disk and in the database. This process is generally done when the data is in a file format not optimized for random access such as GeoTiff - NetCDF is the preferred file type.
+The ingestion configuration file is essentially defining a transformation 
+between the source and the output data - you can define attributes such as 
+resolution, projection, tile sizes, bounds, and measurements, along with 
+file type and other metadata in a configuration file. When you run the 
+ingestion process, the Data Cube determines what data fits the input data 
+attributes by product type and bounds, applies the defined transformation, 
+and saves the result to disk and in the database. This process is generally 
+done when the data is in a file format not optimized for random access 
+such as GeoTiff - NetCDF is the preferred file type.
 
-**Read the official ODC documentation on ingestion configuration files on [their readthedocs.io page](http://datacube-core.readthedocs.io/en/stable/ops/config.html)**
+**Read the official ODC documentation on ingestion configuration files 
+[here](https://datacube-core.readthedocs.io/en/latest/ops/ingest.html)**
 
-**Please note that you will need to create a new ingestion configuration file to match the scene bounds that you have downloaded. If you do not want to do that, delete the ingestion bounds section from the configuration file we are using as an example - your product will be 'ls7_ledaps_general'**
+**Please note that you will need to create a new ingestion configuration file 
+to match the scene bounds that you have downloaded. If you do not want to do that, 
+delete the ingestion bounds section from the configuration file we are using as 
+an example - your product will be 'ls7_ledaps_general'**
 
-In this section we will go through an example Landsat 7 ingestion configuration and then ingest our sample dataset.
+In this section we will go through an example Landsat 7 ingestion configuration 
+and then ingest our sample dataset.
 
-Open the ingestion configuration file located in `~/Datacube/agdc-v2/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml`, or view [the page on GitHub](https://github.com/ceos-seo/agdc-v2/blob/develop/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml)
+Open the ingestion configuration file located in 
+`~/Datacube/agdc-v2/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml`, 
+or view [the page on GitHub](https://github.com/ceos-seo/agdc-v2/blob/develop/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml).
 
 The first two lines in the file are:
 
@@ -474,19 +626,26 @@ source_type: ls7_collections_sr_scene
 output_type: ls7_ledaps_general
 ```
 
-This tells the ingestion process to match the input parameters to datasets that are associated with the 'ls7_collections_sr_scene' product definition and to create a new product definition named 'ls7_ledaps_general'.
+This tells the ingestion process to match the input parameters to datasets that 
+are associated with the 'ls7_collections_sr_scene' product definition and to 
+create a new product definition named 'ls7_ledaps_general'.
 
-Next, there are two parameters that specify the location and file path templates for the newly created storage units:
+Next, there are two parameters that specify the location and file path templates 
+for the newly created storage units:
 
 ```
 location: '/datacube/ingested_data'
 file_path_template: 'LS7_ETM_LEDAPS/General/LS7_ETM_LEDAPS_4326_{tile_index[0]}_{tile_index[1]}_{start_time}.nc'
 ```
 
-This specifies that the base path for the ingested data is `/datacube/ingested_data` - this was created previously and should have 777 permissions.
-> 'file_path_template' describes the rest of the storage unit path - the directory structure 'LS7_ETM_LEDAPS/General' will be created and populated with storage units.
+This specifies that the base path for the ingested data is 
+`/datacube/ingested_data` - this was created previously and should have 777 permissions.
+> 'file_path_template' describes the rest of the storage unit path - the directory structure 
+> 'LS7_ETM_LEDAPS/General' will be created and populated with storage units.
 
-> Files named 'LS7_ETM_LEDAPS_4326_{tile_index[0]}_{tile_index[1]}_{tile_index[2]}.nc' will be created in the above directory. The bracketed parameters are filled in by the ingestion process.
+> Files named 'LS7_ETM_LEDAPS_4326_{tile_index[0]}_{tile_index[1]}_{tile_index[2]}.nc' 
+> will be created in the above directory. The bracketed parameters are filled in by 
+> the ingestion process.
 
 The next elements are global metadata elements, as seen below.
 
@@ -512,7 +671,12 @@ global_attributes:
   acknowledgment: Landsat data is provided by the United States Geological Survey (USGS).
 ```
 
-The next field group defines what subset (if any) of the source dataset that should be used for the ingestion process. If the entire source dataset should be ingested, then this can be left out. In the example below, we are restricting the ingestion process to datasets that match the input dataset type that fall between those bounds. These numbers should be in latitude and longitude WGS84 coordinates. In the general ingestion configuration, ingestion bounds are left out.
+The next field group defines what subset (if any) of the source dataset that 
+should be used for the ingestion process. If the entire source dataset should 
+be ingested, then this can be left out. In the example below, we are restricting 
+the ingestion process to datasets that match the input dataset type that fall 
+between those bounds. These numbers should be in latitude and longitude WGS84 
+coordinates. In the general ingestion configuration, ingestion bounds are left out.
 
 ```
 ingestion_bounds:
@@ -522,7 +686,8 @@ ingestion_bounds:
   top: 20.0
 ```
 
-The storage fields specify a few things: Projection, resolution, tile size, chunk size, etc.
+The `storage` fields specify a few things: projection, resolution, tile size, 
+chunk size, etc.
 
 ```
 storage:
@@ -544,15 +709,35 @@ storage:
 Some notes on these inputs can be found below:
 
 * NetCDF CF is the only current storage driver.
-* The CRS is user defined - any transverse mercator, sinusoidal, or albers conic equal area projections are supported.
-* Chunking and dimension order are internal to the NetCDF storage units - the chunking parameter can have an effect on performance based on the use case, but we generally leave it alone
+* The CRS is user-defined - any transverse mercator, sinusoidal, or 
+  Albers conic equal area projections are supported.
+* Chunking and dimension order are internal to the NetCDF storage units - 
+  the chunking parameter can have an effect on performance based on the use case, 
+  but we generally leave it alone.
 
 **Important notes**
-* Resolution specifies the x/y or latitude/longitude resolution in the **units of the crs setting** - if the units of the crs are degrees (e.g. EPSG:4326), then latitude/longitude should be used here. If x/y are used (e.g. Transverse mercator projections, UTM based etc.) then these should read x and y instead.
-* The tile size refers to the tiling of the source datasets - in the above example, ~0.94 degrees are used for both values. This means that given the ~6 square degree Landsat 7 scene, the ingestion process will produce ~6 separate tiles. This can be raised or lowered - we lower it for higher resolution data so that the file sizes are all roughly the same.
-* The tile size must be evenly divisible by the resolution for both latitude and longitude - this means that the latitude tile size % the latitude resolution must be **exactly** zero. Not doing this can result in a single pixel gap between tiles caused by some rounding errors. If we were ingesting into Albers 25m, a valid tile size would be 100000, but not 100321 as it does not evenly divide. For projections that require fractional degrees (like above), we calculate our desired resolution in both the x and y direction and then multiply by an arbitrary constant (generally 3000-4000) to ensure that there are no rounding errors.
+* Resolution specifies the x/y or latitude/longitude resolution in the 
+  **units of the crs setting** - if the units of the CRS are degrees 
+  (e.g. EPSG:4326), then latitude/longitude should be used here. 
+  If x/y are used (e.g. Transverse mercator projections, UTM based etc.) 
+  then these should read x and y instead.
+* The tile size refers to the tiling of the source datasets - in the above 
+  example, ~0.94 degrees are used for both values. This means that given 
+  the ~6 square degree Landsat 7 scene, the ingestion process will produce 
+  ~6 separate tiles. This can be raised or lowered - we lower it for higher 
+  resolution data so that the file sizes are all roughly the same.
+* The tile size must be evenly divisible by the resolution for both latitude 
+  and longitude - this means that the latitude tile size % the latitude 
+  resolution must be **exactly** zero. Not doing this can result in a single 
+  pixel gap between tiles caused by some rounding errors. If we were ingesting 
+  into Albers 25m, a valid tile size would be 100000, but not 100321 as it does 
+  not evenly divide. For projections that require fractional degrees (like above), 
+  we calculate our desired resolution in both the x and y direction and then 
+  multiply by an arbitrary constant (generally 3000-4000) to ensure that there 
+  are no rounding errors.
 
-The last part of the configuration file is the measurement information. These look like the snippet seen below:
+The last part of the configuration file is the measurement information. 
+These look like the snippet seen below:
 
 ```
 - name: blue
@@ -566,17 +751,32 @@ The last part of the configuration file is the measurement information. These lo
   alias: "band_1"
 ```
 
-The important points to note here are that it contains the same information (or can contain) all of the same attributes from the product definition, as well as information required to map the source measurements to the ingested measurements.
+The important points to note here are that it contains the same information 
+(or can contain) all of the same attributes from the product definition, 
+as well as information required to map the source measurements to the 
+ingested measurements.
 
-The 'src_varname' field maps the ingested dataset measurements to source variables - in the above case, we are mapping 'sr_band1' to blue. If you open the datacube-metadata.yaml file, you'll see that one of the listed bands is 'sr_band1' and has a path to a .tif file. Additionally, the resampling method is listed along with the dtype and nodata if you desire a data type conversion or a change in nodata value.
+The `src_varname` field maps the ingested dataset measurements to source 
+variables - in the above case, we are mapping 'sr_band1' to 'blue'. 
+If you open the `datacube-metadata.yaml` file, you'll see that one of the 
+listed bands is 'sr_band1' and has a path to a .tif file. 
+Additionally, the resampling method is listed along with the `dtype` and `nodata` 
+if you desire a data type conversion or a change in nodata value.
 
-Now that we have a complete ingestion configuration file, we are able to start the ingestion process. Use the following code snippet:
+Now that we have a complete ingestion configuration file, we are able to start 
+the ingestion process. Use the following code snippet:
 
 ```
 datacube -v ingest -c ~/Datacube/agdc-v2/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml --executor multiproc 2
 ```
 
-You'll notice a few things in the command above: -c is the option for the configuration file, and --executor multiproc enables multiprocessing. In our case, we're using two cores. You should see a significant amount of console output as well as a constantly updating status until ingestion is finished. With our ~1 degree tiles, you can also see that we are producing 9 tiles for the single acquisition due to our tiling settings. The console output can be seen below:
+You'll notice a few things in the command above: -c is the option for the 
+configuration file, and `--executor multiproc` enables multiprocessing. 
+In our case, we're using two cores. You should see a significant amount 
+of console output as well as a constantly updating status until ingestion 
+is finished. With our ~1 degree tiles, you can also see that we are 
+producing 9 tiles for the single acquisition due to our tiling settings. 
+The console output can be seen below:
 
 ```
 2017-06-11 12:02:31,965 12986 datacube INFO Running datacube command: /home/localuser/Datacube/datacube_env/bin/datacube -v ingest -c /home/localuser/Datacube/agdc-v2/ingest/ingestion_configs/landsat_collection/ls7_collections_sr_general.yaml --executor multiproc 2
@@ -663,19 +863,35 @@ You'll notice a few things in the command above: -c is the option for the config
 8 successful, 0 failed
 ```
 
-If you visit your `/datacube/ingested_data` directory, you'll see that a NetCDF file was created for each task. Using pgAdmin3 and viewing the data in the 'dataset' table, you can see that there are now 10 total datasets - one for your original scene and one for each ingested tile.
+If you visit your `/datacube/ingested_data` directory, you'll see that a 
+NetCDF file was created for each task. Using pgAdmin3 and viewing the data 
+in the 'dataset' table, you can see that there are now 10 total datasets - 
+one for your original scene and one for each ingested tile.
 
 <a name="next_steps"></a> Next Steps
 ========  
 
-Now that you have a complete Data Cube install and at least one ingested scene, we can move on into the application space. The next steps are setting up some of the example apps that we have created that demonstrate some of the Data Cube capabilities. First up is our Jupyter notebooks - these contain some example applications such as NDVI anomaly, water detection, SLIP, and mosaicking. The documentation for the Jupyter notebook setup can be found [here](./notebook_install.md). If you'd rather skip ahead and set up and configure our example web based user interface, see the documentation [here](./ui_install.md)
+Now that you have a complete Data Cube install and at least one ingested scene, 
+we can move on into the application space. The next steps are setting up some 
+of the example apps that we have created that demonstrate some of the Data Cube 
+capabilities. First up is our Jupyter notebooks - these contain some example 
+applications such as NDVI anomaly, water detection, SLIP, and mosaicking. 
+The documentation for the Jupyter notebook setup can be found 
+[here](./notebook_install.md). If you'd rather skip ahead and set up and 
+configure our example web based user interface, see the documentation 
+[here](./ui_install.md)
 
 <a name="overview"></a> Brief Overview of Processes
 ========
 
-Now that we've gone through the entire ingestion process and all required configuration file details, we can create a quick process guide that assumes that all of our configuration files are correctly set up.
+Now that we've gone through the entire ingestion process and all required 
+configuration file details, we can create a quick process guide that assumes 
+that all of our configuration files are correctly set up.
 
-The first step is to add your product definition. This will be done *once* for each dataset type - e.g. If we are indexing all Landsat 7 data over our country and continue to collect data after the initial download, this is done a *single* time. There is only one product definition for each dataset type.
+The first step is to add your product definition. This will be done *once* 
+for each dataset type - e.g. If we are indexing all Landsat 7 data over our 
+country and continue to collect data after the initial download, this is done 
+a *single* time. There is only one product definition for each dataset type.
 
 ```
 #ensure that you're in the virtual environment. If not, activate with 'source ~/Datacube/datacube_env/bin/activate'
@@ -683,7 +899,13 @@ The first step is to add your product definition. This will be done *once* for e
 datacube -v product add ~/Datacube/agdc-v2/ingest/dataset_types/landsat_collection/ls8_collections_sr_scene.yaml
 ```
 
-Now, for each dataset that is collected you will need to run a preparation script that generates the correct metadata as well as the 'datacube' command that indexes the dataset in the database. This only needs to be done once *for each dataset* - if you collect a new scene, you'll need to do this process for only that scene. Please note that indexing the dataset in the database creates an absolute reference to the path on disk - you cannot move the dataset on disk after indexing or it won't be found and will create problems.
+Now, for each dataset that is collected you will need to run a preparation script 
+that generates the correct metadata as well as the 'datacube' command that 
+indexes the dataset in the database. This only needs to be done once 
+*for each dataset* - if you collect a new scene, you'll need to do this 
+process for only that scene. Please note that indexing the dataset in the 
+database creates an absolute reference to the path on disk - you cannot move 
+the dataset on disk after indexing or it won't be found and will create problems.
 
 ```
 #ensure that you're in the virtual environment. If not, activate with 'source ~/Datacube/datacube_env/bin/activate'
@@ -693,7 +915,9 @@ python ~/Datacube/agdc-v2/ingest/prepare_scripts/landsat_collection/usgs_ls_ard_
 datacube -v dataset add /datacube/original_data/General/LC08*/
 ```
 
-Now that the datasets have the correct metadata generated and have been indexed, we can run the ingestion process. Ingestion skips all datasets that have already been ingested, so this is a single command.
+Now that the datasets have the correct metadata generated and have been indexed, 
+we can run the ingestion process. Ingestion skips all datasets that have already 
+been ingested, so this is a single command.
 
 ```
 #ensure that you're in the virtual environment. If not, activate with 'source ~/Datacube/datacube_env/bin/activate'
@@ -701,49 +925,65 @@ Now that the datasets have the correct metadata generated and have been indexed,
 datacube -v ingest -c ~/Datacube/agdc-v2/ingest/ingestion_configs/landsat_collection/ls8_collections_sr_general.yaml --executor multiproc 2
 ```
 
-After an initial ingestion, when you download new acquisitions all you need to do is generate the metadata, index the dataset, and run the ingestion process.
+After an initial ingestion, when you download new acquisitions all you need to 
+do is generate the metadata, index the dataset, and run the ingestion process.
 
 <a name="faqs"></a> Common problems/FAQs
 ========  
 ----  
 
 Q: 	
- > Why ingest the data if you can access indexed data programmatically?
+> Why ingest the data if you can access indexed data programmatically?
 
 A:  
- > Ingesting data allows for reprojection, resampling, and reformatting data into a more convenient format. NetCDF is the storage unit of choice for ingestion due to its performance benefits, and we choose to reproject into the standard WGS84 projection for ease of use.
+> Ingesting data allows for reprojection, resampling, and reformatting data 
+> into a more convenient format. NetCDF is the storage unit of choice for 
+> ingestion due to its performance benefits, and we choose to reproject 
+> into the standard WGS84 projection for ease of use.
 
 ---  
 
 Q: 	
- > What if my dataset is already in a performant file format and my desired projection?
+> What if my dataset is already in a performant file format and my desired projection?
 
 A:  
- > If your dataset is already in an optimized format and you don't desire any projection or resampling changes, then you can simply index the data and then begin to use the Data Cube.
-   You will have to specify CRS when loading indexed data, since the ingestion process - which informs the Data Cube about the metadata - has not occurred.
+> If your dataset is already in an optimized format and you don't desire any 
+> projection or resampling changes, then you can simply index the data and 
+> then begin to use the Data Cube. You will have to specify CRS when loading 
+> indexed data, since the ingestion process - which informs the Data Cube 
+> about the metadata - has not occurred.
 
 ---  
 
 Q: 	
- > My ingestion runs, but reports only failed tasks and doesn't create storage units. How do I fix this?
+> My ingestion runs, but reports only failed tasks and doesn't create storage 
+> units. How do I fix this?
 
 A:  
- > Check the permissions on the location that your ingested data is going to be written to. The user that you're running ingestion as needs to have write permissions to that directory.
+> Check the permissions on the location that your ingested data is going to be 
+> written to. The user that you're running ingestion as needs to have write 
+> permissions to that directory.
 
 ---  
 
 Q: 	
- > In one of the examples, you specify an output CRS and resolution - can I do this to any dataset that I have indexed or ingested?
+> In one of the examples, you specify an output CRS and resolution - can I do 
+> this to any dataset that I have indexed or ingested?
 
 A:  
- > Yes, the Data Cube supports setting projection and resolution on data load. This takes some time, so if a single projection is generally desired it may be better to ingest the data into that projection.
+> Yes, the Data Cube supports setting projection and resolution on data load. 
+> This takes some time, so if a single projection is generally desired it may 
+> be better to ingest the data into that projection.
 
 ---  
 
 Q: 	
- > During ingestion, I'm getting a rasterio error specifying that a location does not exist or is not a valid dataset, how can I fix this?
+> During ingestion, I'm getting a rasterio error specifying that a location does 
+> not exist or is not a valid dataset, how can I fix this?
 
 A:  
- > Has the location of your dataset on disk (the metadata .yaml file) changed? When data is indexed, an absolute path to the data on disk is created so you cannot easily move data after indexing.
+> Has the location of your dataset on disk (the metadata .yaml file) changed? 
+> When data is indexed, an absolute path to the data on disk is created so you 
+> cannot easily move data after indexing.
 
 ---  

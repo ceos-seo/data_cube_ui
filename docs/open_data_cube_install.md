@@ -7,7 +7,7 @@ The ODC must be installed prior to installing additional components such as the 
 Contents
 =================
 
-  * [System Requirements](#system_requirements)
+  * [Prerequisites](#prerequisites)
   * [Updates](#updates)
   * [Directory Creation](#directory_creation)
   * [Virtual Environment Setup](#venv_setup)
@@ -19,26 +19,24 @@ Contents
   * [Next Steps](#next_steps)
   * [Common problems/FAQs](#faqs)
 
-<a name="system_requirements"></a> System Requirements
+<a name="prerequisites"></a> Prerequisites
 =================
-This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser`, however, as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
+Please read the prerequisites in the 
+[Data Cube UI Installation Guide](ui_install.md) before proceeding.
 
-This document is targeted at an Ubuntu development environment. The base requirements can be found below:
-
-* **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/server)
-* **Memory**: 8GiB
-* **Local Storage**: 50GiB
-* **Python Version**: Python 3
-
-Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
-it is acceptable in a given command block. Run each line individually.
-
-<!--* **Create your base directory structure to hold all of the relevant codebases**: We create everything in a directory 'Datacube' in the local user's directory. We also create a base directory structure for raw data and the ingested data in the root directory '/datacube/\*'-->
-<!--* **Create a virtual environment named 'datacube_env' in the ~/Datacube directory**: We use a single virtual environment for all of our Data Cube related packages/modules. To set this up, you must install virtualenv for Python3 and initialize the environment.-->
+Before we begin, note that multiple commands should not be copied and pasted 
+to be run simultaneously unless you know it is acceptable in a given command block. 
+Run each line individually.
 
 <a name="updates"></a> Updates
 =================
-Before starting the installation of packages, it is a good idea to update the software that will be retrieving those packages as well as the locations from which they will be retrieved.  The lines below will upgrade `apt-get` then install `Python3`, `npm`, `pip3`, and `git`. The other packages, `tmux` and `htop`, are useful tools for performance monitoring but are not required.  Then finally we attempt to upgrade `pip3`, just in case the version is not as new as it could be.
+Before starting the installation of packages, it is a good idea to update the 
+software that will be retrieving those packages as well as the locations from 
+which they will be retrieved.  The lines below will upgrade `apt-get` then 
+install `Python3`, `npm`, `pip3`, and `git`. The other packages, `tmux` and 
+`htop`, are useful tools for performance monitoring but are not required. 
+Then finally we attempt to upgrade `pip3`, just in case the version is not as 
+new as it could be.
 
 ```
 sudo apt-get update
@@ -48,7 +46,8 @@ sudo pip3 install --upgrade pip
 
 <a name="directory_creation"></a> Directory Creation
 =================
-The following commands will create the directories the Data Cube will require and set their permissions so that all users can read and write data to and from them.
+The following commands will create the directories the Data Cube will require and 
+set their permissions so that all users can read and write data to and from them.
 
 ```
 sudo mkdir -p /datacube/{original_data,ingested_data}
@@ -59,7 +58,10 @@ mkdir -p ~/Datacube
 
 <a name="venv_setup"></a> Virtual Environment Setup
 =================
-Next, we need to install the virtual environment and source it before we start pip installing packages.  This is a way to compartmentalize the python packages and keep your operating environment unaffected by changes to Python made from within the virtual environment.
+Next, we need to install the virtual environment and source it before we start 
+installing packages with `pip`. This is a way to compartmentalize the Python 
+packages and keep your operating environment unaffected by changes to Python 
+made from within the virtual environment.
 
 ```
 sudo pip3 install virtualenv 
@@ -69,12 +71,14 @@ source ~/Datacube/datacube_env/bin/activate
 
 <a name="gdal_libs"></a> GDAL Libraries
 =================
-Install GDAL's header libraries and other important libraries that the Data Cube will rely on. 
+Install GDAL's header libraries and other important libraries that the 
+Data Cube will rely on. 
 
-The first two commands account for the GDAL version used by datacube-core being 2.4.0, 
-which, at the time of writing, is not available on the default repositories used by `apt-get`.
-Note that you will need to press the Enter key after initiating the first command
-to actually add the required repository.
+The first command accounts for the GDAL version used by the latest release of 
+datacube-core (version 1.7) being 2.4.2, which, at the time of writing, is not 
+available on the default repositories used by `apt-get`. Note that you will need 
+to press the Enter key after initiating the first command to actually add the 
+required repository.
 
 ```
 sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
@@ -84,10 +88,10 @@ sudo apt-get update
 sudo apt-get install gdal-bin libgdal-dev libnetcdf-dev netcdf-bin libhdf5-serial-dev hdf5-tools
 ```
 
-The version of the GDAL libraries can be determined with the command `gdalinfo --version`.  
-Make sure it matches your GDAL Python bindings package installed next 
-or you will receive an error related to `x86_64-linux-gnu-gcc`. 
-The next step will require a compatible installation of gdal.
+The version of the GDAL libraries can be determined with the command 
+`gdalinfo --version`. Make sure it matches your GDAL Python bindings package 
+installed next or you will receive an error related to `x86_64-linux-gnu-gcc`. 
+The next step will require a compatible installation of GDAL.
 
 ```
 gdalinfo --version
@@ -105,9 +109,8 @@ pip install --global-option=build_ext --global-option="-I/usr/include/gdal" gdal
 <a name="python_deps"></a> Python Dependencies
 =================
 Use the following commands to install the requisite Python dependencies. 
-These packages are required for using the Data Cube, S3 indexing, and the Data Cube notebooks.
-Version `1.2.18` of SQLAlchemy is used to avoid an error in `datacube -v system init` when using
-the default, more recent versions of SQLAlchemy (at least version `1.3.0b3`).
+These packages are required for using the Data Cube, S3 indexing, and the 
+Data Cube notebooks.
 ```
 pip install rasterio
 pip install numpy xarray
@@ -118,30 +121,38 @@ pip install psycopg2-binary
 
 <a name="core"></a> Core
 =================
-Install the latest version of the Open Data Cube core from the [Open Data Cube Core github](https://github.com/opendatacube/datacube-core/releases).  It is critical that you select a version of `1.6.1` or later if you intend to use S3 indexing.  Afterwards, run the python setup development wheel.
+Install the latest version of the Open Data Cube core from the 
+[Open Data Cube Core GitHub Repository](https://github.com/opendatacube/datacube-core/releases). 
+It is critical that you select a version of `1.6.1` or later if you intend to use 
+S3 indexing. The `git checkout` command ensures that a version of ODC core that
+supports at least GDAL 3.0.2 is used.
 ```
 cd ~/Datacube
 git clone https://github.com/opendatacube/datacube-core.git --branch develop 
 cd ~/Datacube/datacube-core
-git checkout 8d517db0520210a5ea590ae71edc6196ec4e0dc8 # This commit should work well with GDAL 3.0.2.
+# This commit is known to work with GDAL 3.0.2.
+git checkout 8d517db0520210a5ea590ae71edc6196ec4e0dc8
 python setup.py develop
 ```
 
 <a name="postgres"></a> PostgreSQL Database
 =================
-Install <b>PostgreSQL</b> database that will store the metadata that will point to the data location.  Also install prerequisite libraries that will be leveraged by the Data Cube.  
+Install a <b>PostgreSQL</b> database that will store the metadata that will point 
+to the data locations.
 
 ```
 sudo apt-get install postgresql-10 postgresql-client-10 postgresql-contrib-10 libhdf5-serial-dev postgresql-doc-10
 ```
 
-In the configuration file `/etc/postgresql/10/main/postgresql.conf`, change the `timezone` parameter to `UTC`. This parameter should be in a section titled `Locale and Formatting`. 
+In the configuration file `/etc/postgresql/10/main/postgresql.conf`, 
+change the `timezone` parameter to `UTC`. This parameter should be in 
+a section titled `Locale and Formatting`. 
 
 In the configuration file `/etc/postgresql/10/main/pg_hba.conf`, 
 change the `local` line to match the example below. 
 It is one of the last lines in the configuration file.  
 The spacing matters as well so take care to preserve it.  
-Below is a more detailed example of both configuration files.
+Below is a more detailed example of this file.
 
 **pg_hba.conf**
 ```
@@ -156,7 +167,6 @@ host    all             all             ::1/128                 md5
 ```
 
 Now that the <b>PostgreSQL</b> settings have been modified, restart the service:
-
 ```
 sudo service postgresql restart
 ```
@@ -172,15 +182,15 @@ sudo -u postgres psql -c "ALTER USER dc_user WITH PASSWORD 'localuser1234';"
 createdb -U dc_user datacube
 ```
 
-Next, create the Data Cube configuration file to be read when initializing the Data Cube.  
-Create a file at `~/.datacube.conf`.  The hostname should be set to either `localhost` or `127.0.0.1`.  
-If you are attempting to access a Data Cube installed on a server, you will use the IP address 
-of that server followed by the port number in order to connect.  
-Example: `192.168.1.5:8080` where `192.168.1.5` is the server IP and `8080` is the port number. 
-It is critical that the password matches the password specified when 
-the <b>PostgreSQL</b> database superuser was created. 
-If it does not, the Data Cube will have an authorization failure. 
-An example configuration file is shown below.
+Next, create the Data Cube configuration file to be read when initializing the 
+Data Cube. Create a file at `~/.datacube.conf`.  The hostname should be set to 
+either `localhost` or `127.0.0.1`. If you are attempting to access a Data Cube 
+installed on a server, you will use the IP address of that server followed by 
+the port number in order to connect. Example: `192.168.1.5:8080` where 
+`192.168.1.5` is the server IP and `8080` is the port number. It is critical 
+that the password matches the password specified when the <b>PostgreSQL</b> 
+database superuser was created. If it does not, the Data Cube will have an 
+authorization failure. An example configuration file is shown below.
 ```
 [datacube]
 db_hostname: 127.0.0.1
@@ -189,10 +199,10 @@ db_username: dc_user
 db_password: localuser1234
 ```
 
-Finally, initialize the database.  If this step fails, you must go over 
-the previous steps and ensure that you have correctly set up all configuration 
-files, the <b>PostgreSQL</b> database, as well as the <b>PostgreSQL</b> 
-database superuser and password.
+Finally, initialize the database. If this step fails, you must go over 
+the previous steps and ensure that you have correctly set up the 
+<b>PostgreSQL</b> database, all configuration files, as well as the 
+<b>PostgreSQL</b> database superuser and password.
 ```
 datacube -v system init
 ```
@@ -212,12 +222,14 @@ Index Driver:  default
 
 Valid connection:       YES
 ```
-If you receive an error on this step then please ensure you have followed the previous steps and that there were no errors received during their execution.
+If you receive an error on this step then please ensure you have followed the 
+previous steps and that there were no errors received during their execution.
 
 <a name="next_steps"></a> Next Steps
 ========  
-Now that we have ODC core setup, you may install our web-based UI or a Jupyter Notebook server with some example ODC notebooks.
-The Jupyter Notebook server installation documentation can be found [here](./notebook_install.md).
+Now that we have ODC core setup, you may install our web-based UI or a 
+Jupyter Notebook server with some example ODC notebooks. The Jupyter Notebook 
+server installation documentation can be found [here](./notebook_install.md).
 The web-based UI installation documentation can be found [here](./ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs
