@@ -20,6 +20,7 @@ Contents
   * [Task System Overview](#task_system_overview)
   * [Customize the UI](#customization)
   * [Maintenance, Upgrades, and Debugging](#maintenance)
+  * [Cleaning Up](#cleaning_up)
   * [Next Steps](#next_steps)
   * [Common problems/FAQs](#faqs)
 
@@ -142,7 +143,7 @@ You will also need to create a base directory structure for results:
 
 ```
 sudo mkdir /datacube/ui_results
-sudo chmod 755 /datacube/ui_results
+sudo chmod 777 /datacube/ui_results
 ```
 
 The Data Cube UI also sends admin mail, so a mail server is required.
@@ -594,8 +595,17 @@ in the terminal with loglevel `info`.
 It can be helpful when debugging to check the Celery logs, which by default are 
 at `/var/log/celery`. 
 
-<a name="next_steps"></ha> Next Steps
-========  
+<a name="cleaning_up"></a>Cleaning Up
+=================
+To disallow sudo (or "admin" or "root") privileges for the UI user 
+(using `localuser` again here), run the following command,
+substituting your UI user name for `localuser`:
+```
+sudo deluser localuser sudo
+```
+
+<a name="next_steps"></a> Next Steps
+=================
 Now that we have the UI setup, you are able to play with many of our algorithms, 
 such as water detection, coastal change detection, and more.
 You may also consider setting up a Jupyter Notebook server for accessing ODC. 
