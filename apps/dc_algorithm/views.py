@@ -19,7 +19,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
@@ -271,12 +271,16 @@ class RegionSelection(View, ToolClass):
         """
 
         application = Application.objects.get(id=self._get_tool_name())
-        context = {
-            'app': self._get_tool_name(),
-            'tool_descriptions': self._get_tool_model('toolinfo').objects.all().order_by('id'),
-            'areas': application.areas.all()
-        }
-        return render(request, 'region_selection.html', context)
+        areas = application.areas.all()
+        if len(areas) is 1:
+            return redirect(self._get_tool_name(), area_id=areas[0].id)
+        else:
+            context = {
+                'app': self._get_tool_name(),
+                'tool_descriptions': self._get_tool_model('toolinfo').objects.all().order_by('id'),
+                'areas': areas
+            }
+            return render(request, 'region_selection.html', context)
 
 
 class UserHistory(View, ToolClass):
