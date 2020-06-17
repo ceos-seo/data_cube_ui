@@ -1,4 +1,4 @@
 [submodule "utils"]
 	path = utils
 	url = git@code.ama-inc.com:teams3/data_cube_utilities.git
-	branch = pre-release
+	branch = master
