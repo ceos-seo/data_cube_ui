@@ -9,7 +9,8 @@ services:
 #      - DB_PASSWORD=${DB_PASSWORD}
 #      - DB_PORT=${DB_PORT}
 #      - PORT=${PORT}
-    command: python3 manage.py runserver 0.0.0.0:${PORT}
+    # command: bash 
+    #python3 manage.py runserver 0.0.0.0:${PORT}
     build:
       dockerfile: docker/ui/Dockerfile.dev
       context: ..
@@ -22,9 +23,11 @@ services:
         DB_PORT: ${DB_PORT}
         PORT: ${PORT}
     ports:
-    - "${PORT}:${PORT}"
-    volumes:
-    - ..:/app
+      - "${PORT}:80"
+    # volumes:
+      # - ..:/app
+    networks:
+      - odc
     depends_on:
       [django_db]
   django_db:
@@ -33,3 +36,8 @@ services:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - odc
+networks:
+  odc:
+    external: true

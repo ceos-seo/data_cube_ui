@@ -17,10 +17,6 @@ Using these common technologies provides a good starting platform for users who 
 # Installation
 
 First follow the instructions in the 
-[CEOS Open Data Cube Database Installation Guide](docs/odc_db_setup.md)
-to setup the Open Data Cube (ODC) database and obtain data.
-
-First follow the instructions in the 
 [Open Data Cube Database Installation Guide](docs/odc_db_setup.md)
 to setup the Open Data Cube (ODC) database.
 

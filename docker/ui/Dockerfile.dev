@@ -50,7 +50,8 @@ COPY config/dc_ui.conf config/dc_ui.conf
 RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
 RUN a2dissite 000-default.conf
 RUN a2ensite dc_ui.conf
-RUN service apache2 restart
+RUN update-rc.d apache2 defaults
+# RUN service apache2 restart
 
 # Create a directory to store files for the UI (notably task outputs).
 RUN mkdir -p /datacube/ui_results && chmod 777 /datacube/ui_results
@@ -87,6 +88,17 @@ COPY utils utils
 # Perform some runtime setup.
 COPY docker/ui/config_setup.sh docker/ui/config_setup.sh
 ENTRYPOINT ["docker/ui/config_setup.sh"]
+RUN chmod 700 docker/ui/config_setup.sh
+
+# Perform Django migrations and initial data import.
+# RUN python3 manage.py makemigrations \
+#         {accounts,cloud_coverage,coastal_change, \
+#         custom_mosaic_tool,data_cube_manager,dc_algorithm, \
+#         fractional_cover,slip,spectral_anomaly,spectral_indices, \
+#         task_manager,tsm,urbanization,water_detection,data_cube_ui} && \
+#     python3 manage.py makemigration && \
+#     python3 manage.py migrate && \
+#     python3 manage.py loaddata db_backups/init_database.json
 
 # Sleep to keep the container from exiting so we can `exec` it.
 CMD ["tail", "-f", "/dev/null"]

@@ -1,6 +1,6 @@
 
 # Open Data Cube UI Installation Guide
-=======
+
 This document will guide users through the process of installing and configuring 
 our Data Cube user interface. Our interface is a full Python web server stack 
 using Django, Celery, PostgreSQL, and Boostrap3. In this guide, both Python and 
@@ -9,6 +9,7 @@ the asynchronous task processing system.
 
 ## Contents
 
+  * [Introduction](#introduction)
   * [System Requirements](#system_requirements)
   * [Prerequisites](#prerequisites)
   * [Installation Process](#installation_process)
@@ -24,27 +25,9 @@ the asynchronous task processing system.
   * [Next Steps](#next_steps)
   * [Common problems/FAQs](#faqs)
 
-<<<<<<< HEAD:docs/ui_install.md
-<a name="system_requirements"></a> System Requirements
-=================
-This document targets an Ubuntu development environment. The base requirements can 
-be found below:
-=======
-## <a name="system_requirements"></a> System Requirements
+## <a name="introduction"></a> Introduction
+-------
 
-This document assumes that a local user, not an admin user, will be used to run all of the processes.  We use `localuser` as the user name, but it can be anything you want.  We recommend the use of `localuser` however as a considerable number of our configuration files assume the use of this name.  To use a different name may require the modification of several additional configuration files that otherwise would not need modification. Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in this username as it can potentially cause issues in the future. We recommend an all-lowercase underscore-separated string.
-
-This document targets an Ubuntu development environment. The base requirements can be found below:
->>>>>>> Up to but not including setting Celery config.:docs/ui/ui_install.md
-
-* **OS**: Ubuntu 18.04 LTS - [Download here](https://www.ubuntu.com/download/server)
-* **Memory**: 8GiB
-* **Local Storage**: 50GiB
-<<<<<<< HEAD:docs/ui_install.md
-* **Python Version**: Python 3
-
-<a name="introduction"></a> Introduction
-=================
 The CEOS Data Cube UI is a full stack Python web application used to perform analysis 
 on raster datasets using the Data Cube. Using common and widely accepted frameworks 
 and libraries, our UI is a good tool for demonstrating the Data Cube capabilities 
@@ -73,39 +56,25 @@ for high level use of the Data Cube and allows users to:
 * Generate both visual (image) and data products (GeoTIFF/NetCDF)
 * Provide easy access to metadata and previously run analysis cases
 
-<a name="prerequisites"></a> Prerequisites
-=================
-These documents assume the username is `localuser`, but it can be anything 
-you want.  We recommend the use of `localuser`, however, as a considerable 
-number of our configuration files for the UI assume the use of this name. 
-To use a different name may require the modification of several additional 
-configuration files that otherwise would not need modification. 
-Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in 
-this username as it can potentially cause issues in the future. 
-We recommend an all-lowercase underscore-separated string.
+## <a name="system_requirements"></a> System Requirements
+-------
 
-You can execute the following commands to create this user:
-```
-sudo adduser localuser
-sudo usermod -aG sudo localuser
-sudo su localuser
-```
-This user has sudo (or "admin" or "root") privileges for now to make installing
-things convenient, but we will remove these privileges from this user later for 
-security reasons.
-=======
+The UI currently runs on the Ubuntu 18.04 LTS Operating System. The base requirements can be found below:
+
+* **Memory**: 8GiB
+* **Local Storage**: 50GiB
 
 ## <a name="prerequisites"></a> Prerequisites
->>>>>>> Up to but not including setting Celery config.:docs/ui/ui_install.md
+-------
 
 To set up and run our Data Cube UI, the following conditions must be met:
 
-* The [Open Data Cube Core Installation Guide](open_data_cube_install.md) 
-  must have been followed and completed. This includes:
+* The [Open Data Cube Database Installation Guide](odc_db_setup.md) must have been followed and completed. 
+<!-- This includes:
   * You have a user that is used to run the Data Cube commands/applications.
   * You have a database user that is used to connect to your `datacube` database.
   * The Data Cube is installed and you have successfully run `datacube system check`.
-  * You are in the Datacube virtual environment, having run `source ~/Datacube/datacube_env/bin/activate`.
+  * You are in the Datacube virtual environment, having run `source ~/Datacube/datacube_env/bin/activate`. -->
 
 If these requirements are not met, please see the associated documentation. 
 Please take some time to get familiar with the documentation of our core 
@@ -124,16 +93,39 @@ to be run simultaneously unless you know it is acceptable in a given command blo
 Run each line individually.
 
 ## <a name="installation_process"></a> Installation Process
+-------
 
 >## <a name="docker_install"></a> Docker Installation (preferred)
+
+>### <a name="docker_install_build"></a> Build the Image
+
 The following commands should be run from the top-level 
 `data_cube_ui` directory.
 ```
-docker build docker/ui
+docker build docker/ui -t <tag>
+docker run -d <tag> 
 ```
+
+>### <a name="docker_install_build"></a> Build the Image
 
 >## <a name="manual_install"></a> Manual Installation
 
+>### <a name="manual_install_venv_setup"></a> Virtual Environment Setup
+
+We need to install the virtual environment and source it before we start installing packages with `pip`. This is a way to compartmentalize the Python 
+packages and keep your operating environment unaffected by changes to Python 
+made from within the virtual environment.
+
+```
+sudo pip3 install virtualenv 
+virtualenv ~/Datacube/datacube_env
+source ~/Datacube/datacube_env/bin/activate
+```
+
+The installation process includes both system-level packages and Python packages. 
+You will need to have the virtual environment activated for this entire guide.
+
+>### <a name="manual_install_download"></a> Download the UI
 
 The UI can be downloaded as follows:
 
@@ -144,8 +136,29 @@ cd data_cube_ui
 git submodule init && git submodule update
 ```
 
-The installation process includes both system-level packages and Python packages. 
-You will need to have the virtual environment activated for this entire guide.
+>### <a name="manual_install_create_user"></a> Create a User
+
+These documents assume the username is `localuser`, but it can be anything 
+you want.  We recommend the use of `localuser`, however, as a considerable 
+number of our configuration files for the UI assume the use of this name. 
+To use a different name may require the modification of several additional 
+configuration files that otherwise would not need modification. 
+Do not use special characters such as <b>è</b>, <b>Ä</b>, or <b>î</b> in 
+this username as it can potentially cause issues in the future. 
+We recommend an all-lowercase underscore-separated string.
+
+You can execute the following commands to create this user:
+```
+sudo adduser localuser
+sudo usermod -aG sudo localuser
+sudo su localuser
+```
+This user has sudo (or "admin" or "root") privileges for now to make installing
+things convenient, but we will remove these privileges from this user later for 
+security reasons.
+
+>### <a name="manual_install_apache"></a> Install Apache
+
 Run the following commands to install Apache, Apache-related packages, 
 Redis, and image processing libraries.
 
@@ -155,12 +168,11 @@ sudo apt-get install apache2 libapache2-mod-wsgi-py3 redis-server libfreeimage3 
 sudo service redis-server start
 ```
 
+>### <a name="manual_install_python"></a> Install Python Dependencies
+
 Next, you'll need various Python packages that are responsible for running the application:
 
 ```
-<<<<<<< HEAD:docs/ui_install.md
-pip install django==1.11.27 redis imageio django-bootstrap3 matplotlib stringcase celery
-=======
 pip install hdmedians lcmap-pyccd==2017.6.8
 pip install rasterio
 pip install numpy xarray scipy
@@ -170,10 +182,11 @@ pip install sqlalchemy psycopg2-binary
 pip install matplotlib seaborn
 
 pip install stringcase imageio
-pip install django==2.... django-bootstrap3
+pip install django==2.2.10 django-bootstrap3
 pip install celery redis
->>>>>>> Up to but not including setting Celery config.:docs/ui/ui_install.md
 ```
+
+>### <a name="manual_install_results_dir"></a> Create Results Directory
 
 You will also need to create a base directory structure for results:
 
@@ -181,6 +194,8 @@ You will also need to create a base directory structure for results:
 sudo mkdir /datacube/ui_results
 sudo chmod 777 /datacube/ui_results
 ```
+
+>### <a name="manual_install_mail"></a> Setup Mail Server
 
 The Data Cube UI also sends admin mail, so a mail server is required.
 Be sure to configure it as an internet site.
@@ -209,8 +224,7 @@ echo "Body of the email" | mail -s "The subject line" your_email@mail.com
 
 With all of the packages above installed, you can now move on to the configuration step.
 
-<a name="configuration"></a> Configuring the Server
-=================
+>### <a name="manual_install_configuration"></a> Configuring the Server
 
 The configuration of our application involves ensuring that configuration files
 have correct contents, moving those configuration files to the correct locations, 
@@ -263,46 +277,45 @@ Open the file found at `~/Datacube/data_cube_ui/config/dc_ui.conf`:
 	#Include conf-available/serve-cgi-bin.conf
 
 	# django wsgi
-	WSGIScriptAlias / /home/localuser/Datacube/data_cube_ui/data_cube_ui/wsgi.py
-	WSGIDaemonProcess dc_ui python-home=/home/localuser/Datacube/datacube_env python-path=/home/localuser/Datacube/data_cube_ui
+	WSGIScriptAlias / ${DC_UI_DIR}/data_cube_ui/wsgi.py
+	WSGIDaemonProcess dc_ui python-home=${DC_UI_PYTHONHOME} python-path=${DC_UI_PYTHONPATH}
 
 	WSGIProcessGroup dc_ui
 	WSGIApplicationGroup %{GLOBAL}
 
-	<Directory "/home/localuser/Datacube/data_cube_ui/data_cube_ui/">
+	<Directory "${DC_UI_DIR}/data_cube_ui/">
 		Require all granted
 	</Directory>
 
 	#django static
-	Alias /static/ /home/localuser/Datacube/data_cube_ui/static/
-	<Directory /home/localuser/Datacube/data_cube_ui/static>
+	Alias /static/ ${DC_UI_DIR}/static/
+	<Directory ${DC_UI_DIR}/static>
 		Require all granted
 	</Directory>
 
 	#results.
-	Alias /datacube/ui_results/ /datacube/ui_results/
-	<Directory /datacube/ui_results/>
+	Alias /datacube/ /datacube/
+	<Directory /datacube/>
 		Require all granted
 	</Directory>
+
+	# enable compression
+	SetOutputFilter DEFLATE
 
 </VirtualHost>
 ```
 
 Run the following commands to set some environment variables needed by
 the Apache configuration file:
-````
+```
 DATACUBE_DIR=${HOME}/Datacube
 DC_UI_DIR=${DATACUBE_DIR}/data_cube_ui
 DC_UI_PYTHONHOME=${DATACUBE_DIR}/datacube_env
 DC_UI_PYTHONPATH=${DC_UI_DIR}
 ```
 
-In this configuration file, note that all of the paths are absolute. 
-If you used a different username (other than `localuser`), change all 
-instances of `localuser` to your username. For instance, if your username 
-is `datacube_user`, replace all instances of `localuser` with `datacube_user`. 
-This file assumes a standard installation with a virtual environment located 
-in the location specified in the installation documentation.
+<!-- This file assumes a standard installation with a virtual environment located 
+in the location specified in the installation documentation. -->
 
 We'll now copy the configuration files to where they need to be. 
 The `~/.datacube.conf` file is overwritten with the UI version for consistency.
@@ -348,8 +361,8 @@ This corresponds to the values you entered in the Apache configuration file.
 LOCAL_USER = "localuser"
 ```
 
-The database credentials need to be entered here as well. 
-Enter the database name, username, and password that you entered in your `.datacube.conf` file:
+The database credentials need to be entered here or as environment variables. 
+Enter the database name, username, and password that you entered in your `.datacube.conf` file as the second values for the `os.environ.get()` calls, or as the environment variables `DB_USER`, `DB_PASSWORD`, `DB_DATABASE`, `DB_HOSTNAME`, and `POSTRES_PORT`.
 
 ```
 db_user = os.environ.get('DB_USER', 'dc_user')
@@ -358,6 +371,8 @@ db_name = os.environ.get('DB_DATABASE', 'datacube')
 db_host = os.environ.get('DB_HOSTNAME', '127.0.0.1')
 db_port = os.environ.get('POSTGRES_PORT', '5432')
 ```
+
+>### <a name="manual_install_apache_enable"></a> Enable the Site for Apache
 
 Now that the Apache configuration file is in place and the Django settings 
 have been set, we will now enable the site and disable the default. 
@@ -369,9 +384,10 @@ sudo a2ensite dc_ui.conf
 sudo service apache2 reload
 ```
 
-Additionally, a `.pgpass` is required for the Data Cube On Demand functionality. 
-In `config/.pgpass`, replace `dc_user` with you database user name 
-and replace `localuser1234` with you database user password 
+>### <a name="manual_install_pgpass"></a> Create a PGPASS file
+
+Additionally, a `.pgpass` Postgres file is required for the Data Cube On Demand functionality. 
+In `config/.pgpass`, replace `dc_user` with your database user name and replace `localuser1234` with you database user password 
 and copy that file into the home directory of your user.
 
 ```
@@ -379,8 +395,7 @@ cp config/.pgpass ~/.pgpass
 chmod 600 ~/.pgpass
 ```
 
-<a name="database_initialization"></a> Initializing the Database
-=================
+>### <a name="manual_install_database_initialization"></a> Initializing the Database
 
 Now that all of the requirements have been installed and all of the configuration 
 details have been set, it is time to initialize the database.
@@ -394,12 +409,8 @@ Run the following commands:
 
 ```
 cd ~/Datacube/data_cube_ui
-python manage.py makemigrations {data_cube_ui, accounts, cloud_coverage,
-                                 coastal_change, custom_mosaic_tool,
-                                 data_cube_manager, dc_algorithm, 
-                                 fractional_cover, slip, spectral_anomaly,
-                                 spectral_indices, task_manager, tsm, 
-                                 urbanization, water_detection}
+python manage.py makemigrations {data_cube_ui, accounts, cloud_coverage, coastal_change, custom_mosaic_tool, data_cube_manager, dc_algorithm, fractional_cover, slip, spectral_anomaly, spectral_indices, task_manager, tsm, urbanization, water_detection}
+
 python manage.py makemigrations
 python manage.py migrate
 
@@ -430,8 +441,7 @@ You will need to add your own areas and remove the defaults.**
 Visit the administration panel by going to either `{IP}/admin` or `localhost/admin`. 
 You'll see a page that shows all of the various models and default values.
 
-<a name="starting_workers"></a> Starting Workers
-=================
+>### <a name="manual_install_starting_workers"></a> Starting Celery Workers
 
 We use Celery workers in our application to handle the asynchronous task processing. 
 
@@ -473,7 +483,15 @@ sudo service data_cube_ui start
 You will need to select the user to authenticate as by entering a number,
 and then finally enter the password for your user.
 
->##### Running Celery Non-Daemonized (troubleshooting only)
+>### <a name="manual_install_remove_sudo"></a> Removing Sudo Access
+
+To disallow sudo (or "admin" or "root") privileges for the UI user after installation, run the following command,
+substituting your Linux user name for `localuser`:
+```
+sudo deluser localuser sudo
+```
+
+>### <a name="manual_install_celery_non_daemonized"></a> Running Celery Non-Daemonized (troubleshooting only)
 
 If the above does not work, you may consider running Celery manually (non-daemonized). 
 But only do this if you are sure that Celery is not functioning properly when daemonized.
@@ -517,10 +535,12 @@ To start the task scheduler, run the following command:
 celery -A data_cube_ui beat
 ```
 
-<a name="task_system_overview"></a> Task System Overview
-=================
+>## End of Manual Installation Instructions
 
-The worker system can seem complex at first, but the basic workflow is shown below:
+## <a name="task_system_overview"></a> Task System Overview
+-------
+
+The task system can seem complex at first, but the basic workflow is shown below:
 
 * The Django view receives form data from the web page. 
   This form data is processed into a Query model for the application
@@ -540,8 +560,8 @@ The worker system can seem complex at first, but the basic workflow is shown bel
 * The master process creates a Result and Metadata model based on what was just 
   created and returns the details to the browser
 
-<a name="customization"></a> Customize the UI
-=================
+## <a name="customization"></a> Customize the UI
+-------
 
 To finish the configuration, we will need to create an area and product that you have ingested. 
 For this section, we make a few assumptions:
@@ -605,15 +625,14 @@ default time over some area and watch it complete. The web page should overlay
 an image result.
 
 
-<a name="maintenance"></a> Maintenance, Upgrades, and Debugging
-=================
+## <a name="maintenance"></a> Maintenance, Upgrades, and Debugging
+-------
 
 Upgrades can be pulled directly from our GitHub releases using Git. There are a 
 few steps that will need to be taken to complete an upgrade from an earlier 
 release version:
 
-* Pull the code from our repository
-<<<<<<< HEAD:docs/ui_install.md
+* Pull the code from our repository.
 * Make and run the Django migrations with `python manage.py makemigrations && python manage.py migrate`. 
   We do not keep our migrations in Git so these are specific to your system.
 * If we have added any new applications (found in the apps directory) then you'll 
@@ -621,7 +640,7 @@ release version:
 * If there are any new migrations, load the new initial values from our .json file with 
   `python manage.py loaddata db_backups/init_database.json`
 * Now that your database is working, stop your existing Celery workers 
-  (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`.
+  (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`
 * To test the current codebase for functionality, run `python manage.py runserver 0.0.0.0:8000`. 
   Any errors will be printed to the console - make any required updates.
 * Restart Apache (`sudo service apache2 restart`) for changes to appear on the 
@@ -630,16 +649,6 @@ release version:
 
 Occasionally there may be some issues that need to be debugged. 
 The general workflow is found below:
-=======
-* Make and run the Django migrations with `python manage.py makemigrations && python manage.py migrate`. We do not keep our migrations in Git so these are specific to your system.
-* If we have added any new applications (found in the apps directory) then you'll need to run the specific migration with `python manage.py makemigrations {app_name} && python manage.py migrate`
-* If there are any new migrations, load the new initial values from our .json file with `python manage.py loaddata db_backups/init_database.json`
-* Now that your database is working, stop your existing Celery workers (daemon and console) and run a test instance in the console with `celery -A data_cube_ui worker -l info`.
-* To test the current codebase for functionality, run `python manage.py runserver 0.0.0.0:8000`. Any errors will be printed to the console - make any required updates.
-* Restart Apache (`sudo service apache2 reload`) for changes to appear on the live site and restart your Celery worker. Ensure that only one instance of the worker is running.
-
-Occasionally there may be some issues that need to be debugged. Some of the common scenarios have been enumerated below, but the general workflow is found below:
->>>>>>> Up to but not including setting Celery config.:docs/ui/ui_install.md
 
 * Stop the daemon Celery process and start a console instance
 * Run the task that is causing your error and observe the error message 
@@ -658,28 +667,10 @@ in the terminal with loglevel `info`.
 It can be helpful when debugging to check the Celery logs, which by default are 
 at `/var/log/celery`. 
 
-<<<<<<< HEAD:docs/ui_install.md
-<a name="cleaning_up"></a>Cleaning Up
-=================
-To disallow sudo (or "admin" or "root") privileges for the UI user 
-(using `localuser` again here), run the following command,
-substituting your UI user name for `localuser`:
-```
-sudo deluser localuser sudo
-```
-
-<a name="next_steps"></a> Next Steps
-=================
-Now that we have the UI setup, you are able to play with many of our algorithms, 
-such as water detection, coastal change detection, and more.
-You may also consider setting up a Jupyter Notebook server for accessing ODC. 
-You can find that documentation [here](./notebook_install.md).
-=======
 <a name="next_steps"></ha> Next Steps
 ========  
 Now that we have the UI setup, you are able to play with many of our algorithms, such as water detection, coastal change detection, and more.
-You may also consider setting up a Jupyter Notebook server for accessing ODC. You can find that documentation [here](../notebook_install.md).
->>>>>>> Up to but not including setting Celery config.:docs/ui/ui_install.md
+You may also consider setting up a Jupyter Notebook server for accessing ODC. The notebooks repository is [here]().
 
 <a name="faqs"></a> Common problems/FAQs
 ========   

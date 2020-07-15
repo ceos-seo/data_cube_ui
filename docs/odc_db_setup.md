@@ -38,11 +38,13 @@ files of ODC installations that will use this database.
 In its formulation below, the database will only be accessible from
 other Docker containers on this machine.
 ```
-docker run \
+docker network create odc
+docker run -d \
 -e POSTGRES_DB=datacube \
 -e POSTGRES_USER=dc_user \
 -e POSTGRES_PASSWORD=localuser1234 \
 --name=odc-db \
+--network="odc" \
 postgres:10-alpine
 ```
 
