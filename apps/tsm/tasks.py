@@ -6,13 +6,14 @@ from celery.utils.log import get_task_logger
 from datetime import datetime, timedelta
 import numpy as np
 import xarray as xr
+from xarray.ufuncs import isnan as xr_nan
 import os
 import imageio
 
 from utils.data_cube_utilities.data_access_api import DataAccessApi
 from utils.data_cube_utilities.dc_utilities import (
     create_cfmask_clean_mask, create_bit_mask, write_geotiff_from_xr, write_png_from_xr, write_single_band_png_from_xr,
-    add_timestamp_data_to_xr, clear_attrs, perform_timeseries_analysis, nan_to_num)
+    add_timestamp_data_to_xr, clear_attrs, perform_timeseries_analysis)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_water_quality import tsm, mask_water_quality
@@ -501,7 +502,7 @@ def create_output_products(self, data, task_id=None):
     dataset = xr.open_dataset(data[0]).astype('float64')
     dataset['variability'] = dataset['max'] - dataset['normalized_data']
     dataset['wofs'] = dataset.wofs / dataset.wofs_total_clean
-    nan_to_num(dataset, 0)
+    dataset = dataset.where(~xr_nan(dataset), 0)
     dataset_masked = mask_water_quality(dataset, dataset.wofs)
 
     task.result_path = os.path.join(task.get_result_path(), "tsm.png")

@@ -16,16 +16,18 @@ services:
       context: ..
       args:
         ADMIN_EMAIL: ${ADMIN_EMAIL}
-        DB_HOSTNAME: django_db
-        DB_DATABASE: ${DB_DATABASE}
-        DB_USER: ${DB_USER}
-        DB_PASSWORD: ${DB_PASSWORD}
-        DB_PORT: ${DB_PORT}
-        PORT: ${PORT}
+        DJANGO_DB_HOSTNAME: django_db
+        DJANGO_DB_DATABASE: ${DJANGO_DB_DATABASE}
+        DJANGO_DB_USER: ${DJANGO_DB_USER}
+        DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD}
+        ODC_DB_HOSTNAME: ${ODC_DB_HOSTNAME}
+        ODC_DB_DATABASE: ${ODC_DB_DATABASE}
+        ODC_DB_USER: ${ODC_DB_USER}
+        ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
     ports:
-      - "${PORT}:80"
-    # volumes:
-      # - ..:/app
+      - "${HOST_PORT}:80"
+    volumes:
+      - ../:/app
     networks:
       - odc
     depends_on:
@@ -33,9 +35,9 @@ services:
   django_db:
     image: postgres:10-alpine
     environment:
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DJANGO_DB_DATABASE}
+      - POSTGRES_USER=${DJANGO_DB_USER}
+      - POSTGRES_PASSWORD=${DJANGO_DB_PASSWORD}
     networks:
       - odc
 networks:

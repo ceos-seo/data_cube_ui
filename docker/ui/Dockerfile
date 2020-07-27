@@ -1,91 +1,150 @@
 FROM opendatacube/datacube-core:1.7
 
-ARG PORT="80"
-ARG DB_HOSTNAME="127.0.0.1"
-ARG DB_DATABASE="datacube"
-ARG DB_USER="dc_user"
-ARG DB_PASSWORD="localuser1234"
-ARG DB_PORT="5432"
 ARG ADMIN_EMAIL=""
+ARG PORT="80"
+ARG DJANGO_DB_HOSTNAME="127.0.0.1"
+ARG DJANGO_DB_DATABASE="datacube"
+ARG DJANGO_DB_USER="dc_user"
+ARG DJANGO_DB_PASSWORD="localuser1234"
+ARG DJANGO_DB_PORT="5432"
+ARG ODC_DB_HOSTNAME="odc-db"
+ARG ODC_DB_DATABASE="datacube"
+ARG ODC_DB_USER="dc_user"
+ARG ODC_DB_PASSWORD="localuser1234"
+ARG ODC_DB_PORT="5432"
 ARG WORKDIR="/app"
-ENV PORT=${PORT} \
-    DB_HOSTNAME=${DB_HOSTNAME} \
-    DB_DATABASE=${DB_DATABASE} \
-    DB_USER=${DB_USER} \
-    DB_PASSWORD=${DB_PASSWORD} \
-    DB_PORT=${DB_PORT} \
-    ADMIN_EMAIL=${ADMIN_EMAIL}
 
+# Create user and make them a sudoer.
+# RUN apt-get update && apt-get install -y sudo
+# Set no password for this user.
+# RUN adduser --disabled-password --gecos "" localuser
+# RUN usermod -aG sudo localuser
+# Enable password-less sudo.
+# RUN echo "root     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# RUN echo "localuser     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# USER $USER
 WORKDIR $WORKDIR
-USER root
-ENV DC_UI_DIR=${WORKDIR} \
-    DC_UI_PYTHONHOME="/usr/bin/python3" \
-	DC_UI_PYTHONPATH="/usr/lib/python3"
+# Set the ownership of the application directory to Apache.
+RUN chown www-data:www-data ${WORKDIR}
 
 # Install system dependencies.
-RUN apt-get update && apt-get install -y \
+# The `DEBIAN_FRONTEND=noninteractive` part avoids 
+# apt-get prompts for restating services during upgrades.
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     apache2 \
     imagemagick \
     libapache2-mod-wsgi-py3 \
     libfreeimage3 \
+    # Redis should run in a separate container.
+    redis-server \
+    postgresql-client \ 
     && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies.
-RUN pip3 install --upgrade pip && pip3 install \
-    hdmedians lcmap-pyccd==2017.6.8 rasterio \
+# Create Python virtual environment.
+RUN pip3 install virtualenv 
+RUN virtualenv --system-site-packages ${WORKDIR}/datacube_env
+# Install Python dependencies (hdmedians has to be installed after numpy).
+RUN . ${WORKDIR}/datacube_env/bin/activate && \
+    pip3 install --upgrade pip && pip3 install -U \
+    lcmap-pyccd==2017.6.8 rasterio \
     numpy xarray scipy \
     sklearn scikit-image \
     shapely cloudpickle Cython netcdf4 \
     sqlalchemy psycopg2-binary \
     matplotlib seaborn \
     stringcase imageio \
-    django==1.11.27 django-bootstrap3 \
+    django==1.11.27 django-bootstrap3==11.1.0 \
     celery redis \
+    dask gdal==2.4.0 \
     && rm -rf /root/.cache
+RUN . ${WORKDIR}/datacube_env/bin/activate && \
+    pip3 install -U hdmedians
 
 # Setup the Apache configuration.
 COPY config/dc_ui.conf config/dc_ui.conf
-#RUN sed -i "s/home\/localuser/root/g" config/dc_ui.conf && \
-#    sed -i "s/Datacube\/data_cube_ui//g"
+ENV DC_UI_DIR="${WORKDIR}"
+ENV DC_UI_PYTHONHOME="${DC_UI_DIR}/datacube_env" \
+    DC_UI_PYTHONPATH="${DC_UI_DIR}"
+    # DC_UI_PYTHONHOME="/usr/bin/python3" \
+    # DC_UI_PYTHONPATH="/usr/lib/python3/dist-packages"
+RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONPATH}#${DC_UI_PYTHONPATH}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf
 RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
 RUN a2dissite 000-default.conf
 RUN a2ensite dc_ui.conf
-RUN service apache2 restart
+RUN update-rc.d apache2 defaults
 
 # Create a directory to store files for the UI (notably task outputs).
 RUN mkdir -p /datacube/ui_results && chmod 777 /datacube/ui_results
 
-# Install postfix and mailutils.
-# Credit to https://serverfault.com/a/144010/367947 and
-#           https://serverfault.com/a/143982/367947.
-#RUN debconf-set-selections << "postfix postfix/mailname string your.hostname.com" && \
-#    debconf-set-selections << "postfix postfix/main_mailer_type string 'Internet Site'"
-#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y postfix mailutils
+# # Install postfix and mailutils.
+# # Credit to https://serverfault.com/a/144010/367947 and
+# #           https://serverfault.com/a/143982/367947.
+# #RUN debconf-set-selections << "postfix postfix/mailname string your.hostname.com" && \
+# #    debconf-set-selections << "postfix postfix/main_mailer_type string 'Internet Site'"
+# #RUN DEBIAN_FRONTEND=noninteractive apt-get install -y postfix mailutils
 
 # Setup the Open Data Cube configuration.
-COPY config/.datacube.conf config/.datacube.conf
+ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
+    ODC_DB_DATABASE=${ODC_DB_DATABASE} \
+    ODC_DB_USER=${ODC_DB_USER} \
+    ODC_DB_PASSWORD=${ODC_DB_PASSWORD}
+# COPY config/.datacube.conf config/.datacube.conf
 RUN echo "\
 [datacube] \n\
-db_hostname: ${DB_HOSTNAME} \n\
-db_database: ${DB_DATABASE} \n\
-db_username: ${DB_USER} \n\
-db_password: ${DB_PASSWORD} \n" > config/.datacube.conf
+db_hostname: ${ODC_DB_HOSTNAME} \n\
+db_database: ${ODC_DB_DATABASE} \n\
+db_username: ${ODC_DB_USER} \n\
+db_password: ${ODC_DB_PASSWORD} \n" > config/.datacube.conf
 RUN cp config/.datacube.conf /etc/.datacube.conf
 
 # Postgres pgpass configuration.
-#RUN echo "${DB_HOSTNAME}:${DB_PORT}:${DB_DATABASE}:${DB_USER}:${DB_PASSWORD}" > config/.pgpass
-#RUN cp config/.pgpass ~/.pgpass
-#RUN chmod 600 ~/.pgpass
+ENV PORT=${PORT} \
+    DB_PORT=${DB_PORT} \
+    ADMIN_EMAIL=${ADMIN_EMAIL}
+RUN echo "${DJANGO_DB_HOSTNAME}:${DJANGO_DB_PORT}:" \
+         "${DJANGO_DB_DATABASE}:${DJANGO_DB_USER}:" \
+         "${DJANGO_DB_PASSWORD}" > config/.pgpass
+RUN echo "${ODC_DB_HOSTNAME}:${ODC_DB_PORT}:" \
+         "${ODC_DB_DATABASE}:${ODC_DB_USER}:" \
+         "${ODC_DB_PASSWORD}" >> config/.pgpass
+RUN cp config/.pgpass ~/.pgpass
+RUN chmod 600 ~/.pgpass
 
 # Copy remaining files.
+RUN chown -R www-data:www-data config
 COPY manage.py manage.py
+RUN chown www-data:www-data manage.py
 COPY db_backups/init_database.json db_backups/init_database.json
+RUN chown -R www-data:www-data db_backups
 COPY data_cube_ui data_cube_ui
+RUN chown -R www-data:www-data data_cube_ui
 COPY apps apps
+RUN chown -R www-data:www-data apps
 COPY utils utils
+RUN chown -R www-data:www-data utils
 
 # Perform some runtime setup.
+ENV WORKDIR=${WORKDIR}
 COPY docker/ui/config_setup.sh docker/ui/config_setup.sh
 ENTRYPOINT ["docker/ui/config_setup.sh"]
+RUN chmod 700 docker/ui/config_setup.sh
+
+# Set the ownership of the application directory to Apache.
+RUN chown -R www-data:www-data ${WORKDIR}
+
+# Perform Django migrations and initial data import.
+# RUN . ${WORKDIR}/datacube_env/bin/activate && \
+#     python3 manage.py makemigrations \
+#         {accounts,cloud_coverage,coastal_change, \
+#         custom_mosaic_tool,data_cube_manager,dc_algorithm, \
+#         fractional_cover,slip,spectral_anomaly,spectral_indices, \
+#         task_manager,tsm,urbanization,water_detection,data_cube_ui} && \
+#     python3 manage.py makemigrations && \
+#     python3 manage.py migrate && \
+#     python3 manage.py loaddata db_backups/init_database.json
+
 # Sleep to keep the container from exiting so we can `exec` it.
-CMD ["python3", "manage.py", "runserver", "0.0.0.0:${PORT}"]
+CMD ["tail", "-f", "/dev/null"]
+#CMD "python3 manage.py runserver 0.0.0.0:${PORT}"

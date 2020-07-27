@@ -102,7 +102,7 @@ Run each line individually.
 The following commands should be run from the top-level 
 `data_cube_ui` directory.
 ```
-docker build docker/ui -t <tag>
+docker build . -f docker/ui/Dockerfile -t <tag>
 docker run -d <tag> 
 ```
 

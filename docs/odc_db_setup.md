@@ -39,6 +39,7 @@ In its formulation below, the database will only be accessible from
 other Docker containers on this machine.
 ```
 docker network create odc
+docker container rm odc-db
 docker run -d \
 -e POSTGRES_DB=datacube \
 -e POSTGRES_USER=dc_user \
