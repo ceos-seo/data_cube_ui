@@ -420,7 +420,7 @@ python
 import datacube
 
 #this will create a new Datacube instance - leaving out any configuration files
-#without entering a config parameter, the Data Cube will use the .datacube.conf in the default location.
+#without entering a config parameter, the Data Cube will use the datacube.conf in the default location.
 #this in in your home directory '~/.datacube.conf'
 dc = datacube.Datacube()
 
@@ -468,7 +468,7 @@ commands one at a time and to take some time to familiarize yourself with the co
 ... import datacube
 >>>
 >>> #this will create a new Datacube instance - leaving out any configuration files
-... #without entering a config parameter, the Data Cube will use the .datacube.conf in the default location.
+... #without entering a config parameter, the Data Cube will use the datacube.conf in the default location.
 ... #this in in your home directory '~/.datacube.conf'
 ... dc = datacube.Datacube()
 >>>

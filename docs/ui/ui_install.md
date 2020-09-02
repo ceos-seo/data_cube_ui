@@ -97,16 +97,56 @@ Run each line individually.
 
 >## <a name="docker_install"></a> Docker Installation (preferred)
 
->### <a name="docker_install_build"></a> Build the Image
+>### <a name="docker_install_configuration"></a> Configure the UI
 
-The following commands should be run from the top-level 
-`data_cube_ui` directory.
+You can set the port that the UI will be available on with the `HOST_PORT` environment varaible in the `docker/.env` file. By default, the UI will be available on port `8000` in a development environment and port `80` in a production environment.
+
+>### <a name="docker_install_start"></a> Start the UI
+
+Ensure you are in the `docker` directory.
+
+To start the UI, one (1) set of the following 
+commands should be run, depending on whether the environment is production or development.
+
+For development:
 ```
-docker build . -f docker/ui/Dockerfile -t <tag>
-docker run -d <tag> 
+docker-compose -f docker-compose.dev.yml up --build -d
 ```
 
->### <a name="docker_install_build"></a> Build the Image
+For production:
+```
+docker-compose up --build -d
+```
+
+>### <a name="docker_install_ssh"></a> SSH to the UI
+
+To connect to the UI docker container through SSH, run one (1) of these commands, depending on the environment.
+
+For development:
+```
+docker-compose -f docker-compose.dev.yml exec ui bash
+```
+
+For production:
+```
+docker-compose exec ui bash
+```
+
+In either environment, run this command to activate the Python virtual environment for the UI after connecting through SSH:
+```
+. datacube_env/bin/activate
+```
+
+>### <a name="docker_install_setup"></a> UI First-Time Post-Start Setup (Development Environment Only)
+
+In the development environment, you will need to run these commands in the UI container **if this is the first time starting the UI** (connect through SSH as explained in the [instructions above](#docker_install_ssh)).
+```
+bash scripts/load_fixture.sh
+```
+
+>### <a name="docker_install_connect"> Connect to the UI
+
+In the development environment, you can connect to the UI on the host machine at `localhost:<HOST_PORT>`, where `<HOST_PORT>` is the value of the `HOST_PORT` environment variable specified in `docker/.env`.
 
 >## <a name="manual_install"></a> Manual Installation
 
@@ -233,14 +273,14 @@ and then enabling the systems.
 Specifically, we need to setup the Open Data Cube and Apache configuration files.
 
 To setup the Open Data Cube configuration file, open 
-`~/Datacube/data_cube_ui/config/.datacube.conf` and ensure that the 
+`~/Datacube/data_cube_ui/config/datacube.conf` and ensure that the 
 the `db_hostname`, `db_database`, `db_username`, and `db_password` values are
 set correctly. These values were determined during the Open Data Cube Core 
 installation process. If these details are not correct, please correct them 
 and save the file.
 
 **Please note that our UI application uses the configuration file 
-`config/.datacube.conf` for everything 
+`config/datacube.conf` for everything 
 rather than the default `~/.datacube.conf` file.**
 
 Next, we'll need to update the Apache configuration file. 
@@ -321,7 +361,7 @@ We'll now copy the configuration files to where they need to be.
 The `~/.datacube.conf` file is overwritten with the UI version for consistency.
 
 ```
-sudo cp ~/Datacube/data_cube_ui/config/.datacube.conf ~/.datacube.conf
+sudo cp ~/Datacube/data_cube_ui/config/datacube.conf ~/.datacube.conf
 sudo cp ~/Datacube/data_cube_ui/config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
 ```
 
@@ -362,7 +402,7 @@ LOCAL_USER = "localuser"
 ```
 
 The database credentials need to be entered here or as environment variables. 
-Enter the database name, username, and password that you entered in your `.datacube.conf` file as the second values for the `os.environ.get()` calls, or as the environment variables `DB_USER`, `DB_PASSWORD`, `DB_DATABASE`, `DB_HOSTNAME`, and `POSTRES_PORT`.
+Enter the database name, username, and password that you entered in your `datacube.conf` file as the second values for the `os.environ.get()` calls, or as the environment variables `DB_USER`, `DB_PASSWORD`, `DB_DATABASE`, `DB_HOSTNAME`, and `POSTRES_PORT`.
 
 ```
 db_user = os.environ.get('DB_USER', 'dc_user')

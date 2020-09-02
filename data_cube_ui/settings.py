@@ -32,6 +32,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 from celery.schedules import crontab
+import socket
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,7 +48,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-MASTER_NODE = '127.0.0.1'
+hostname = socket.gethostname()
+host_ip_address = socket.gethostbyname(hostname)
+MASTER_NODE = host_ip_address
+# '127.0.0.1'
 
 # Application definition
 BASE_HOST = "localhost:{}/".format(os.environ.get('PORT', 80))
@@ -213,8 +217,10 @@ STATICFILES_DIRS = [
 
 # CELERY STUFF
 
-BROKER_URL = 'redis://' + MASTER_NODE + ':6379'
-CELERY_RESULT_BACKEND = 'redis://' + MASTER_NODE + ':6379'
+REDIS_HOST = 'redis'#os.environ.get("REDIS_HOST", MASTER_NODE)
+REDIS_PORT = 6379
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'

@@ -2,26 +2,12 @@ FROM opendatacube/datacube-core:1.7
 
 ARG WORKDIR="/app"
 
-# Create user and make them a sudoer.
-# RUN apt-get update && apt-get install -y sudo
-# Set no password for this user.
+# Create user with no password and make them a sudoer.
 # RUN adduser --disabled-password --gecos "" localuser
 # RUN usermod -aG sudo localuser
-# Enable password-less sudo.
-# RUN echo "root     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# RUN echo "localuser     ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# USER $USER
 WORKDIR $WORKDIR
 # Set the ownership of the application directory to Apache.
 # RUN chown www-data:www-data ${WORKDIR}
-
-# # Install sudo 
-# RUN apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
-#     sudo 
-
-# # Make the Apache user a sudoer with no password.
-# RUN usermod -aG sudo www-data
-# RUN echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
 
 # Install system dependencies.
 # The `DEBIAN_FRONTEND=noninteractive` part avoids 
@@ -32,15 +18,16 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libapache2-mod-wsgi-py3 \
     libfreeimage3 \
     # Redis should run in a separate container.
-    redis-server \
+    # redis-server \
+    redis-tools \
     postgresql-client \ 
     && rm -rf /var/lib/apt/lists/*
 # Create Python virtual environment.
 RUN pip3 install virtualenv
-RUN virtualenv --system-site-packages datacube_env
+RUN virtualenv datacube_env
 # Install Python dependencies (hdmedians has to be installed after numpy).
 RUN . datacube_env/bin/activate && \
-    pip3 install --upgrade pip && pip3 install \
+    pip3 install --upgrade pip && pip3 install --upgrade \
     lcmap-pyccd==2017.6.8 rasterio \
     numpy xarray scipy \
     sklearn scikit-image \
@@ -48,36 +35,19 @@ RUN . datacube_env/bin/activate && \
     sqlalchemy psycopg2-binary \
     matplotlib seaborn \
     stringcase imageio \
-    django==1.11.27 django-bootstrap3==11.1.0 \
-    celery redis \
+    django==2.2.14 django-bootstrap3==11.1.0 \
+    # django==1.11.27
+    celery==4.4.6 redis \
+    # TODO: Can we use gdal 2.4.2 here?
+    # (would also need to change version in apt)
     dask gdal==2.4.0 \
     && rm -rf /root/.cache
 RUN . datacube_env/bin/activate && \
     pip3 install hdmedians
-# RUN chown -R www-data:www-data ${WORKDIR}/datacube_env
-
-# Setup the Apache configuration.
-COPY config/dc_ui.conf config/dc_ui.conf
-# RUN chown www-data:www-data config/dc_ui.conf
-ENV DC_UI_DIR="${WORKDIR}"
-ENV DC_UI_PYTHONHOME="${DC_UI_DIR}/datacube_env" \
-    DC_UI_PYTHONPATH="${DC_UI_DIR}"
-    # DC_UI_PYTHONHOME="/usr/bin/python3" \
-    # DC_UI_PYTHONPATH="/usr/lib/python3/dist-packages"
-RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
-    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/dc_ui.conf && \
-    sed -i "s#\${DC_UI_PYTHONPATH}#${DC_UI_PYTHONPATH}#g" config/dc_ui.conf && \
-    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf
-RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
-RUN a2dissite 000-default.conf
-RUN a2ensite dc_ui.conf
-RUN update-rc.d apache2 defaults
 
 # Create a directory to store files for the UI (notably task outputs).
 RUN mkdir -p /datacube/ui_results && \
-    chmod 777 /datacube/ui_results 
-# && \
-    # chown -R www-data:www-data /datacube/ui_results
+    chmod 777 /datacube/ui_results
 
 # Install postfix and mailutils.
 # Credit to https://serverfault.com/a/144010/367947 and
@@ -97,15 +67,13 @@ ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
     ODC_DB_USER=${ODC_DB_USER} \
     ODC_DB_PASSWORD=${ODC_DB_PASSWORD} \
     ODC_DB_PORT=${ODC_DB_PORT}
-# COPY config/.datacube.conf config/.datacube.conf
-RUN echo "\
+RUN mkdir config && echo "\
 [datacube] \n\
 db_hostname: ${ODC_DB_HOSTNAME} \n\
 db_database: ${ODC_DB_DATABASE} \n\
 db_username: ${ODC_DB_USER} \n\
-db_password: ${ODC_DB_PASSWORD} \n" > config/.datacube.conf
-# RUN chown www-data:www-data config/.datacube.conf
-RUN cp config/.datacube.conf /etc/.datacube.conf
+db_password: ${ODC_DB_PASSWORD} \n" > config/datacube.conf
+RUN cp config/datacube.conf /etc/datacube.conf
 
 # Postgres pgpass configuration.
 ARG DJANGO_DB_HOSTNAME="127.0.0.1"
@@ -125,8 +93,29 @@ RUN echo \
 "${ODC_DB_DATABASE}:${ODC_DB_USER}:"\
 "${ODC_DB_PASSWORD}" >> config/.pgpass
 # RUN chown www-data:www-data config/.pgpass
-RUN cp config/.pgpass ~/.pgpass
-RUN chmod 600 ~/.pgpass
+RUN cp config/.pgpass /var/www/.pgpass
+RUN chmod 600 /var/www/.pgpass
+
+# Setup the Apache configuration.
+# COPY config/dc_ui.conf config/dc_ui.conf
+# RUN chown www-data:www-data config/dc_ui.conf
+ENV DC_UI_DIR="${WORKDIR}"
+ENV DC_UI_PYTHONHOME="${DC_UI_DIR}/datacube_env" \
+    DC_UI_PYTHONPATH="${DC_UI_DIR}"
+    # DC_UI_PYTHONHOME="/usr/bin/python3" \
+    # DC_UI_PYTHONPATH="/usr/lib/python3/dist-packages"WORKDIR
+COPY config/templates/dc_ui.conf config/templates/dc_ui.conf
+RUN cp config/templates/dc_ui.conf config/dc_ui.conf
+RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONPATH}#${DC_UI_PYTHONPATH}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
+    sed -i "s#\${DJANGO_DB_HOSTNAME}#${DJANGO_DB_HOSTNAME}#g" config/dc_ui.conf && \
+    sed -i "s#\${ODC_DB_HOSTNAME}#${ODC_DB_HOSTNAME}#g" config/dc_ui.conf
+RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
+RUN a2dissite 000-default.conf
+RUN a2ensite dc_ui.conf
+RUN update-rc.d apache2 defaults
 
 # Copy remaining files.
 # RUN chown -R www-data:www-data config
@@ -136,43 +125,121 @@ COPY db_backups/init_database.json db_backups/init_database.json
 # RUN chown -R www-data:www-data db_backups
 COPY data_cube_ui data_cube_ui
 # RUN chown -R www-data:www-data data_cube_ui
-COPY apps apps
+# COPY apps apps
 # RUN chown -R www-data:www-data apps
-COPY utils utils
+# COPY utils utils
 # RUN chown -R www-data:www-data utils
 
-# Perform some runtime setup.
+## Setup Celery ##
+# Install sudo 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    sudo
+# Make the Apache user a sudoer with no password required.
+# RUN usermod -aG sudo www-data
+# RUN echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
+# USER www-data
+COPY config/templates/celeryd_conf config/templates/celeryd_conf
+RUN cp config/templates/celeryd_conf config/celeryd_conf && \
+    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/celeryd_conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/celeryd_conf && \
+    cp config/celeryd_conf /etc/default/data_cube_ui && \
+    chmod 644 /etc/default/data_cube_ui
+COPY config/celeryd config/celeryd
+RUN cp config/celeryd /etc/init.d/data_cube_ui && \
+    chmod 777 /etc/init.d/data_cube_ui 
+    # && \
+    # Set the workers to start on system boot.
+    # update-rc.d data_cube_ui defaults && \
+    # update-rc.d data_cube_ui enable
+    # && \
+    # /etc/init.d/data_cube_ui start
+COPY config/templates/celerybeat_conf config/templates/celerybeat_conf
+RUN cp config/templates/celerybeat_conf config/celerybeat_conf
+RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/celerybeat_conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/celerybeat_conf && \
+    cp config/celerybeat_conf /etc/default/celerybeat && \
+    chmod 644 /etc/default/celerybeat 
+COPY config/celerybeat config/celerybeat
+RUN cp config/celerybeat /etc/init.d/celerybeat && \
+    chmod 777 /etc/init.d/celerybeat 
+    # && \
+    # Set the scheduler to start on system boot.
+    # update-rc.d celerybeat defaults && \
+    # update-rc.d celerybeat enable && \
+    # /etc/init.d/celerybeat start
+## End Setup Celery ##
+
+# Setup the entrypoint script.
 ARG ADMIN_EMAIL=""
 ENV ADMIN_EMAIL=${ADMIN_EMAIL}
-COPY docker/ui/config_setup.sh docker/ui/config_setup.sh
-ENV ENVIRONMENT="DEV"
-ENTRYPOINT ["docker/ui/config_setup.sh"]
-RUN chmod 700 docker/ui/config_setup.sh 
-#&& \
-    # chown www-data:www-data docker/ui/config_setup.sh
+COPY docker/ui/config_setup_dev.sh docker/ui/config_setup_dev.sh
+ENTRYPOINT ["docker/ui/config_setup_dev.sh"]
+RUN chmod 555 docker/ui/config_setup_dev.sh
 
 # Perform Django migrations and initial data import.
+COPY scripts scripts
 # RUN . datacube_env/bin/activate && \
-#     python3 manage.py makemigrations \
-#         {accounts,cloud_coverage,coastal_change, \
-#         custom_mosaic_tool,data_cube_manager,dc_algorithm, \
-#         fractional_cover,slip,spectral_anomaly,spectral_indices, \
-#         task_manager,tsm,urbanization,water_detection,data_cube_ui} && \
-#     python3 manage.py makemigrations && \
-#     python3 manage.py migrate && \
-#     python3 manage.py loaddata db_backups/init_database.json
+    # bash scripts/migrations.sh && \
+    # bash scripts/load_fixture.sh
+    # python3 manage.py makemigrations \
+    #     accounts cloud_coverage coastal_change \
+    #     custom_mosaic_tool data_cube_manager dc_algorithm \
+    #     fractional_cover slip spectral_anomaly spectral_indices \
+    #     task_manager tsm urbanization water_detection data_cube_ui && \
+    # python3 manage.py makemigrations && \
+    # python3 manage.py migrate && \
+    # python3 manage.py loaddata db_backups/init_database.json
 # Enable a login shell for the Apache user (allows `su www-data`).
 RUN chsh -s /bin/bash www-data
 
-# The dev environment uses volumes, so set the
-# UID of the apache user to the UID of 
-# the owner of this directory.
+# (dev) Change the Apache UID to match
+# the owner of the UI directory (using volumes).
+ENV ENVIRONMENT="DEV"
 ENV APACHE_UID=""
+ENV WORKDIR=${WORKDIR}
+# RUN bash -c '\n\
+# # If the UID is not supplied, determine it \n\
+# # from the owner of the UI directory. \n\
+# if [ "$APACHE_UID" = "" ]; then \n\
+#     export APACHE_UID=$(stat -c "%u" .) \n\
+# fi \n\
+# usermod -u $APACHE_UID www-data'
 
-# # Change user to Apache, most notably for 
-# # environment variable visibility for Django.
+# Ensure remaining ownership is correct.
+# RUN chown -R www-data:www-data ${WORKDIR}/datacube_env
+# RUN chown -R www-data:www-data /datacube/ui_results
+# RUN chown www-data:www-data config/datacube.conf
 
-# USER www-data
+# Set environment variables for Apache.
+ARG REDIS_HOST
+ENV REDIS_HOST=${REDIS_HOST}
+RUN echo "export ADMIN_EMAIL=${ADMIN_EMAIL}" > /var/www/.profile && \
+    echo "export ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME}" >> /var/www/.profile && \
+    echo "export ODC_DB_DATABASE=${ODC_DB_DATABASE}" >> /var/www/.profile && \
+    echo "export ODC_DB_USER=${ODC_DB_USER}" >> /var/www/.profile && \
+    echo "export ODC_DB_PASSWORD=${ODC_DB_PASSWORD}" >> /var/www/.profile && \
+    echo "export ODC_DB_PORT=${ODC_DB_PORT}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_HOSTNAME=${DJANGO_DB_HOSTNAME}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_DATABASE=${DJANGO_DB_DATABASE}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_USER=${DJANGO_DB_USER}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}" >> /var/www/.profile && \
+    echo "export REDIS_HOST=${REDIS_HOST}" >> /var/www/.profile && \
+    # Avoid complaints from the click library when using python3.
+    echo "export LC_ALL=C.UTF-8" >> /var/www/.profile && \
+    echo "export LANG=C.UTF-8" >> /var/www/.profile && \
+    echo "export ADMIN_EMAIL=${ADMIN_EMAIL}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_DATABASE=${ODC_DB_DATABASE}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_USER=${ODC_DB_USER}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_PASSWORD=${ODC_DB_PASSWORD}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_PORT=${ODC_DB_PORT}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_HOSTNAME=${DJANGO_DB_HOSTNAME}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_DATABASE=${DJANGO_DB_DATABASE}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_USER=${DJANGO_DB_USER}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}" >> /etc/apache2/envvars && \
+    echo "export REDIS_HOST=${REDIS_HOST}" >> /etc/apache2/envvars && \
+    echo "export LC_ALL=C.UTF-8" >> /etc/apache2/envvars && \
+    echo "export LANG=C.UTF-8" >> /etc/apache2/envvars
 
 # Sleep to keep the container from exiting so we can `exec` it.
 CMD ["tail", "-f", "/dev/null"]

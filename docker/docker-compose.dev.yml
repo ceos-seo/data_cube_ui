@@ -15,6 +15,7 @@ services:
       dockerfile: docker/ui/Dockerfile.dev
       context: ..
       args:
+        WORKDIR: ${WORKDIR}
         ADMIN_EMAIL: ${ADMIN_EMAIL}
         DJANGO_DB_HOSTNAME: django_db
         DJANGO_DB_DATABASE: ${DJANGO_DB_DATABASE}
@@ -24,20 +25,47 @@ services:
         ODC_DB_DATABASE: ${ODC_DB_DATABASE}
         ODC_DB_USER: ${ODC_DB_USER}
         ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
+        REDIS_HOST: redis
     ports:
-      - "${HOST_PORT}:80"
+      - ${HOST_PORT}:80
     volumes:
-      - ../:/app
+      # - ../:${WORKDIR}
+      # - ${WORKDIR}/config
+      # - ${WORKDIR}/docker
+      - ../apps:${WORKDIR}/apps
+      - ../data_cube_ui:${WORKDIR}/data_cube_ui
+      - ../datacube_env:${WORKDIR}/datacube_env
+      - ../db_backups:${WORKDIR}/db_backups
+      - ../log:${WORKDIR}/log
+      - ../scripts:${WORKDIR}/scripts
+      - ../static:${WORKDIR}/static
+      - ../templates:${WORKDIR}/templates
+      - ../utils:${WORKDIR}/utils
+      # - ../apps:${WORKDIR}/apps
+      # - ../config:${WORKDIR}/config
+      # - ../data_cube_ui:${WORKDIR}/data_cube_ui
+      # - ../db_backups:${WORKDIR}/db_backups
+      # - ../scripts:${WORKDIR}/scripts
+      # - ../static:${WORKDIR}/static
+      # - ../templates:${WORKDIR}/templates
+      # - ../utils:${WORKDIR}/utils
     networks:
       - odc
     depends_on:
-      [django_db]
+      - django_db
+      - redis
   django_db:
     image: postgres:10-alpine
     environment:
       - POSTGRES_DB=${DJANGO_DB_DATABASE}
       - POSTGRES_USER=${DJANGO_DB_USER}
       - POSTGRES_PASSWORD=${DJANGO_DB_PASSWORD}
+    volumes:
+      - ${DJANGO_POSTGRES_DATA_PATH}:/var/lib/postgresql/
+    networks:
+      - odc
+  redis:
+    image: redis:5.0.9
     networks:
       - odc
 networks:

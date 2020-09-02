@@ -6,7 +6,7 @@
 # :Usage: /etc/init.d/celerybeat {start|stop|force-reload|restart|try-restart|status}
 # :Configuration file: /etc/default/celerybeat or /etc/default/celeryd
 #
-# See http://docs.celeryproject.org/en/latest/tutorials/daemonizing.html#generic-init-scripts
+# See http://docs.celeryproject.org/en/latest/userguide/daemonizing.html#generic-init-scripts
 
 ### BEGIN INIT INFO
 # Provides:          celerybeat
@@ -35,7 +35,7 @@ origin_is_runlevel_dir () {
     echo $?
 }
 
-# Can be a runlevel symlink (e.g. S02celeryd)
+# Can be a runlevel symlink (e.g., S02celeryd)
 if [ $(origin_is_runlevel_dir) -eq 0 ]; then
     SCRIPT_FILE=$(readlink "$0")
 else
@@ -56,7 +56,7 @@ _config_sanity() {
         echo "Error: Config script '$path' must be owned by root!"
         echo
         echo "Resolution:"
-        echo "Review the file carefully and make sure it has not been "
+        echo "Review the file carefully, and make sure it hasn't been "
         echo "modified with mailicious intent.  When sure the "
         echo "script is safe to execute with superuser privileges "
         echo "you can change ownership of the script:"
@@ -68,7 +68,7 @@ _config_sanity() {
         echo "Error: Config script '$path' cannot be writable by others!"
         echo
         echo "Resolution:"
-        echo "Review the file carefully and make sure it has not been "
+        echo "Review the file carefully, and make sure it hasn't been "
         echo "modified with malicious intent.  When sure the "
         echo "script is safe to execute with superuser privileges "
         echo "you can change the scripts permissions:"
@@ -79,7 +79,7 @@ _config_sanity() {
         echo "Error: Config script '$path' cannot be writable by group!"
         echo
         echo "Resolution:"
-        echo "Review the file carefully and make sure it has not been "
+        echo "Review the file carefully, and make sure it hasn't been "
         echo "modified with malicious intent.  When sure the "
         echo "script is safe to execute with superuser privileges "
         echo "you can change the scripts permissions:"
@@ -114,6 +114,9 @@ DEFAULT_CELERYBEAT="$CELERY_BIN beat"
 
 CELERYBEAT=${CELERYBEAT:-$DEFAULT_CELERYBEAT}
 CELERYBEAT_LOG_LEVEL=${CELERYBEAT_LOG_LEVEL:-${CELERYBEAT_LOGLEVEL:-$DEFAULT_LOG_LEVEL}}
+
+CELERYBEAT_SU=${CELERYBEAT_SU:-"su"}
+CELERYBEAT_SU_ARGS=${CELERYBEAT_SU_ARGS:-""}
 
 # Sets --app argument for CELERY_BIN
 CELERY_APP_ARG=""
@@ -207,14 +210,17 @@ create_paths () {
     create_default_dir "$CELERYBEAT_PID_DIR"
 }
 
+is_running() {
+    pid=$1
+    ps $pid > /dev/null 2>&1
+}
 
 wait_pid () {
     pid=$1
     forever=1
     i=0
     while [ $forever -gt 0 ]; do
-        kill -0 $pid 1>/dev/null 2>&1
-        if [ $? -eq 1 ]; then
+        if ! is_running $pid; then
             echo "OK"
             forever=0
         else
@@ -242,11 +248,16 @@ stop_beat () {
 }
 
 _chuid () {
-    su "$CELERYBEAT_USER" -c "$CELERYBEAT $*"
+    ${CELERYBEAT_SU} ${CELERYBEAT_SU_ARGS} \
+        "$CELERYBEAT_USER" -c "$CELERYBEAT $*"
 }
 
 start_beat () {
     echo "Starting ${SCRIPT_NAME}..."
+    echo "CELERY_APP_ARG: $CELERY_APP_ARG" 
+    echo "CELERYBEAT_OPTS: $CELERYBEAT_OPTS" 
+    echo "DAEMON_OPTS: $DAEMON_OPTS"
+    echo "CELERYBEAT_PID_FILE: $CELERYBEAT_PID_FILE"
     _chuid $CELERY_APP_ARG $CELERYBEAT_OPTS $DAEMON_OPTS --detach \
                 --pidfile="$CELERYBEAT_PID_FILE"
 }
@@ -302,9 +313,7 @@ case "$1" in
     restart)
         echo "Restarting celery periodic task scheduler"
         check_paths
-        stop_beat
-        check_dev_null
-        start_beat
+        stop_beat && check_dev_null && start_beat
     ;;
     create-paths)
         check_dev_null

@@ -90,14 +90,14 @@ ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
     ODC_DB_DATABASE=${ODC_DB_DATABASE} \
     ODC_DB_USER=${ODC_DB_USER} \
     ODC_DB_PASSWORD=${ODC_DB_PASSWORD}
-# COPY config/.datacube.conf config/.datacube.conf
+# COPY config/datacube.conf config/datacube.conf
 RUN echo "\
 [datacube] \n\
 db_hostname: ${ODC_DB_HOSTNAME} \n\
 db_database: ${ODC_DB_DATABASE} \n\
 db_username: ${ODC_DB_USER} \n\
-db_password: ${ODC_DB_PASSWORD} \n" > config/.datacube.conf
-RUN cp config/.datacube.conf /etc/.datacube.conf
+db_password: ${ODC_DB_PASSWORD} \n" > config/datacube.conf
+RUN cp config/datacube.conf /etc/datacube.conf
 
 # Postgres pgpass configuration.
 ENV PORT=${PORT} \

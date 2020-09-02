@@ -248,7 +248,7 @@ Q:
  >I'm getting a database error that resembles "fe_sendauth: no password supplied". How do I fix this?
 
 A:  
->	This occurs when the Data Cube system cannot locate a `.datacube.conf` file and one is not provided as a command line parameter. Ensure that a `.datacube.conf` file is found in your local user's home directory - `~/.datacube.conf`
+>	This occurs when the Data Cube system cannot locate a `datacube.conf` file and one is not provided as a command line parameter. Ensure that a `datacube.conf` file is found in your local user's home directory - `~/.datacube.conf`
 
 ---  
 

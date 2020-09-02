@@ -123,6 +123,7 @@ def validate_parameters(self, parameters, task_id=None):
     task = CustomMosaicToolTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
+    logger.info(f"task.config_path: {task.config_path}")
     dc = DataAccessApi(config=task.config_path)
 
     #validate for any number of criteria here - num acquisitions, etc.

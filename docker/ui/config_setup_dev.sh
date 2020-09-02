@@ -17,17 +17,44 @@
 #   service postfix restart;
 # fi
 
-# (dev) Change the Apache UID and GID to match
-# the owner of the UI directory.
+# (dev) Change the Apache UID to match
+# the owner of the apps directory (using volumes).
 if [ "$ENVIRONMENT" = "DEV" ]; then
-  # If the UID or GID are not supplied, determine them
-  # from the owner of the UI directory.
+  # If the UID is not supplied, determine it
+  # from the owner of the apps directory.
   if [ "$APACHE_UID" = "" ]; then
-    export APACHE_UID=$(stat -c '%u' .)
-    echo "$APACHE_UID" > uid.txt
+    export APACHE_UID=$(stat -c '%u' apps)
   fi
   usermod -u $APACHE_UID www-data
+  # Own directories created during build.
+  chown www-data:www-data ${WORKDIR}
+  if [[ "$(stat -c '%u' ${WORKDIR}/datacube_env)" = $APACHE_UID ]]; then
+    chown -R www-data:www-data ${WORKDIR}/datacube_env
+  fi
+  if [[ "$(stat -c '%u' /datacube/ui_results)" = $APACHE_UID ]]; then
+    chown -R www-data:www-data /datacube/ui_results
+  fi
+  if [[ "$(stat -c '%u' config/datacube.conf)" = $APACHE_UID ]]; then
+    chown -R www-data:www-data config
+  fi
+  # deluser www-data sudo # remove sudo permissions
 fi
+
+# DEV - Make the Apache user a sudoer with no password required.
+echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
+
+su - www-data
+cd /app
+
+# Initialize ODC and the database.
+source datacube_env/bin/activate
+datacube system init
+
+# Start the Celery workers and scheduler.
+/etc/init.d/data_cube_ui start
+chmod 777 /var/log/celery/ /var/run/celery/
+chown root:root /var/log/celery/ /var/run/celery/
+/etc/init.d/celerybeat start
 
 # Start the Apache web server.
 service apache2 start
@@ -44,5 +71,8 @@ until PGPASSWORD=$ODC_DB_PASSWORD psql -h "$ODC_DB_HOSTNAME" -U "$ODC_DB_USER" $
   sleep 1
 done
 >&2 echo "ODC database is accessible."
+
+# Perform Django migrations.
+bash scripts/migrations.sh
 
 exec "$@"
