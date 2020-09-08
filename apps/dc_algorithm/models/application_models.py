@@ -202,7 +202,7 @@ class AreaProductsMap(models.Model):
         unique_together = (('area', 'satellite'))
     
     def __str__(self):
-        return f"{self.id} (Area: {self.area}, Satellite: {self.satellite}, Product: {self.product_name})"
+        return f"{self.id} (Area: {self.area}, Satellite: {self.satellite}, Products: {self.product_names})"
 
 class Application(models.Model):
     """Model containing the applications that are displayed on the UI.

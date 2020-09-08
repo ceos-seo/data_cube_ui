@@ -3,5 +3,6 @@ apps/*/migrations/
 **/__pycache__/
 data_cube_ui/migrations/
 data_cube_ui/__pycache__/
+docker/.env
 celerybeat-schedule*
 log
