@@ -32,7 +32,8 @@ class BaseTask(DCAlgorithmBase):
 def get_acquisition_list(task, area_id, satellite, date):
     dc = DataAccessApi(config=task.config_path)
     # lists all acquisition dates for use in single tmeslice queries.
-    product = satellite.product_prefix + area_id
+    # satellite.product_prefix +
+    product = area_id
     acquisitions = dc.list_acquisition_dates(product, satellite.datacube_platform, time=(datetime(1900, 1, 1), date))
     return acquisitions
 

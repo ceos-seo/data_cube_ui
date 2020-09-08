@@ -51,7 +51,6 @@ ALLOWED_HOSTS = ['*']
 hostname = socket.gethostname()
 host_ip_address = socket.gethostbyname(hostname)
 MASTER_NODE = host_ip_address
-# '127.0.0.1'
 
 # Application definition
 BASE_HOST = "localhost:{}/".format(os.environ.get('PORT', 80))
@@ -138,15 +137,13 @@ WSGI_APPLICATION = 'data_cube_ui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-# 127.0.0.1
-django_db_host = os.environ.get('DJANGO_DB_HOSTNAME', 'tst1')
+django_db_host = os.environ.get('DJANGO_DB_HOSTNAME', host_ip_address)
 django_db_name = os.environ.get('DJANGO_DB_DATABASE', 'datacube')
 django_db_user = os.environ.get('DJANGO_DB_USER', 'dc_user')
 django_db_pass = os.environ.get('DJANGO_DB_PASSWORD', 'localuser1234')
 django_db_port = os.environ.get('DJANGO_DB_PORT', '5432')
 
-# 127.0.0.1
-odc_db_host = os.environ.get('ODC_DB_HOSTNAME', 'tst2')
+odc_db_host = os.environ.get('ODC_DB_HOSTNAME', host_ip_address)
 odc_db_name = os.environ.get('ODC_DB_DATABASE', 'datacube')
 odc_db_user = os.environ.get('ODC_DB_USER', 'dc_user')
 odc_db_pass = os.environ.get('ODC_DB_PASSWORD', 'localuser1234')

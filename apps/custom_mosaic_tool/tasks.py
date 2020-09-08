@@ -99,6 +99,7 @@ def parse_parameters_from_task(self, task_id=None):
         'latitude': (task.latitude_min, task.latitude_max),
         'measurements': task.satellite.get_measurements()
     }
+    logger.info(f"In parse_parameters_from_task(): parameters: {parameters}")
 
     task.execution_start = datetime.now()
     if check_cancel_task(self, task): return
@@ -290,7 +291,7 @@ def processing_task(self,
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
+    logger.info(f"updated_params: {updated_params}")
     iteration_data = None
     base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):

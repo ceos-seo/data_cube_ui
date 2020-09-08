@@ -53,6 +53,8 @@ datacube system init
 # Start the Celery workers and scheduler.
 /etc/init.d/data_cube_ui start
 chmod 777 /var/log/celery/ /var/run/celery/
+# The celerybeat service runs as root and expects the directory
+# for its pid file (/var/run/celery) to be owned by root.
 chown root:root /var/log/celery/ /var/run/celery/
 /etc/init.d/celerybeat start
 

@@ -6,8 +6,6 @@ ARG WORKDIR="/app"
 # RUN adduser --disabled-password --gecos "" localuser
 # RUN usermod -aG sudo localuser
 WORKDIR $WORKDIR
-# Set the ownership of the application directory to Apache.
-# RUN chown www-data:www-data ${WORKDIR}
 
 # Install system dependencies.
 # The `DEBIAN_FRONTEND=noninteractive` part avoids 
@@ -92,13 +90,12 @@ RUN echo \
 "${ODC_DB_HOSTNAME}:${ODC_DB_PORT}:"\
 "${ODC_DB_DATABASE}:${ODC_DB_USER}:"\
 "${ODC_DB_PASSWORD}" >> config/.pgpass
-# RUN chown www-data:www-data config/.pgpass
 RUN cp config/.pgpass /var/www/.pgpass
 RUN chmod 600 /var/www/.pgpass
+ENV PGPASSFILE=/var/www/.pgpass
 
 # Setup the Apache configuration.
 # COPY config/dc_ui.conf config/dc_ui.conf
-# RUN chown www-data:www-data config/dc_ui.conf
 ENV DC_UI_DIR="${WORKDIR}"
 ENV DC_UI_PYTHONHOME="${DC_UI_DIR}/datacube_env" \
     DC_UI_PYTHONPATH="${DC_UI_DIR}"
@@ -116,19 +113,6 @@ RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
 RUN a2dissite 000-default.conf
 RUN a2ensite dc_ui.conf
 RUN update-rc.d apache2 defaults
-
-# Copy remaining files.
-# RUN chown -R www-data:www-data config
-COPY manage.py manage.py
-# RUN chown www-data:www-data manage.py
-COPY db_backups/init_database.json db_backups/init_database.json
-# RUN chown -R www-data:www-data db_backups
-COPY data_cube_ui data_cube_ui
-# RUN chown -R www-data:www-data data_cube_ui
-# COPY apps apps
-# RUN chown -R www-data:www-data apps
-# COPY utils utils
-# RUN chown -R www-data:www-data utils
 
 ## Setup Celery ##
 # Install sudo 
@@ -178,17 +162,7 @@ RUN chmod 555 docker/ui/config_setup_dev.sh
 
 # Perform Django migrations and initial data import.
 COPY scripts scripts
-# RUN . datacube_env/bin/activate && \
-    # bash scripts/migrations.sh && \
-    # bash scripts/load_fixture.sh
-    # python3 manage.py makemigrations \
-    #     accounts cloud_coverage coastal_change \
-    #     custom_mosaic_tool data_cube_manager dc_algorithm \
-    #     fractional_cover slip spectral_anomaly spectral_indices \
-    #     task_manager tsm urbanization water_detection data_cube_ui && \
-    # python3 manage.py makemigrations && \
-    # python3 manage.py migrate && \
-    # python3 manage.py loaddata db_backups/init_database.json
+
 # Enable a login shell for the Apache user (allows `su www-data`).
 RUN chsh -s /bin/bash www-data
 
@@ -197,18 +171,13 @@ RUN chsh -s /bin/bash www-data
 ENV ENVIRONMENT="DEV"
 ENV APACHE_UID=""
 ENV WORKDIR=${WORKDIR}
-# RUN bash -c '\n\
-# # If the UID is not supplied, determine it \n\
-# # from the owner of the UI directory. \n\
-# if [ "$APACHE_UID" = "" ]; then \n\
-#     export APACHE_UID=$(stat -c "%u" .) \n\
-# fi \n\
-# usermod -u $APACHE_UID www-data'
 
-# Ensure remaining ownership is correct.
-# RUN chown -R www-data:www-data ${WORKDIR}/datacube_env
-# RUN chown -R www-data:www-data /datacube/ui_results
-# RUN chown www-data:www-data config/datacube.conf
+# Copy remaining files.
+COPY manage.py manage.py
+COPY db_backups/init_database.json db_backups/init_database.json
+COPY data_cube_ui data_cube_ui
+# COPY apps apps
+# COPY utils utils
 
 # Set environment variables for Apache.
 ARG REDIS_HOST

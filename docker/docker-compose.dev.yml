@@ -26,6 +26,8 @@ services:
         ODC_DB_USER: ${ODC_DB_USER}
         ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
         REDIS_HOST: redis
+        AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+        AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
     ports:
       - ${HOST_PORT}:80
     volumes:
@@ -61,13 +63,16 @@ services:
       - POSTGRES_USER=${DJANGO_DB_USER}
       - POSTGRES_PASSWORD=${DJANGO_DB_PASSWORD}
     volumes:
-      - ${DJANGO_POSTGRES_DATA_PATH}:/var/lib/postgresql/
+      - django-db-vol:/var/lib/postgresql/data
     networks:
       - odc
   redis:
     image: redis:5.0.9
     networks:
       - odc
+volumes:
+  django-db-vol:
+    external: true
 networks:
   odc:
     external: true
