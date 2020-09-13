@@ -19,6 +19,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from django.db import models
 from django.conf import settings
 
@@ -58,14 +60,14 @@ class Query(BaseQuery):
 
     base_result_dir = '/datacube/ui_results/ndvi_anomaly'
     color_scales = {
-        'baseline_ndvi':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi',
-        'scene_ndvi':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi',
-        'ndvi_difference':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi_difference',
-        'ndvi_percentage_change':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi_percentage_change'
+        'baseline_ndvi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ndvi'),
+        'scene_ndvi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ndvi'),
+        'ndvi_difference': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ndvi_difference'),
+        'ndvi_percentage_change': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ndvi_percentage_change'),
     }
 
     class Meta(BaseQuery.Meta):

@@ -14,6 +14,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     write_png_from_xr, add_timestamp_data_to_xr, clear_attrs)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, group_datetimes_by_year,
                                                   combine_geographic_chunks)
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import CoastalChangeTask
@@ -56,7 +57,7 @@ def parse_parameters_from_task(self, task_id=None):
 
     parameters = {
         'platform': task.satellite.datacube_platform,
-        'product': task.satellite.get_product(task.area_id),
+        'product': task.satellite.get_products(task.area_id)[0],
         'time': (datetime(task.time_start, 1, 1), datetime(task.time_end, 12, 31)),
         'longitude': (task.longitude_min, task.longitude_max),
         'latitude': (task.latitude_min, task.latitude_max),
@@ -236,9 +237,6 @@ def processing_task(self,
     if not os.path.exists(task.get_temp_path()):
         return None
 
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
-
     starting_year = _get_datetime_range_containing(*time_chunk[0])
     comparison_year = _get_datetime_range_containing(*time_chunk[1])
 
@@ -254,7 +252,10 @@ def processing_task(self,
         """
         updated_params.update({'time': time})
         data = dc.get_dataset_by_extent(**updated_params)
-        if data is None or 'time' not in data:
+        if data is None:
+            logger.info("Empty chunk.")
+            return None, None, None
+        if 'time' not in data:
             logger.info("Invalid chunk.")
             return None, None, None
 

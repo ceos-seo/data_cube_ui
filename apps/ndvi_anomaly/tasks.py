@@ -14,7 +14,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, group_datetimes_by_month,
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_ndvi_anomaly import compute_ndvi_anomaly
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import NdviAnomalyTask
@@ -57,7 +57,7 @@ def parse_parameters_from_task(self, task_id=None):
 
     parameters = {
         'platform': task.satellite.datacube_platform,
-        'product': task.satellite.get_product(task.area_id),
+        'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),
         'latitude': (task.latitude_min, task.latitude_max),
@@ -252,9 +252,6 @@ def processing_task(self,
         return None
 
     metadata = {}
-
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
 
     base_scene_time_range = parameters['time']
 

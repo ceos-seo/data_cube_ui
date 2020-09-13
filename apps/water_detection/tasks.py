@@ -14,7 +14,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     add_timestamp_data_to_xr, clear_attrs, perform_timeseries_analysis)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import WaterDetectionTask
@@ -39,7 +39,7 @@ def pixel_drill(task_id=None):
 
     dc = DataAccessApi(config=task.config_path)
     single_pixel = dc.get_stacked_datasets_by_extent(**parameters)
-    clear_mask = task.satellite.get_clean_mask_func()(single_pixel.isel(latitude=0, longitude=0))
+    clear_mask = task.satellite.get_clean_mask_func()(single_pixel)
     single_pixel = single_pixel.where(single_pixel != task.satellite.no_data_value)
 
     dates = single_pixel.time.values
@@ -49,9 +49,10 @@ def pixel_drill(task_id=None):
 
     wofs_data = task.get_processing_method()(single_pixel,
                                              clean_mask=clear_mask,
-                                             enforce_float64=True,
                                              no_data=task.satellite.no_data_value)
-    wofs_data = wofs_data.where(wofs_data != task.satellite.no_data_value).isel(latitude=0, longitude=0)
+    wofs_data = wofs_data.where(wofs_data != task.satellite.no_data_value)\
+                .squeeze()
+    clear_mask = clear_mask.squeeze()
 
     datasets = [wofs_data.wofs.values.transpose()] + [clear_mask]
     data_labels = ["Water/Non Water"] + ["Clear"]
@@ -267,16 +268,12 @@ def processing_task(self,
 
     metadata = {}
 
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
-
     times = list(
         map(_get_datetime_range_containing, time_chunk)
         if task.get_iterative() else [_get_datetime_range_containing(time_chunk[0], time_chunk[-1])])
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     water_analysis = None
     base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):
@@ -285,7 +282,10 @@ def processing_task(self,
 
         if check_cancel_task(self, task): return
 
-        if data is None or 'time' not in data:
+        if data is None:
+            logger.info("Empty chunk.")
+            continue
+        if 'time' not in data:
             logger.info("Invalid chunk.")
             continue
 
@@ -293,7 +293,6 @@ def processing_task(self,
 
         wofs_data = task.get_processing_method()(data,
                                                  clean_mask=clear_mask,
-                                                 enforce_float64=True,
                                                  no_data=task.satellite.no_data_value)
         water_analysis = perform_timeseries_analysis(
             wofs_data, 'wofs', intermediate_product=water_analysis, no_data=task.satellite.no_data_value)

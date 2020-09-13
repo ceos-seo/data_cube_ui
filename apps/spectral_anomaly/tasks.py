@@ -86,7 +86,7 @@ def parse_parameters_from_task(self, task_id=None):
 
     parameters = {
         'platform': task.satellite.datacube_platform,
-        'product': task.satellite.get_product(task.area_id),
+        'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'baseline_time': (task.baseline_time_start, task.baseline_time_end),
         'analysis_time': (task.analysis_time_start, task.analysis_time_end),

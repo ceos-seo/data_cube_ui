@@ -17,7 +17,7 @@ from utils.data_cube_utilities.dc_utilities import (
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_water_quality import tsm, mask_water_quality
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import TsmTask
@@ -42,7 +42,7 @@ def pixel_drill(task_id=None):
 
     dc = DataAccessApi(config=task.config_path)
     single_pixel = dc.get_stacked_datasets_by_extent(**parameters)
-    clear_mask = task.satellite.get_clean_mask_func()(single_pixel.isel(latitude=0, longitude=0))
+    clear_mask = task.satellite.get_clean_mask_func()(single_pixel)
     single_pixel = single_pixel.where(single_pixel != task.satellite.no_data_value)
 
     dates = single_pixel.time.values
@@ -52,12 +52,15 @@ def pixel_drill(task_id=None):
 
     wofs_data = task.get_processing_method()(single_pixel,
                                              clean_mask=clear_mask,
-                                             enforce_float64=True,
                                              no_data=task.satellite.no_data_value)
-    wofs_data = wofs_data.where(wofs_data != task.satellite.no_data_value).isel(latitude=0, longitude=0)
-    tsm_data = tsm(single_pixel, clean_mask=clear_mask, no_data=task.satellite.no_data_value)
-    tsm_data = tsm_data.where(tsm_data != task.satellite.no_data_value).isel(
-        latitude=0, longitude=0).where((wofs_data.wofs.values == 1))
+    wofs_data = \
+        wofs_data.where(wofs_data != task.satellite.no_data_value)
+    wofs_data = wofs_data.squeeze()
+    tsm_data = \
+        tsm(single_pixel, clean_mask=clear_mask, no_data=task.satellite.no_data_value)
+    tsm_data = \
+        tsm_data.where(tsm_data != task.satellite.no_data_value)\
+        .squeeze().where(wofs_data.wofs.values == 1)
 
     # Remove NaNs to avoid errors and yield a nicer plot.
     water_non_nan_times = ~np.isnan(wofs_data.wofs.values)
@@ -65,7 +68,9 @@ def pixel_drill(task_id=None):
     tsm_non_nan_times = ~np.isnan(tsm_data.tsm.values)
     tsm_data = tsm_data.isel(time=tsm_non_nan_times)
 
-    datasets = [wofs_data.wofs.values.transpose(), tsm_data.tsm.values.transpose()] + [clear_mask]
+    datasets = [wofs_data.wofs.values.transpose().squeeze(), 
+                tsm_data.tsm.values.transpose().squeeze()] + \
+                [clear_mask.squeeze()]
     dates = [dates[water_non_nan_times], dates[tsm_non_nan_times]] + [dates]
     data_labels = ["Water/Non Water", "TSM (g/L)"] + ["Clear"]
     titles = ["Water/Non Water", "TSM Values"] + ["Clear Mask"]
@@ -221,14 +226,11 @@ def start_chunk_processing(self, chunk_details, task_id=None):
     # Get an estimate of the amount of work to be done: the number of scenes
     # to process, also considering intermediate chunks to be combined.
     num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
-    logger.info("num_scenes: {}".format(num_scenes))
     # recombine_geographic_chunks() scenes:
     # num_scn_per_chk * len(time_chunks) * len(geographic_chunks)
     num_scn_per_chk = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
     # Scene processing progress is tracked in processing_task() and recombine_geographic_chunks().
     task.total_scenes = 2 * num_scenes
-    logger.info("task.total_scenes: {}"
-                .format(task.total_scenes))
     task.scenes_processed = 0
     task.save(update_fields=['total_scenes', 'scenes_processed'])
 
@@ -288,9 +290,6 @@ def processing_task(self,
 
     metadata = {}
 
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
-
     times = list(
         map(_get_datetime_range_containing, time_chunk)
         if task.get_iterative() else [_get_datetime_range_containing(time_chunk[0], time_chunk[-1])])
@@ -308,7 +307,10 @@ def processing_task(self,
 
         if check_cancel_task(self, task): return
 
-        if data is None or 'time' not in data:
+        if data is None:
+            logger.info("Empty chunk.")
+            continue
+        if 'time' not in data:
             logger.info("Invalid chunk.")
             continue
 
@@ -316,7 +318,6 @@ def processing_task(self,
 
         wofs_data = task.get_processing_method()(data,
                                                  clean_mask=clear_mask,
-                                                 enforce_float64=True,
                                                  no_data=task.satellite.no_data_value)
         water_analysis = perform_timeseries_analysis(
             wofs_data, 'wofs', intermediate_product=water_analysis, no_data=task.satellite.no_data_value)

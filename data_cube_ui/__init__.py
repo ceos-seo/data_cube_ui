@@ -25,5 +25,5 @@ from __future__ import absolute_import
 # Django starts so that shared_task will use this app.
 from .celery_app import app as celery_app
 
-# TODO: Is this really necessary?
+# Allow importing of the Celery `app` instance in `celery_app.py`.
 __all__ = ('celery_app',)

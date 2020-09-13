@@ -19,6 +19,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from django.db import models
 from django.conf import settings
 
@@ -57,7 +59,8 @@ class Query(BaseQuery):
     field, and resets the abstract property. Functions are added to get human readable names for various properties,
     foreign keys should define __str__ for a human readable name.
     """
-    color_scale_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/cloud_coverage'
+    color_scale_path = os.path.join(
+        os.environ.get('DC_UI_DIR'), 'utils/color_scales/cloud_coverage')
     base_result_dir = '/datacube/ui_results/cloud_coverage'
 
     class Meta(BaseQuery.Meta):

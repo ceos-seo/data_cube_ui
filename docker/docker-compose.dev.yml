@@ -30,6 +30,8 @@ services:
       # AWS env vars for loading data from S3 via boto3.
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      # Specify a directory for matplotlib configuration.
+      MPLCONFIGDIR: ${MPLCONFIGDIR}
     ports:
       - ${HOST_PORT}:80
     volumes:

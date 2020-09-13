@@ -19,6 +19,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from django.db import models
 from django.conf import settings
 
@@ -67,13 +69,20 @@ class Query(BaseQuery):
     query_type = models.ForeignKey(ResultType)
 
     color_scale_path = {
-        'ndvi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ndvi',
-        'evi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/evi',
-        'savi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ryg',
-        'nbr': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ryg',
-        'nbr2': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ryg',
-        'ndwi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ryg',
-        'ndbi': '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/ryg',
+        'ndvi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ndvi'),
+        'evi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/evi'),
+        'savi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ryg'),
+        'nbr': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ryg'),
+        'nbr2': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ryg'),
+        'ndwi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ryg'),
+        'ndbi': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/ryg'),
     }
 
     base_result_dir = '/datacube/ui_results/spectral_indices'

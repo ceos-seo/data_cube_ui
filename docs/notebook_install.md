@@ -23,10 +23,13 @@ Jupyter notebooks are extremely useful as a learning tool and as an introductory
 
 To run our Jupyter notebook examples, the following prerequisites must be complete:
 
-* The full Data Cube Installation Guide must have been followed and completed. This includes:
+* An Open Data Cube database must be accessible.
+* Docker and the make command must be installed. If you need to install Docker, see our installation instructions [here](https://github.com/ceos-seo/data_cube_ui/blob/master/docs/docker_install.md).
+
+<!-- * The full Data Cube Installation Guide must have been followed and completed. This includes:
   * You have a local user that is used to run the Data Cube commands/applications.
   * You have a database user that is used to connect to your 'datacube' database.
-  * The Data Cube is installed and you have successfully run `datacube system check`.
+  * The Data Cube is installed and you have successfully run `datacube system check`. -->
 
 Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know 
 it is acceptable in a given command block. Run each line individually.

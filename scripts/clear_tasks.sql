@@ -1,3 +1,5 @@
+/* Discard the task history and user history records from the apps. */
+
 TRUNCATE cloud_coverage_cloudcoveragetask CASCADE;
 TRUNCATE cloud_coverage_userhistory CASCADE;
 

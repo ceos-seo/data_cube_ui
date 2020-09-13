@@ -19,6 +19,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from django.db import models
 from django.conf import settings
 
@@ -76,20 +78,20 @@ class Query(BaseQuery):
     base_result_dir = '/datacube/ui_results/tsm'
 
     color_scales = {
-        'wofs':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/water_percentage_binned',
-        'tsm':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/tsm_binned',
-        'normalized_data':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/tsm_binned',
-        'max':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/tsm_binned',
-        'min':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/tsm_binned',
-        'variability':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/tsm_binned',
-        'total_clean':
-        '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/clear_observations_binned'
+        'wofs': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/water_percentage_binned'),
+        'tsm': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/tsm_binned'),
+        'normalized_data': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/tsm_binned'),
+        'max': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/tsm_binned'),
+        'min': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/tsm_binned'),
+        'variability': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/tsm_binned'),
+        'total_clean': os.path.join(
+            os.environ.get('DC_UI_DIR'), 'utils/color_scales/clear_observations_binned'),
     }
 
     class Meta(BaseQuery.Meta):

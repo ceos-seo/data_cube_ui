@@ -16,10 +16,16 @@ dev-down:
 	-f docker/docker-compose.dev.yml down
 
 # Start the UI without rebuilding the UI Docker image
-# (use when appropriate for faster starts).
+# (use when dependencies have not changed for faster starts).
 dev-up-no-build: 
 	docker-compose --project-directory docker \
 	-f docker/docker-compose.dev.yml up -d
+
+# Specifying `--force-recreate` in the `up` targets 
+# does not always work as expected.
+dev-restart: dev-down dev-up
+
+dev-restart-no-build: dev-down dev-up-no-build
 
 # Connect to the running UI container.
 dev-ssh:
@@ -38,15 +44,18 @@ dev-delete-django-db-volume:
 create-odc-network:
 	docker network create odc
 
-# Create the persistent volume for the Django database.
+delete-odc-network:
+	docker network rm odc
+
+# Create the persistent volume for the ODC database.
 create-odc-db-volume:
 	docker volume create odc-db
 
-# Delete the persistent volume for the Django database.
+# Delete the persistent volume for the ODC database.
 delete-odc-db-volume:
 	docker volume rm odc-db
 
-# Create the ODC database.
+# Create the ODC database Docker container.
 create-odc-db:
 	docker run -d \
 	-e POSTGRES_DB=datacube \
@@ -58,5 +67,7 @@ create-odc-db:
 	postgres:10-alpine
 
 delete-odc-db:
-	docker container stop odc-db
-	docker container rm odc-db
+	docker stop odc-db
+	docker rm odc-db
+
+restart-odc-db: delete-odc-db create-odc-db

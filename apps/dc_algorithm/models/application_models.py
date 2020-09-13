@@ -27,6 +27,7 @@ import uuid
 import numpy as np
 
 from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, create_bit_mask)
+from utils.data_cube_utilities.dc_mosaic import (ls5_unpack_qa, ls7_unpack_qa, ls8_unpack_qa)
 
 # class MapModel(models.Model):
 #     name      = models.CharField(max_length=50)
@@ -58,8 +59,8 @@ class Satellite(models.Model):
 
     datacube_platform = models.CharField(
         help_text="This should correspond with a Data Cube platform. Combinations should be comma seperated with no spaces, e.g. LANDSAT_7,LANDSAT_8",
-        max_length=50)
-    name = models.CharField(max_length=25)
+        max_length=100)
+    name = models.CharField(max_length=100)
     # product_prefix = models.CharField(
     #     max_length=250,
     #     help_text="Products are loaded by name with the naming convention product_prefix+area_id, e.g. ls5_ledaps_{vietnam,colombia,australia}, \
@@ -85,7 +86,7 @@ class Satellite(models.Model):
         default=-9999, help_text='No data value to be used for all outputs/masking functionality.')
 
     class Meta:
-        unique_together = (('datacube_platform',))# 'product_prefix'))
+        unique_together = (('datacube_platform',))
 
     def __str__(self):
         return self.datacube_platform
@@ -108,18 +109,17 @@ class Satellite(models.Model):
             return np.full(ds[self.get_measurements()[0]].shape(), True)
 
         options = {
+            # For surface reflectance data, keep clear and water pixels 
+            # (bit indices 1 and 2).
             'bit_mask': lambda ds: create_bit_mask(ds.pixel_qa, [1, 2]),
             'cf_mask': lambda ds: create_cfmask_clean_mask(ds.cf_mask),
             'default': lambda ds: return_all_true
         }
-        key = 'bit_mask' if 'pixel_qa' in self.get_measurements() else 'cf_mask' if 'cf_mask' in self.get_measurements(
-        ) else 'default'
+        key = 'bit_mask' if 'pixel_qa' in self.get_measurements() else \
+              'cf_mask' if 'cf_mask' in self.get_measurements() else \
+              'default'
 
         return options.get(key, return_all_true)
-
-    # def get_product(self, area_id):
-        # self.product_prefix +
-        # return area_id
 
     def is_combined_product(self):
         return len(self.datacube_platform.split(",")) > 1
@@ -128,8 +128,6 @@ class Satellite(models.Model):
         return self.datacube_platform.split(",")
 
     def get_products(self, area_id):
-        # [prefix + area_id for prefix in self.product_prefix.split(",")]
-        # return [area_id]
         from apps.dc_algorithm.models.application_models \
             import Area, AreaProductsMap
         area = Area.objects.get(pk=area_id)
