@@ -35,9 +35,6 @@ services:
     ports:
       - ${HOST_PORT}:80
     volumes:
-      # - ../:${WORKDIR}
-      # - ${WORKDIR}/config
-      # - ${WORKDIR}/docker
       - ../apps:${WORKDIR}/apps
       - ../data_cube_ui:${WORKDIR}/data_cube_ui
       - ../datacube_env:${WORKDIR}/datacube_env
@@ -47,14 +44,6 @@ services:
       - ../static:${WORKDIR}/static
       - ../templates:${WORKDIR}/templates
       - ../utils:${WORKDIR}/utils
-      # - ../apps:${WORKDIR}/apps
-      # - ../config:${WORKDIR}/config
-      # - ../data_cube_ui:${WORKDIR}/data_cube_ui
-      # - ../db_backups:${WORKDIR}/db_backups
-      # - ../scripts:${WORKDIR}/scripts
-      # - ../static:${WORKDIR}/static
-      # - ../templates:${WORKDIR}/templates
-      # - ../utils:${WORKDIR}/utils
     networks:
       - odc
     depends_on:

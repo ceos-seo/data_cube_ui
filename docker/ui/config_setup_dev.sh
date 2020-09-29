@@ -24,6 +24,9 @@ if [ "$ENVIRONMENT" = "DEV" ]; then
   echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
 fi
 
+# Start Apache.
+service apache2 start
+
 # Initialize ODC and the database.
 source datacube_env/bin/activate
 datacube system init

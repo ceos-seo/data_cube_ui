@@ -19,23 +19,23 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN pip3 install virtualenv
 RUN virtualenv datacube_env
 # Install Python dependencies (hdmedians has to be installed after numpy).
-RUN . datacube_env/bin/activate && \
-    pip3 install --upgrade pip && pip3 install --upgrade \
-    lcmap-pyccd==2017.6.8 rasterio \
-    numpy xarray scipy \
-    sklearn scikit-image \
-    shapely cloudpickle Cython netcdf4 \
-    sqlalchemy psycopg2-binary \
-    matplotlib seaborn \
-    stringcase imageio \
-    django==1.11.27 django-bootstrap3==11.1.0 \
-    celery==4.4.6 redis \
-    # TODO: Can we use gdal 2.4.2 here?
-    # (would also need to change version in apt)
-    dask gdal==2.4.0 \
-    && rm -rf /root/.cache
-RUN . datacube_env/bin/activate && \
-    pip3 install hdmedians
+# RUN . datacube_env/bin/activate && \
+#     pip3 install --upgrade pip && pip3 install --upgrade \
+#     lcmap-pyccd==2017.6.8 rasterio \
+#     numpy xarray scipy \
+#     scikit-image \
+#     shapely cloudpickle Cython netcdf4 \
+#     sqlalchemy psycopg2-binary \
+#     matplotlib seaborn \
+#     stringcase imageio \
+#     django==1.11.27 django-bootstrap3==11.1.0 \
+#     celery==4.4.6 redis \
+#     dask gdal==2.4.0 \
+#     && rm -rf /root/.cache
+# RUN . datacube_env/bin/activate && \
+    # pip3 install hdmedians
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Create a directory to store files for the UI (notably task outputs).
 RUN mkdir -p /datacube/ui_results && \
@@ -47,12 +47,12 @@ RUN mkdir -p /datacube/ui_results && \
 #RUN debconf-set-selections << "postfix postfix/mailname string your.hostname.com" && \
 #    debconf-set-selections << "postfix postfix/main_mailer_type string 'Internet Site'"
 #RUN DEBIAN_FRONTEND=noninteractive apt-get install -y postfix mailutils
-RUN cat "\
-myhostname = ${ADMIN_EMAIL}\n\
-mailbox_size_limit = 0\n\
-recipient_delimiter = +\n\
-inet_interfaces = localhost" > /etc/postfix/main.cf && \
-    service postfix restart
+# RUN cat "\
+# myhostname = ${ADMIN_EMAIL}\n\
+# mailbox_size_limit = 0\n\
+# recipient_delimiter = +\n\
+# inet_interfaces = localhost" > /etc/postfix/main.cf && \
+#     service postfix restart
 
 # Setup the Open Data Cube configuration.
 ARG ODC_DB_HOSTNAME="odc-db"
@@ -156,7 +156,7 @@ ENV WORKDIR=${WORKDIR}
 
 # Copy remaining files.
 COPY manage.py manage.py
-COPY db_backups/init_database.json db_backups/init_database.json
+# COPY db_backups/default/init_database.json db_backups/default/init_database.json
 COPY data_cube_ui data_cube_ui
 
 # Set environment variables for Apache.

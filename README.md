@@ -28,7 +28,9 @@ Currently supported applications include:
 ## Installation
 -------
 
-First follow the instructions in the 
+First follow the instructions in the [Docker Installation Guide](docs/docker_install.md) if you do not have Docker installed yet.
+
+Follow the instructions in the 
 [Open Data Cube Database Installation Guide](docs/odc_db_setup.md) to setup the Open Data Cube (ODC) database.
 
 Follow the instructions in the [Open Data Cube UI Installation Guide](docs/ui_install.md) to install the ODC UI. That document also contains troubleshooting information for the UI in the form of an FAQ at the end.

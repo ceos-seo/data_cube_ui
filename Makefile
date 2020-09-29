@@ -49,11 +49,11 @@ delete-odc-network:
 
 # Create the persistent volume for the ODC database.
 create-odc-db-volume:
-	docker volume create odc-db
+	docker volume create odc-db-vol
 
 # Delete the persistent volume for the ODC database.
 delete-odc-db-volume:
-	docker volume rm odc-db
+	docker volume rm odc-db-vol
 
 # Create the ODC database Docker container.
 create-odc-db:
@@ -63,7 +63,7 @@ create-odc-db:
 	-e POSTGRES_PASSWORD=localuser1234 \
 	--name=odc-db \
 	--network="odc" \
-	-v odc-db:/var/lib/postgresql/data \
+	-v odc-db-vol:/var/lib/postgresql/data \
 	postgres:10-alpine
 
 delete-odc-db:

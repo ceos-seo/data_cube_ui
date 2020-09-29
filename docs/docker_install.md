@@ -8,13 +8,13 @@ For Windows users, install [Docker for Windows (Docker Desktop)](https://docs.do
 For Ubuntu users, run the following commands:
 ```
 sudo apt-get update
-sudo apt install docker.io docker-compose
+sudo apt install -y docker.io docker-compose
 sudo systemctl start docker
 sudo systemctl enable docker
 # The following steps are for enabling use 
 # of the `docker` command for the current user
 # without using `sudo`
-sudo groupadd docker
+getent group docker || sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 After running the above commands, logout and then login again.

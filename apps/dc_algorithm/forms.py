@@ -6,7 +6,7 @@ from .models import Satellite
 # A value of `None` indicates no limit.
 MAX_NUM_TASKS_PER_USER = None
 # This is the maximum number of years in a query.
-MAX_NUM_YEARS = 5
+MAX_NUM_YEARS = 100
 
 class DataSelectionForm(forms.Form):
     two_column_format = True
