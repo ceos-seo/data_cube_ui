@@ -1,3 +1,5 @@
+/* Discard the task history and user history records from the apps. */
+
 TRUNCATE cloud_coverage_cloudcoveragetask CASCADE;
 TRUNCATE cloud_coverage_userhistory CASCADE;
 
@@ -9,9 +11,6 @@ TRUNCATE custom_mosaic_tool_userhistory CASCADE;
 
 TRUNCATE fractional_cover_fractionalcovertask CASCADE;
 TRUNCATE fractional_cover_userhistory CASCADE;
-
-TRUNCATE ndvi_anomaly_ndvianomalytask CASCADE;
-TRUNCATE ndvi_anomaly_userhistory CASCADE;
 
 TRUNCATE slip_sliptask CASCADE;
 TRUNCATE slip_userhistory CASCADE;

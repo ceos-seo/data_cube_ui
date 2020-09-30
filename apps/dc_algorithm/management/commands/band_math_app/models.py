@@ -19,6 +19,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import os
+
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -61,8 +63,8 @@ class Query(BaseQuery):
     """
     compositor = models.ForeignKey(Compositor)
 
-    #TODO: add color scale here
-    color_scale_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/utils/color_scales/default_color_scale'
+    color_scale_path = os.path.join(
+        os.environ.get('DC_UI_DIR'), 'utils/color_scales/default_color_scale')
     base_result_dir = '/datacube/ui_results/band_math_app'
 
     class Meta(BaseQuery.Meta):

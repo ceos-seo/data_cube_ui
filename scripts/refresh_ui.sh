@@ -1,3 +1,3 @@
-sudo service data_cube_ui stop
-sudo service apache2 restart
-sudo service data_cube_ui start
+#!/usr/bin/bash
+
+service apache2 reload

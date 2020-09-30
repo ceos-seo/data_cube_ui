@@ -1,0 +1,11 @@
+CELERY_BIN="${DC_UI_PYTHONHOME}/bin/celery"
+
+CELERY_APP="data_cube_ui.celery_app:app"
+DJANGO_SETTINGS_MODULE="data_cube_ui.settings"
+
+CELERYD_CHDIR="${DC_UI_DIR}"
+
+CELERYD_USER="www-data"
+CELERYD_GROUP="www-data"
+
+# DATACUBE_CONFIG_PATH=${DATACUBE_CONFIG_PATH}

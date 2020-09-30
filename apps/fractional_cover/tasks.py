@@ -16,7 +16,7 @@ from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, crea
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_fractional_coverage_classifier import frac_coverage_classify
 from utils.data_cube_utilities.dc_water_classifier import wofs_classify
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import FractionalCoverTask
@@ -305,9 +305,6 @@ def processing_task(self,
     iteration_data = None
     metadata = {}
 
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
-
     times = list(
         map(_get_datetime_range_containing, time_chunk)
         if task.get_iterative() else [_get_datetime_range_containing(time_chunk[0], time_chunk[-1])])
@@ -321,7 +318,10 @@ def processing_task(self,
 
         if check_cancel_task(self, task): return
 
-        if data is None or 'time' not in data:
+        if data is None:
+            logger.info("Empty chunk.")
+            continue
+        if 'time' not in data:
             logger.info("Invalid chunk.")
             continue
 

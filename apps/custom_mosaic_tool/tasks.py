@@ -17,7 +17,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     write_png_from_xr, add_timestamp_data_to_xr, clear_attrs)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import CustomMosaicToolTask
@@ -40,7 +40,8 @@ def pixel_drill(task_id=None):
         return None
 
     dc = DataAccessApi(config=task.config_path)
-    single_pixel = dc.get_stacked_datasets_by_extent(**parameters).isel(latitude=0, longitude=0)
+    single_pixel = dc.get_stacked_datasets_by_extent(**parameters).squeeze()
+    #isel(latitude=0, longitude=0)
     clear_mask = task.satellite.get_clean_mask_func()(single_pixel)
     single_pixel = single_pixel.where(single_pixel != task.satellite.no_data_value)
 
@@ -99,6 +100,7 @@ def parse_parameters_from_task(self, task_id=None):
         'latitude': (task.latitude_min, task.latitude_max),
         'measurements': task.satellite.get_measurements()
     }
+    logger.info(f"In parse_parameters_from_task(): parameters: {parameters}")
 
     task.execution_start = datetime.now()
     if check_cancel_task(self, task): return
@@ -123,6 +125,7 @@ def validate_parameters(self, parameters, task_id=None):
     task = CustomMosaicToolTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
+    logger.info(f"task.config_path: {task.config_path}")
     dc = DataAccessApi(config=task.config_path)
 
     #validate for any number of criteria here - num acquisitions, etc.
@@ -280,16 +283,12 @@ def processing_task(self,
     iteration_data = None
     metadata = {}
 
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
-
     times = list(
         map(_get_datetime_range_containing, time_chunk)
         if task.get_iterative() else [_get_datetime_range_containing(time_chunk[0], time_chunk[-1])])
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     iteration_data = None
     base_index = (task.get_chunk_size()['time'] if task.get_chunk_size()['time'] is not None else 1) * time_chunk_id
     for time_index, time in enumerate(times):
@@ -298,7 +297,10 @@ def processing_task(self,
 
         if check_cancel_task(self, task): return
 
-        if data is None or 'time' not in data:
+        if data is None:
+            logger.info("Empty chunk.")
+            continue
+        if 'time' not in data:
             logger.info("Invalid chunk.")
             continue
 

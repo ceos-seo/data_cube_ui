@@ -16,7 +16,7 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, cr
                                                     write_png_from_xr, add_timestamp_data_to_xr, clear_attrs)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
-from apps.dc_algorithm.utils import create_2d_plot
+from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
 from utils.data_cube_utilities.import_export import export_xarray_to_netcdf
 
 from .models import AppNameTask
@@ -54,7 +54,6 @@ def pixel_drill(task_id=None):
     # series of single pixels.
     wofs_data = task.get_processing_method()(single_pixel,
                                              clean_mask=clear_mask,
-                                             enforce_float64=True,
                                              no_data=task.satellite.no_data_value)
     wofs_data = wofs_data.where(wofs_data != task.satellite.no_data_value).isel(latitude=0, longitude=0)
 
@@ -107,7 +106,7 @@ def parse_parameters_from_task(task_id=None):
         # 'platform': task.satellite.datacube_platform,
         'platforms': task.satellite.get_platforms(),
         # TODO: If this is not a multisensory app, remove 'products' and uncomment the line below.
-        # 'product': task.satellite.get_product(task.area_id),
+        # 'product': task.satellite.get_products(task.area_id)[0],
         'products': task.satellite.get_products(task.area_id),
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),
@@ -283,9 +282,6 @@ def processing_task(task_id=None,
 
     iteration_data = None
     metadata = {}
-
-    def _get_datetime_range_containing(*time_ranges):
-        return (min(time_ranges) - timedelta(microseconds=1), max(time_ranges) + timedelta(microseconds=1))
 
     times = list(
         map(_get_datetime_range_containing, time_chunk)

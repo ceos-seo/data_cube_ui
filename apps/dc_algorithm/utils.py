@@ -5,7 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import Iterable
 
+from datetime import timedelta
 
+## Time ##
+def _get_datetime_range_containing(*time_ranges):
+    """ TODO: Document this. """
+    return (min(time_ranges) - timedelta(seconds=1), max(time_ranges) + timedelta(seconds=1))
+## End Time ##
+
+## Plotting ##
 def create_2d_plot(path, dates=None, datasets=None, data_labels=None, style='', titles=None, vertical=True):
     """Create a 2d image and save it to disk
 
@@ -40,3 +48,4 @@ def create_2d_plot(path, dates=None, datasets=None, data_labels=None, style='', 
     figure.autofmt_xdate()
     orientation = "portrait" if vertical else "landscape"
     figure.savefig(path, orientation=orientation, format='png')
+## End Plotting ##

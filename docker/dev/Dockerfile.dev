@@ -1,0 +1,206 @@
+FROM opendatacube/datacube-core:1.7
+
+ARG WORKDIR="/app"
+
+WORKDIR $WORKDIR
+
+# Install system dependencies.
+# The `DEBIAN_FRONTEND=noninteractive` part avoids 
+# apt-get prompts for restating services during upgrades.
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    apache2 \
+    imagemagick \
+    libapache2-mod-wsgi-py3 \
+    libfreeimage3 \
+    redis-tools \
+    postgresql-client \ 
+    && rm -rf /var/lib/apt/lists/*
+# Create Python virtual environment.
+RUN pip3 install virtualenv
+RUN virtualenv datacube_env
+# Install Python dependencies (hdmedians has to be installed after numpy).
+# RUN . datacube_env/bin/activate && \
+#     pip3 install --upgrade pip && pip3 install --upgrade \
+#     lcmap-pyccd==2017.6.8 rasterio \
+#     numpy xarray scipy \
+#     scikit-image \
+#     shapely cloudpickle Cython netcdf4 \
+#     sqlalchemy psycopg2-binary \
+#     matplotlib seaborn \
+#     stringcase imageio \
+#     django==1.11.27 django-bootstrap3==11.1.0 \
+#     celery==4.4.6 redis \
+#     dask gdal==2.4.0 \
+#     && rm -rf /root/.cache
+# RUN . datacube_env/bin/activate && \
+    # pip3 install hdmedians
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+
+# Create a directory to store files for the UI (notably task outputs).
+RUN mkdir -p /datacube/ui_results && \
+    chmod 777 /datacube/ui_results
+
+# Install postfix and mailutils.
+# Credit to https://serverfault.com/a/144010/367947 and
+#           https://serverfault.com/a/143982/367947.
+#RUN debconf-set-selections << "postfix postfix/mailname string your.hostname.com" && \
+#    debconf-set-selections << "postfix postfix/main_mailer_type string 'Internet Site'"
+#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y postfix mailutils
+# RUN cat "\
+# myhostname = ${ADMIN_EMAIL}\n\
+# mailbox_size_limit = 0\n\
+# recipient_delimiter = +\n\
+# inet_interfaces = localhost" > /etc/postfix/main.cf && \
+#     service postfix restart
+
+# Setup the Open Data Cube configuration.
+ARG ODC_DB_HOSTNAME="odc-db"
+ARG ODC_DB_DATABASE="datacube"
+ARG ODC_DB_USER="dc_user"
+ARG ODC_DB_PASSWORD="localuser1234"
+ARG ODC_DB_PORT="5432"
+ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
+    ODC_DB_DATABASE=${ODC_DB_DATABASE} \
+    ODC_DB_USER=${ODC_DB_USER} \
+    ODC_DB_PASSWORD=${ODC_DB_PASSWORD} \
+    ODC_DB_PORT=${ODC_DB_PORT}
+RUN mkdir config && echo "\
+[datacube] \n\
+db_hostname: ${ODC_DB_HOSTNAME} \n\
+db_database: ${ODC_DB_DATABASE} \n\
+db_username: ${ODC_DB_USER} \n\
+db_password: ${ODC_DB_PASSWORD} \n" > config/datacube.conf
+RUN cp config/datacube.conf /etc/datacube.conf
+ENV DATACUBE_CONFIG_PATH=${WORKDIR}/config/datacube.conf
+
+# Postgres pgpass configuration.
+ARG DJANGO_DB_HOSTNAME="127.0.0.1"
+ARG DJANGO_DB_DATABASE="datacube"
+ARG DJANGO_DB_USER="dc_user"
+ARG DJANGO_DB_PASSWORD="localuser1234"
+ENV DJANGO_DB_HOSTNAME=${DJANGO_DB_HOSTNAME} \
+    DJANGO_DB_DATABASE=${DJANGO_DB_DATABASE} \
+    DJANGO_DB_USER=${DJANGO_DB_USER} \
+    DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
+RUN echo \
+"${DJANGO_DB_HOSTNAME}:5432:"\
+"${DJANGO_DB_DATABASE}:${DJANGO_DB_USER}:"\
+"${DJANGO_DB_PASSWORD}" > config/.pgpass
+RUN echo \
+"${ODC_DB_HOSTNAME}:${ODC_DB_PORT}:"\
+"${ODC_DB_DATABASE}:${ODC_DB_USER}:"\
+"${ODC_DB_PASSWORD}" >> config/.pgpass
+RUN cp config/.pgpass /var/www/.pgpass
+RUN chmod 600 /var/www/.pgpass
+ENV PGPASSFILE=/var/www/.pgpass
+
+# Setup the Apache configuration.
+ENV DC_UI_DIR="${WORKDIR}"
+ENV DC_UI_PYTHONHOME="${DC_UI_DIR}/datacube_env" \
+    DC_UI_PYTHONPATH="${DC_UI_DIR}"
+COPY config/templates/dc_ui.conf config/templates/dc_ui.conf
+RUN cp config/templates/dc_ui.conf config/dc_ui.conf
+RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_PYTHONPATH}#${DC_UI_PYTHONPATH}#g" config/dc_ui.conf && \
+    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/dc_ui.conf && \
+    sed -i "s#\${DJANGO_DB_HOSTNAME}#${DJANGO_DB_HOSTNAME}#g" config/dc_ui.conf && \
+    sed -i "s#\${ODC_DB_HOSTNAME}#${ODC_DB_HOSTNAME}#g" config/dc_ui.conf
+RUN cp config/dc_ui.conf /etc/apache2/sites-available/dc_ui.conf
+# Disable the default Apache config and enable the new one.
+RUN a2dissite 000-default.conf
+RUN a2ensite dc_ui.conf
+# Set Apache to start on system boot.
+RUN update-rc.d apache2 defaults
+
+## Setup Celery ##
+COPY config/templates/celeryd_conf config/templates/celeryd_conf
+RUN cp config/templates/celeryd_conf config/celeryd_conf && \
+    sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/celeryd_conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/celeryd_conf && \
+    cp config/celeryd_conf /etc/default/data_cube_ui && \
+    chmod 644 /etc/default/data_cube_ui
+COPY config/celeryd config/celeryd
+RUN cp config/celeryd /etc/init.d/data_cube_ui && \
+    chmod 777 /etc/init.d/data_cube_ui 
+COPY config/templates/celerybeat_conf config/templates/celerybeat_conf
+RUN cp config/templates/celerybeat_conf config/celerybeat_conf
+RUN sed -i "s#\${DC_UI_DIR}#${DC_UI_DIR}#g" config/celerybeat_conf && \
+    sed -i "s#\${DC_UI_PYTHONHOME}#${DC_UI_PYTHONHOME}#g" config/celerybeat_conf && \
+    cp config/celerybeat_conf /etc/default/celerybeat && \
+    chmod 644 /etc/default/celerybeat 
+COPY config/celerybeat config/celerybeat
+RUN cp config/celerybeat /etc/init.d/celerybeat && \
+    chmod 777 /etc/init.d/celerybeat 
+## End Setup Celery ##
+
+# Setup the entrypoint script.
+ARG ADMIN_EMAIL=""
+ENV ADMIN_EMAIL=${ADMIN_EMAIL}
+COPY docker/dev/entrypoint.sh docker/dev/entrypoint.sh
+ENTRYPOINT ["docker/dev/entrypoint.sh"]
+RUN chmod 555 docker/dev/entrypoint.sh
+
+# Perform Django migrations and initial data import.
+COPY scripts scripts
+
+# Enable a login shell for the Apache user (allows `su www-data`).
+RUN chsh -s /bin/bash www-data
+
+# (dev) Change the Apache UID to match
+# the owner of the UI directory (using volumes).
+ENV ENVIRONMENT="DEV"
+ENV APACHE_UID=""
+ENV WORKDIR=${WORKDIR}
+
+# Copy remaining files.
+COPY manage.py manage.py
+# COPY db_backups/default/init_database.json db_backups/default/init_database.json
+COPY data_cube_ui data_cube_ui
+
+# Set environment variables for Apache.
+ARG REDIS_HOST
+ENV REDIS_HOST=${REDIS_HOST}
+    # /var/www/.profile
+RUN echo "export ADMIN_EMAIL=${ADMIN_EMAIL}" > /var/www/.profile && \
+    echo "export ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME}" >> /var/www/.profile && \
+    echo "export ODC_DB_DATABASE=${ODC_DB_DATABASE}" >> /var/www/.profile && \
+    echo "export ODC_DB_USER=${ODC_DB_USER}" >> /var/www/.profile && \
+    echo "export ODC_DB_PASSWORD=${ODC_DB_PASSWORD}" >> /var/www/.profile && \
+    echo "export ODC_DB_PORT=${ODC_DB_PORT}" >> /var/www/.profile && \
+    echo "export DATACUBE_CONFIG_PATH=${DATACUBE_CONFIG_PATH}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_HOSTNAME=${DJANGO_DB_HOSTNAME}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_DATABASE=${DJANGO_DB_DATABASE}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_USER=${DJANGO_DB_USER}" >> /var/www/.profile && \
+    echo "export DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}" >> /var/www/.profile && \
+    echo "export REDIS_HOST=${REDIS_HOST}" >> /var/www/.profile && \
+    # (LC_ALL, LANG) Avoid complaints from the click library when using python3.
+    echo "export LC_ALL=C.UTF-8" >> /var/www/.profile && \
+    echo "export LANG=C.UTF-8" >> /var/www/.profile && \
+    echo "export MPLCONFIGDIR=${MPLCONFIGDIR}" >> /var/www/.profile && \
+    echo "export DC_UI_DIR=${DC_UI_DIR}" >> /var/www/.profile && \
+    # /etc/apache2/envvars
+    echo "export ADMIN_EMAIL=${ADMIN_EMAIL}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_DATABASE=${ODC_DB_DATABASE}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_USER=${ODC_DB_USER}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_PASSWORD=${ODC_DB_PASSWORD}" >> /etc/apache2/envvars && \
+    echo "export ODC_DB_PORT=${ODC_DB_PORT}" >> /etc/apache2/envvars && \
+    echo "export DATACUBE_CONFIG_PATH=${DATACUBE_CONFIG_PATH}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_HOSTNAME=${DJANGO_DB_HOSTNAME}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_DATABASE=${DJANGO_DB_DATABASE}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_USER=${DJANGO_DB_USER}" >> /etc/apache2/envvars && \
+    echo "export DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}" >> /etc/apache2/envvars && \
+    echo "export REDIS_HOST=${REDIS_HOST}" >> /etc/apache2/envvars && \
+    echo "export LC_ALL=C.UTF-8" >> /etc/apache2/envvars && \
+    echo "export LANG=C.UTF-8" >> /etc/apache2/envvars && \
+    echo "export MPLCONFIGDIR=${MPLCONFIGDIR}" >> /etc/apache2/envvars && \
+    echo "export DC_UI_DIR=${DC_UI_DIR}" >> /etc/apache2/envvars
+    
+# Install sudo 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    sudo
+
+# Sleep to keep the container from exiting so we can `exec` it.
+CMD ["tail", "-f", "/dev/null"]

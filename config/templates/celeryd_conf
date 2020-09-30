@@ -1,0 +1,23 @@
+CELERYD_NODES="task_processing data_cube_manager"
+
+CELERY_BIN="${DC_UI_PYTHONHOME}/bin/celery"
+
+CELERY_APP="data_cube_ui.celery_app:app"
+DJANGO_SETTINGS_MODULE="data_cube_ui.settings"
+
+CELERYD_CHDIR="${DC_UI_DIR}"
+
+# Extra command-line arguments to the worker
+CELERYD_OPTS="-c:task_processing 10 -c:data_cube_manager 2 --max-tasks-per-child:data_cube_manager=1  -Q:data_cube_manager data_cube_manager -Ofair"
+
+CELERYD_LOG_LEVEL="INFO"
+
+CELERYD_LOG_FILE="/var/log/celery/%n%I.log"
+CELERYD_PID_FILE="/var/run/celery/%n.pid"
+
+CELERYD_USER="www-data"
+CELERYD_GROUP="www-data"
+
+CELERY_CREATE_DIRS=1
+
+# DATACUBE_CONFIG_PATH=${DATACUBE_CONFIG_PATH}

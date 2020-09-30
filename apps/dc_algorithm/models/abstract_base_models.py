@@ -79,7 +79,7 @@ class Query(models.Model):
     #false by default, only change is false-> true
     complete = models.BooleanField(default=False)
 
-    config_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    config_path = '/app/config/datacube.conf'
 
     class Meta:
         abstract = True

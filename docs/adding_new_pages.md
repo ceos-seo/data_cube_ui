@@ -73,7 +73,7 @@ class Query(BaseQuery):
 
     animated_product = models.ForeignKey(AnimationType)
 
-    config_path = '/home/' + settings.LOCAL_USER + '/Datacube/data_cube_ui/config/.datacube.conf'
+    config_path = '/app/config/datacube.conf'
     measurements = ['blue', 'green', 'red', 'nir', 'swir1', 'swir2', 'cf_mask']
     base_result_dir = '/datacube/ui_results/coastal_change'
 

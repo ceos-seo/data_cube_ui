@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Satellite, Area, Compositor, Application, ApplicationGroup
+from .models.application_models import AreaProductsMap
 
 
 class SatelliteAdmin(admin.ModelAdmin):
@@ -25,3 +26,4 @@ admin.site.register(Area, AreaAdmin)
 admin.site.register(Compositor, CompositorAdmin)
 admin.site.register(Application, ApplicationAdmin)
 admin.site.register(ApplicationGroup)
+admin.site.register(AreaProductsMap)

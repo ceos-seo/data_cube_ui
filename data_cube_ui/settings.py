@@ -32,6 +32,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 from celery.schedules import crontab
+import socket
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,7 +48,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-MASTER_NODE = '127.0.0.1'
+hostname = socket.gethostname()
+host_ip_address = socket.gethostbyname(hostname)
+MASTER_NODE = host_ip_address
 
 # Application definition
 BASE_HOST = "localhost:{}/".format(os.environ.get('PORT', 80))
@@ -134,29 +137,37 @@ WSGI_APPLICATION = 'data_cube_ui.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
-db_user = os.environ.get('DB_USER', 'dc_user')
-db_pass = os.environ.get('DB_PASSWORD', 'localuser1234')
-db_name = os.environ.get('DB_DATABASE', 'datacube')
-db_host = os.environ.get('DB_HOSTNAME', '127.0.0.1')
-db_port = os.environ.get('DB_PORT', '5432')
+django_db_host = os.environ.get('DJANGO_DB_HOSTNAME', host_ip_address)
+django_db_name = os.environ.get('DJANGO_DB_DATABASE', 'datacube')
+django_db_user = os.environ.get('DJANGO_DB_USER', 'dc_user')
+django_db_pass = os.environ.get('DJANGO_DB_PASSWORD', 'localuser1234')
+django_db_port = os.environ.get('DJANGO_DB_PORT', '5432')
+
+odc_db_host = os.environ.get('ODC_DB_HOSTNAME', host_ip_address)
+odc_db_name = os.environ.get('ODC_DB_DATABASE', 'datacube')
+odc_db_user = os.environ.get('ODC_DB_USER', 'dc_user')
+odc_db_pass = os.environ.get('ODC_DB_PASSWORD', 'localuser1234')
+odc_db_port = os.environ.get('ODC_DB_PORT', '5432')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':db_name,
-        'USER': db_user,
-        'PASSWORD': db_pass,
-        'HOST': db_host,
-        'PORT': db_port
+        'NAME': django_db_name,
+        'USER': django_db_user,
+        'PASSWORD': django_db_pass,
+        'HOST': django_db_host,
+        'PORT': django_db_port
     },
     'agdc': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
             'options': '-c search_path=agdc'
         },
-        'NAME': db_name,
-        'USER': db_user,
-        'PASSWORD': db_pass,
+        'NAME': odc_db_name,
+        'USER': odc_db_user,
+        'PASSWORD': odc_db_pass,
+        'HOST': odc_db_host,
+        'PORT': odc_db_port
     },
 }
 
@@ -203,8 +214,10 @@ STATICFILES_DIRS = [
 
 # CELERY STUFF
 
-BROKER_URL = 'redis://' + MASTER_NODE + ':6379'
-CELERY_RESULT_BACKEND = 'redis://' + MASTER_NODE + ':6379'
+REDIS_HOST = 'redis'#os.environ.get("REDIS_HOST", MASTER_NODE)
+REDIS_PORT = 6379
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_ACCEPT_CONTENT = ['pickle']
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
@@ -258,3 +271,28 @@ BOOTSTRAP3 = {
         'inline': 'bootstrap3.renderers.InlineFieldRenderer',
     },
 }
+
+# Django Logging
+# Create the text file to log to.
+from pathlib import Path
+Path(os.path.join(BASE_DIR, 'log')).mkdir(parents=True, exist_ok=True)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, os.path.join('log', 'ODC_UI.log'))
+
+        },
+    },
+    'loggers': {
+        '': { # The "catch all" logger.
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+

@@ -91,7 +91,6 @@ class Query(BaseQuery):
     animated_product = models.ForeignKey(AnimationType)
     compositor = models.ForeignKey(Compositor)
 
-    # TODO: Fill out the configuration paths
     base_result_dir = '/datacube/ui_results/app_name'
 
     class Meta(BaseQuery.Meta):

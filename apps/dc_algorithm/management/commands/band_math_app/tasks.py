@@ -98,7 +98,7 @@ def parse_parameters_from_task(task_id=None):
 
     parameters = {
         'platform': task.satellite.datacube_platform,
-        'product': task.satellite.get_product(task.area_id),
+        'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),
         'latitude': (task.latitude_min, task.latitude_max),
