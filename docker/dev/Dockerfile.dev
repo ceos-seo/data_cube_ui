@@ -138,9 +138,9 @@ RUN cp config/celerybeat /etc/init.d/celerybeat && \
 # Setup the entrypoint script.
 ARG ADMIN_EMAIL=""
 ENV ADMIN_EMAIL=${ADMIN_EMAIL}
-COPY docker/ui/config_setup_dev.sh docker/ui/config_setup_dev.sh
-ENTRYPOINT ["docker/ui/config_setup_dev.sh"]
-RUN chmod 555 docker/ui/config_setup_dev.sh
+COPY docker/dev/entrypoint.sh docker/dev/entrypoint.sh
+ENTRYPOINT ["docker/dev/entrypoint.sh"]
+RUN chmod 555 docker/dev/entrypoint.sh
 
 # Perform Django migrations and initial data import.
 COPY scripts scripts

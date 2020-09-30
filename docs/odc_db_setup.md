@@ -1,8 +1,7 @@
 ﻿# Open Data Cube Database Installation Guide
 
 This document is a guide for installing and configuring 
-the Open Data Cube index database - which the ODC will query
-to determine where to retrieve data from (e.g. local or remote GeoTIFFs).
+the Open Data Cube index database - which the ODC will query to determine where to retrieve data from (e.g. local or remote GeoTIFFs).
 
 ## Contents
 
@@ -33,24 +32,23 @@ You will need to know:
 
 These values will need to be set in the `datacube.conf` file for all ODC installations that should index this database. See the [ODC Environment Configuration](https://datacube-core.readthedocs.io/en/stable/ops/config.html) documentation for information on setting up ODC configuration files.
 
-We can't include full instructions for how to set up the database on all cloud providers, but the instructions for setting it up locally with Docker using Unix shell commands are included below.
+We can't include full instructions for how to set up the database on all cloud providers, but the instructions for setting it up locally with Docker using Linux shell commands are included below.
 
 >### <a name="creating_locally"></a> Creating the database locally
-The following commands should be run from the top-level 
-`data_cube_ui` directory.
+The following commands should be run from the top-level directory (directory containing `Makefile`).
 
 First we need to create a network for the Docker container. The database will only be accessible from other Docker containers on this machine in the `odc` Docker network.
 
 Run the following command to do this:
 `make create-odc-network`
 
-Next we need to create a filesystem volume for the database data so that it remains on the local filesystem and is not lost whenever the Docker container for the database terminates. 
+Next we need to create a filesystem volume for the database data so that it remains on the local filesystem and is not lost whenever the Docker container for the database terminates.
 
 Run the following command to do this:
 `make create-odc-db-volume`
 
 Now we need to create the Docker container for the database.
-In the `Makefile` file at the top-level `data_cube_ui` directory, find the `create-odc-db` target. Here you will see the command to create the ODC database Docker container. You can replace the values for `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` with the desired Postgres database name, user name, and password, but if you use the defaults here, you will not need to change corresponding settings for the UI.
+In the `Makefile` file at the top-level directory, find the `create-odc-db` target. Here you will see the command to create the ODC database Docker container. You can replace the values for `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` with the desired Postgres database name, user name, and password, but if you use the defaults here, you will not need to change corresponding settings for applications that use them, like the [CEOS Open Data Cube Notebooks](https://github.com/ceos-seo/data_cube_notebooks) or the [CEOS Open Data Cube UI](https://github.com/ceos-seo/data_cube_ui).
 
 Once you are ready to start the database, run this command:
 `make create-odc-db`

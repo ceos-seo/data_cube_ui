@@ -1,4 +1,4 @@
-# CEOS Data Cube UI
+# CEOS Open Data Cube UI
 
 The CEOS Data Cube UI is a full stack Python web application used to perform analysis on raster datasets using the [Open Data Cube](https://www.opendatacube.org/). Using common and widely accepted frameworks and libraries, our UI is a good tool for demonstrating the Open Data Cube's capabilities and some possible applications and architectures. The UI's core technologies are:
 * [**Django**](https://www.djangoproject.com/): Web framework, ORM, template processor, entire MVC stack
@@ -47,4 +47,4 @@ If you encounter issues with Open Data Cube or this UI that are not documented i
 ## More
 -------
 
-You may also consider setting up a Jupyter Notebook server for accessing ODC. The CEOS ODC notebooks repository is [here](https://github.com/ceos-seo/data_cube_notebooks).
+You may also consider running a Jupyter Notebook server that uses the Open Data Cube. The CEOS ODC Notebooks repository is [here](https://github.com/ceos-seo/data_cube_notebooks).

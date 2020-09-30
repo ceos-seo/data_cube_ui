@@ -229,7 +229,7 @@ previous steps and that there were no errors received during their execution.
 <a name="next_steps"></a> Next Steps
 ========  
 Now that we have ODC core setup, you may install our web-based UI or a Jupyter Notebook server with some example ODC notebooks.
-The Jupyter Notebook server installation documentation can be found [here](./notebook_install.md).
+The Jupyter Notebook server installation documentation can be found [here](https://github.com/ceos-seo/data_cube_notebooks/blob/master/docs/notebook_install.md).
 The web-based UI installation documentation can be found [here](ui/ui_install.md).
 
 <a name="faqs"></a> Common problems/FAQs

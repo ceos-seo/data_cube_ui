@@ -1,25 +1,24 @@
-
-# Open Data Cube UI Installation Guide
+# CEOS Open Data Cube UI Installation Guide
 
 This document will guide users through the process of installing and configuring 
-our Data Cube user interface. Our interface is a full Python web server stack 
+our Open Data Cube (ODC) user interface. Our interface is a full Python web server stack 
 using Django, Celery, PostgreSQL, and Boostrap3. In this guide, both Python and 
 system packages will be installed and configured and users will learn how to start 
 the asynchronous task processing system.
 
 ## Contents
 
-  * [Introduction](#introduction)
-  * [System Requirements](#system_requirements)
-  * [Prerequisites](#prerequisites)
-  * [Installation Process](#installation_process)
-    * [Pre-start configuration](#install_pre_start_config)
-    * [Launch Django database](#install_launch_django_db)
-	* [Start, stop, or restart the UI](#install_start_stop_restart)
-	* [SSH to the UI](#install_ssh)
-	* [UI first-time post-start setup](#install_first_time_post_start_setup)
+* [Introduction](#introduction)
+* [System Requirements](#system_requirements)
+* [Prerequisites](#prerequisites)
+* [Installation Process](#installation_process)
+  * [Pre-start configuration](#install_pre_start_config)
+  * [Launch Django database](#install_launch_django_db)
+  * [Start, stop, or restart the UI](#install_start_stop_restart)
+  * [SSH to the UI](#install_ssh)
+  * [UI first-time post-start setup](#install_first_time_post_start_setup)
 * [UI Database Backups and Restoration](#install_backup_restore)
-* [Connect to the UI](#connect)
+* [Access the UI](#connect)
 * [Task System Overview](#task_system_overview)
 * [Adding Data to an App](#adding_data)
 * [Upgrades](#upgrades)
@@ -30,10 +29,9 @@ the asynchronous task processing system.
 ## <a name="introduction"></a> Introduction
 -------
 
-The CEOS Data Cube UI is a full stack Python web application used to perform analysis 
-on raster datasets using the Data Cube. Using common and widely accepted frameworks 
-and libraries, our UI is a good tool for demonstrating the Data Cube capabilities 
-and some possible applications and architectures. The UI's core technologies are:
+The CEOS ODC UI is a full stack Python web application used to perform analysis 
+on raster datasets using the Open Data Cube. Using common and widely accepted frameworks 
+and libraries, our UI is a good tool for demonstrating ODC capabilities and some possible applications and architectures. The UI's core technologies are:
 
 * [**Django**](https://www.djangoproject.com/): 
 Web framework, ORM, template processor, entire MVC stack
@@ -48,10 +46,7 @@ Standard service based application running our Django application while still pr
 * [**Bootstrap3**](http://getbootstrap.com/): 
 Simple, standard, and easy front end styling
 
-Using these common technologies provides a good starting platform for users 
-who want to develop Data Cube applications. Using Celery allows for simple 
-distributed task processing while still being performant. Our UI is designed 
-for high level use of the Data Cube and allows users to:
+Using these common technologies provides a good starting platform for users who want to develop ODC applications. Using Celery allows for simple distributed task processing while still being performant. Our UI is designed for high level use of the Data Cube and allows users to:
 
 * Access various datasets that we have ingested
 * Run custom analysis cases over user-defined areas and time ranges
@@ -69,16 +64,15 @@ These are the base requirements for the UI:
 ## <a name="prerequisites"></a> Prerequisites
 -------
 
-To set up and run our Data Cube UI, the following conditions must be met:
+To set up and run the ODC UI, the following conditions must be met:
 
-* The [Open Data Cube Database Installation Guide](odc_db_setup.md) must have been followed and completed. 
+* The [Docker Installation Guide](docker_install.md) must have been completed.
+* The [Open Data Cube Database Installation Guide](odc_db_setup.md) must have been completed. 
 
 If you want to analyze data from the UI, you must add data through indexing. Read the [Open Data Cube indexing documentation](https://datacube-core.readthedocs.io/en/latest/ops/indexing.html) to learn how to index data. The UI will work without any indexed data, 
 but no analysis can occur.
 
-Before we begin, note that multiple commands should not be copied and pasted 
-to be run simultaneously unless you know it is acceptable in a given command block. 
-Run each line individually.
+Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know it is acceptable in a given command block. Run each line individually.
 
 ## <a name="installation_process"></a> Installation Process
 -------
@@ -92,7 +86,7 @@ The `DJANGO_DB_*` and `ODC_DB_*` variables in the `docker/.env` file are the con
 
 The `ADMIN_EMAIL` setting is unsued and the `MPLCONFIGDIR` setting should not be changed.
 
-If you want to access data on S3, you will need to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables. By default, they are set to use the values of identically named enivonment variables. You should set these environment variables before running the UI. Do not write these AWS credentials to the `docker/.env` file directly.
+If you want to access data on S3, you will need to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables. By default, they are set to use the values of identically named environment variables. You should set these environment variables before running the UI. Do not write these AWS credentials to the `docker/.env` file directly.
 
 >### <a name="install_launch_django_db"></a> Launch Django database
 -------
@@ -105,38 +99,38 @@ Run the following command to do this:
 >### <a name="install_start_stop_restart"></a> Start, stop, or restart the UI
 -------
 
-<a name="install_start"></a>To start the UI development environment, run this command:
+<a name="install_start"></a>To start the development environment, run this command:
 ```
 make dev-up
 ```
 
-<a name="install_stop"></a>To stop the UI development environment, run this command:
+<a name="install_stop"></a>To stop the development environment, run this command:
 ```
 make dev-down
 ```
 
-<a name="install_restart"></a>To restart the UI development environment, run this command:
+<a name="install_restart"></a>To restart the development environment, run this command:
 ```
 dev-restart
 ```
 
-When starting or restarting the UI in the future, you can use the `-no-build` versions of the `Makefile` targets if the dependencies have not changed (e.g. if only changes have been made to the UI code). These include:
+When starting or restarting in the future, you can use the `-no-build` versions of the `Makefile` targets if the dependencies have not changed (e.g. if only changes have been made to the UI code). These include:
 * dev-up-no-build
 * dev-restart-no-build
 
 >### <a name="install_ssh"></a> SSH to the UI
 -------
 
-To connect to the UI development environment through a bash shell over SSH, run this command:
+To connect to the development environment through a bash shell over SSH, run this command:
 ```
 make dev-ssh
 ```
 
-Once connected, run this command to activate the Python virtual environment for the UI:
+Once connected, run this command to activate the Python virtual environment:
 ```
 source datacube_env/bin/activate
 ```
-This must be run for every connection to the UI with `make dev-ssh`.
+This must be run for every connection with `make dev-ssh`.
 
 >### <a name="install_first_time_post_start_setup"></a> UI first-time post-start setup
 -------
@@ -155,7 +149,7 @@ To backup the UI database, run `bash scripts/create_fixture.sh <path>`, where `<
 
 To restore the UI database, run `bash scripts/load_fixture.sh <path>`, where `<path>` is the path to your database backup JSON file.
 
-## <a name="connect"></a> Connect to the UI
+## <a name="connect"></a> Access the UI
 -------
 
 In the development environment, you can connect to the UI on the host machine at `localhost:<HOST_PORT>`, where `<HOST_PORT>` is the value of the `HOST_PORT` environment variable specified in `docker/.env`.
