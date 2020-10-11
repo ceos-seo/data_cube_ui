@@ -1,4 +1,5 @@
 .idea/
+datacube_env
 apps/*/migrations/
 **/__pycache__/
 data_cube_ui/migrations/

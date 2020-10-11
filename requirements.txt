@@ -3,7 +3,7 @@ celery==4.4.6
 cligj==0.5.0
 cloudpickle==1.5.0
 dask==2.21.0
-datacube==1.7+0.g98cf9ba3.dirty
+datacube==1.7
 Django==1.11.27
 django-bootstrap3==11.1.0
 # TODO: Can we use gdal 2.4.2 here?
@@ -14,7 +14,6 @@ imageio==2.9.0
 lcmap-pyccd==2017.6.8
 matplotlib==3.3.0
 netCDF4==1.5.4
-numpy==1.19.1
 psycopg2-binary==2.8.5
 rasterio==1.1.5
 redis==3.5.3
