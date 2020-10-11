@@ -18,24 +18,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # Create Python virtual environment.
 RUN pip3 install virtualenv
 RUN virtualenv datacube_env
-# Install Python dependencies (hdmedians has to be installed after numpy).
-# RUN . datacube_env/bin/activate && \
-#     pip3 install --upgrade pip && pip3 install --upgrade \
-#     lcmap-pyccd==2017.6.8 rasterio \
-#     numpy xarray scipy \
-#     scikit-image \
-#     shapely cloudpickle Cython netcdf4 \
-#     sqlalchemy psycopg2-binary \
-#     matplotlib seaborn \
-#     stringcase imageio \
-#     django==1.11.27 django-bootstrap3==11.1.0 \
-#     celery==4.4.6 redis \
-#     dask gdal==2.4.0 \
-#     && rm -rf /root/.cache
-# RUN . datacube_env/bin/activate && \
-    # pip3 install hdmedians
+# Install Python dependencies.
+COPY requirements_core.txt requirements_core.txt
+RUN . datacube_env/bin/activate && \
+    pip3 install -r requirements_core.txt
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN . datacube_env/bin/activate && \
+    pip3 install -r requirements.txt
 
 # Create a directory to store files for the UI (notably task outputs).
 RUN mkdir -p /datacube/ui_results && \
@@ -65,7 +54,7 @@ ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
     ODC_DB_USER=${ODC_DB_USER} \
     ODC_DB_PASSWORD=${ODC_DB_PASSWORD} \
     ODC_DB_PORT=${ODC_DB_PORT}
-RUN mkdir config && echo "\
+RUN mkdir -p config && echo "\
 [datacube] \n\
 db_hostname: ${ODC_DB_HOSTNAME} \n\
 db_database: ${ODC_DB_DATABASE} \n\
@@ -156,7 +145,6 @@ ENV WORKDIR=${WORKDIR}
 
 # Copy remaining files.
 COPY manage.py manage.py
-# COPY db_backups/default/init_database.json db_backups/default/init_database.json
 COPY data_cube_ui data_cube_ui
 
 # Set environment variables for Apache.

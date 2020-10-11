@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # (dev) Change the Apache UID to match
 # the owner of the apps directory (using volumes).
@@ -20,6 +20,17 @@ if [ "$ENVIRONMENT" = "DEV" ]; then
   if [[ "$(stat -c '%u' config/datacube.conf)" != $APACHE_UID ]]; then
     chown -R www-data:www-data config
   fi
+  # Apache and Celery dirs.
+  if [[ "$(stat -c '%u' /etc/apache2/sites-available/)" != $APACHE_UID ]]; then
+    chown -R www-data:www-data /etc/apache2/sites-available/
+  fi
+  if [[ "$(stat -c '%u' /etc/default)" != $APACHE_UID ]]; then
+    chown -R www-data:www-data /etc/default
+  fi
+  if [[ "$(stat -c '%u' /etc/init.d)" != $APACHE_UID ]]; then
+    chown -R www-data:www-data /etc/init.d
+  fi
+  
   # Make the Apache user a sudoer with no password required.
   echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
 fi
