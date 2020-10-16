@@ -80,6 +80,8 @@ Before we begin, note that multiple commands should not be copied and pasted to 
 >### <a name="install_pre_start_config"></a> Pre-start configuration
 -------
 
+Run `git submodule init && git submodule update` from the top level directory of this repository to retrieve the utility code in a `utils` directory.
+
 You can set the port that the UI will be available on with the `HOST_PORT` environment varaible in the `docker/.env` file. By default, the UI will be available on port `8000` in the development environment.
 
 The `DJANGO_DB_*` and `ODC_DB_*` variables in the `docker/.env` file are the connection credentials for the Django database and the ODC database. The `ODC_DB_*` variables are set to match the default settings for the ODC database container, but if these settings were changed in the command for the `create-odc-db` target in the `Makefile` file, they will need to be changed here.
@@ -131,6 +133,8 @@ Once connected, run this command to activate the Python virtual environment:
 source datacube_env/bin/activate
 ```
 This must be run for every connection with `make dev-ssh`.
+
+<u>**All commands that are not `make` commands should be run from a shell session started with `make dev-ssh` unless otherwise noted. Likewise, all `make` commands should only be run from the host, not shells connected to Docker containers.**</u>
 
 >### <a name="install_first_time_post_start_setup"></a> UI first-time post-start setup
 -------
@@ -236,8 +240,7 @@ The general workflow for troubleshooting the UI is found below:
 * If there is a 500 HTTP error or a Django error page without enough information about the error, ensure that `DEBUG` is set to `True` in `settings.py`, [restart the UI](#install_restart) if you had to change it to `True`, and observe the error message in the logs (`log/ODC_UI.log`) or the error page (in the browser).
 * Fix the error described by the message and then [restart the UI](#install_restart).
 
-If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your 
-server is running with `DEBUG = True`.
+If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your server is running with `DEBUG = True`.
 
 >### <a name="celery_non_daemonized"></a> Running Celery non-daemonized
 -------
