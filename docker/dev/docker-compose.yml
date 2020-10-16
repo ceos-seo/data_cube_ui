@@ -27,7 +27,6 @@ services:
     volumes:
       - ../../apps:${WORKDIR}/apps
       - ../../data_cube_ui:${WORKDIR}/data_cube_ui
-      # - ../../datacube_env:${WORKDIR}/datacube_env
       - ../../db_backups:${WORKDIR}/db_backups
       - ../../log:${WORKDIR}/log
       - ../../scripts:${WORKDIR}/scripts
