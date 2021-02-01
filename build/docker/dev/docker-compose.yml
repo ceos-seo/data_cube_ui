@@ -1,0 +1,64 @@
+version: '3'
+services:
+  ui:
+    image: ${OUT_IMG}
+    build:
+      dockerfile: build/docker/dev/Dockerfile
+      context: ${DKR_CMP_CONTEXT}
+      args:
+        BASE_IMG: ${BASE_IMG}
+        DJANGO_DB_HOSTNAME: django_db
+        DJANGO_DB_DATABASE: ${DJANGO_DB_DATABASE}
+        DJANGO_DB_USER: ${DJANGO_DB_USER}
+        DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD}
+        ODC_DB_HOSTNAME: ${ODC_DB_HOSTNAME}
+        ODC_DB_DATABASE: ${ODC_DB_DATABASE}
+        ODC_DB_USER: ${ODC_DB_USER}
+        ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
+        REDIS_HOST: redis
+        # Specify a directory for matplotlib configuration.
+        MPLCONFIGDIR: ${MPLCONFIGDIR}
+        # AWS env vars for loading data from S3.
+        AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+        AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+        AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+    # environment:
+      # DKR_CMP_CONTEXT: ${DKR_CMP_CONTEXT}
+    ports:
+      - ${HOST_PORT}:80
+    volumes:
+      - ${DKR_CMP_CONTEXT}/manage.py:${WORKDIR}/manage.py
+      - ${DKR_CMP_CONTEXT}/apps:${WORKDIR}/apps
+      - ${DKR_CMP_CONTEXT}/data_cube_ui:${WORKDIR}/data_cube_ui
+      - ${DKR_CMP_CONTEXT}/db_backups:${WORKDIR}/db_backups
+      - ${DKR_CMP_CONTEXT}/log:${WORKDIR}/log
+      - ${DKR_CMP_CONTEXT}/scripts:${WORKDIR}/scripts
+      - ${DKR_CMP_CONTEXT}/static:${WORKDIR}/static
+      - ${DKR_CMP_CONTEXT}/templates:${WORKDIR}/templates
+      - ${DKR_CMP_CONTEXT}/utils:${WORKDIR}/utils
+      - ${DKR_CMP_CONTEXT}/ui_results:/datacube/ui_results
+    networks:
+      - odc
+    depends_on:
+      - django_db
+      - redis
+  django_db:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_DB=${DJANGO_DB_DATABASE}
+      - POSTGRES_USER=${DJANGO_DB_USER}
+      - POSTGRES_PASSWORD=${DJANGO_DB_PASSWORD}
+    volumes:
+      - django-db-vol:/var/lib/postgresql/data
+    networks:
+      - odc
+  redis:
+    image: redis:5.0.9
+    networks:
+      - odc
+volumes:
+  django-db-vol:
+    external: true
+networks:
+  odc:
+    external: true

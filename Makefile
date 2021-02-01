@@ -1,26 +1,62 @@
 SHELL:=/bin/bash
-docker_compose_dev = docker-compose --project-directory docker/dev -f docker/dev/docker-compose.yml
+docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml
 
-## Common ##
+# The `export` here is to allow commands (notably `docker-compose`) 
+# in the Make targets to use them. 
+IMG_REPO?=jcrattzama/data_cube_ui
+IMG_VER?=
+ODC_VER?=1.8.3
 
-dev-build:
-	$(docker_compose_dev) build
+WORKDIR=/app
+
+BASE_IMG_1_8_3='jcrattzama/datacube-base:odc1.8.3'
+ifeq (${ODC_VER}, 1.8.3)
+	BASE_IMG=${BASE_IMG_1_8_3}
+	UI_BASE_IMG="${IMG_REPO}:odc${ODC_VER}${IMG_VER}_base"
+endif
+
+PROD_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}"
+DEV_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}_dev"
+
+COMMON_EXPRTS=export WORKDIR=${WORKDIR}
+BASE_COMMON_EXPRTS=export OUT_IMG=${UI_BASE_IMG}; export BASE_IMG=${BASE_IMG}; ${COMMON_EXPRTS}
+PROD_COMMON_EXPRTS=export OUT_IMG=${PROD_OUT_IMG}; export BASE_IMG=${UI_BASE_IMG}; ${COMMON_EXPRTS}
+DEV_COMMON_EXPRTS=export OUT_IMG=${DEV_OUT_IMG};  export BASE_IMG=${UI_BASE_IMG}; ${COMMON_EXPRTS}
+
+# Base #
+base-build:
+	docker build . -f build/docker/base/Dockerfile --build-arg BASE_IMG=${BASE_IMG} -t ${UI_BASE_IMG}
+
+base-run:
+	docker run -it ${UI_BASE_IMG} bash
+
+base-push:
+	docker push ${UI_BASE_IMG}
+# End Base #
+
+# Development #
+
+# `rcv`: recursive.
+dev-build-no-rcv:
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) build)
+
+dev-build: base-build dev-build-no-rcv
 
 # Start the UI
 dev-up: 
-	$(docker_compose_dev) up --build -d
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) up -d --build)
 
 # Start without rebuilding the Docker image
 # (use when dependencies have not changed for faster starts).
 dev-up-no-build: 
-	$(docker_compose_dev) up -d
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) up -d)
 
 # Stop the UI
 dev-down:
-	$(docker_compose_dev) down
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down)
 
 dev-down-remove-orphans:
-	$(docker_compose_dev) down --remove-orphans
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down --remove-orphans)
 
 dev-restart: dev-down dev-up
 
@@ -39,24 +75,20 @@ dev-clear:
 	$(docker_compose_dev) stop
 	$(docker_compose_dev) rm -fs
 
-odc-db-ssh:
-	docker exec -it odc-db bash
+dev-push:
+	docker push ${DEV_OUT_IMG}
+# End Development #
 
-## End Common ##
-
-## ODC Docker Network ##
-
+# ODC Docker Network #
 # Create the `odc` network on which everything runs.
 create-odc-network:
 	docker network create odc
 
 delete-odc-network:
 	docker network rm odc
+# End ODC Docker Network #
 
-## End ODC Docker Network ##
-
-## ODC DB ##
-
+# ODC DB #
 # Create the persistent volume for the ODC database.
 create-odc-db-volume:
 	docker volume create odc-db-vol
@@ -64,6 +96,8 @@ create-odc-db-volume:
 # Delete the persistent volume for the ODC database.
 delete-odc-db-volume:
 	docker volume rm odc-db-vol
+
+recreate-odc-db-volume: delete-odc-db-volume create-odc-db-volume
 
 # Create the ODC database Docker container.
 create-odc-db:
@@ -74,7 +108,8 @@ create-odc-db:
 	--name=odc-db \
 	--network="odc" \
 	-v odc-db-vol:/var/lib/postgresql/data \
-	postgres:10-alpine
+	postgis/postgis:10-2.5
+	# postgres:10-alpine
 
 start-odc-db:
 	docker start odc-db
@@ -82,15 +117,23 @@ start-odc-db:
 stop-odc-db:
 	docker stop odc-db
 
+odc-db-ssh:
+	docker exec -it odc-db bash
+
+dev-odc-db-init:
+	$(docker_compose_dev) exec ui datacube system init
+
 restart-odc-db: stop-odc-db start-odc-db
 
 delete-odc-db:
 	docker rm odc-db
 
-## End ODC DB ##
+recreate-odc-db: stop-odc-db delete-odc-db create-odc-db
 
-## Django DB ##
+recreate-odc-db-and-vol: stop-odc-db delete-odc-db recreate-odc-db-volume create-odc-db
+# End ODC DB #
 
+# Django DB #
 # Create the persistent volume for the Django database.
 dev-create-django-db-volume:
 	docker volume create django-db-vol
@@ -99,8 +142,11 @@ dev-create-django-db-volume:
 dev-delete-django-db-volume:
 	docker volume rm django-db-vol
 
-## End Django DB ##
+recreate-django-db-volume: dev-down dev-delete-django-db-volume dev-create-django-db-volume
 
+# End Django DB #
+
+# Docker Misc #
 sudo-ubuntu-install-docker:
 	sudo apt-get update
 	sudo apt install -y docker.io docker-compose
@@ -111,3 +157,10 @@ sudo-ubuntu-install-docker:
 	# without using `sudo`
 	getent group docker || sudo groupadd docker
 	sudo usermod -aG docker ${USER}
+# End Docker Misc #
+
+# Native Install #
+
+# TODO: native-build:
+
+# End Native Install #

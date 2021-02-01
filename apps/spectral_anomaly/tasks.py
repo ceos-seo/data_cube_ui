@@ -315,7 +315,9 @@ def processing_task(self,
         time_column_clean_mask = task.satellite.get_clean_mask_func()(time_column_data)
         measurements_list = task.satellite.measurements.replace(" ", "").split(",")
         # Obtain the mask for valid Landsat values.
-        time_column_invalid_mask = landsat_clean_mask_invalid(time_column_data).values
+        time_column_invalid_mask = landsat_clean_mask_invalid(\
+            time_column_data, platform=task.satellite.platform, 
+            collection=task.satellite.collection, level=task.satellite.level).values
         # Also exclude data points with the no_data value.
         no_data_mask = time_column_data[measurements_list[0]].values != no_data_value
         # Combine the clean masks.
@@ -326,7 +328,9 @@ def processing_task(self,
                                                  clean_mask=time_column_clean_mask,
                                                  no_data=task.satellite.no_data_value)
         # Obtain the mask for valid Landsat values.
-        composite_invalid_mask = landsat_clean_mask_invalid(composite).values
+        composite_invalid_mask = landsat_clean_mask_invalid(\
+            composite, platform=task.satellite.platform, 
+            collection=task.satellite.collection, level=task.satellite.level).values
         # Also exclude data points with the no_data value via the compositing mask.
         composite_no_data_mask = composite[measurements_list[0]].values != no_data_value
         composite_clean_mask = composite_invalid_mask | composite_no_data_mask

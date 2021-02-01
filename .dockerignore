@@ -1,2 +1,4 @@
+**/*.tif
+.git
 LICENSE
 README.md

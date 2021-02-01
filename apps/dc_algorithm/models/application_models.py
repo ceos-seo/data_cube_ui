@@ -22,20 +22,14 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
-import datetime
+from django.utils import timezone
+import pytz
 import uuid
 import numpy as np
 
-from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, create_bit_mask)
+from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask) #, create_bit_mask)
+from utils.data_cube_utilities.clean_mask import landsat_qa_clean_mask
 from utils.data_cube_utilities.dc_mosaic import (ls5_unpack_qa, ls7_unpack_qa, ls8_unpack_qa)
-
-# class MapModel(models.Model):
-#     name      = models.CharField(max_length=50)
-
-# class MapKeyVal(models.Model):
-#     container = models.ForeignKey(MapModel, db_index=True)
-#     key       = models.CharField(max_length=240, db_index=True)
-#     value     = models.CharField(max_length=240, db_index=True)
 
 class Satellite(models.Model):
     """Stores a satellite that exists in the Data Cube
@@ -61,14 +55,15 @@ class Satellite(models.Model):
         help_text="This should correspond with a Data Cube platform. Combinations should be comma seperated with no spaces, e.g. LANDSAT_7,LANDSAT_8",
         max_length=100)
     name = models.CharField(max_length=100)
+    
     # product_prefix = models.CharField(
     #     max_length=250,
     #     help_text="Products are loaded by name with the naming convention product_prefix+area_id, e.g. ls5_ledaps_{vietnam,colombia,australia}, \
     #                s1a_gamma0_vietnam. For combined products, prefixes should be comma seperated with no spaces in the order of the datacube_platform."
     # )
 
-    date_min = models.DateField('date_min', default=datetime.date.today)
-    date_max = models.DateField('date_min', default=datetime.date.today)
+    date_min = models.DateField('date_min', default=timezone.now) #datetime.date.today)
+    date_max = models.DateField('date_max', default=timezone.now) #datetime.date.today)
 
     data_min = models.FloatField(
         help_text="Define the minimum of the valid range of this dataset. This is used for image creation/scaling.",
@@ -84,6 +79,26 @@ class Satellite(models.Model):
 
     no_data_value = models.FloatField(
         default=-9999, help_text='No data value to be used for all outputs/masking functionality.')
+    
+    platform = models.CharField(
+        help_text='The platform associated with this satellite. ' \
+                  'Examples include "LANDSAT_5", "LANDSAT_7", or "LANDSAT_8"',
+        default='',
+        max_length=250)
+
+    collection = models.CharField(
+        help_text='The collection (processing version) associated with this satellite. ' \
+                  'For Landsat satellites, collections include "c1" and "c2"',
+        default='',
+        max_length=250)
+
+    level = models.CharField(
+        help_text='The level (processing level) associated with this satellite. ' \
+                  'For Landsat satellites, levels include "l1" (top of atmosphere) ' \
+                  'and "l2" (surface reflectance).',
+        default='',
+        max_length=250
+    )
 
     class Meta:
         unique_together = (('datacube_platform',))
@@ -109,13 +124,14 @@ class Satellite(models.Model):
             return np.full(ds[self.get_measurements()[0]].shape(), True)
 
         options = {
-            # For surface reflectance data, keep clear and water pixels 
-            # (bit indices 1 and 2).
-            'bit_mask': lambda ds: create_bit_mask(ds.pixel_qa, [1, 2]),
+            'bit_mask': lambda ds: \
+                landsat_qa_clean_mask(ds, platform=self.platform, 
+                                      collection=self.collection, level=self.level),
             'cf_mask': lambda ds: create_cfmask_clean_mask(ds.cf_mask),
             'default': lambda ds: return_all_true
         }
-        key = 'bit_mask' if 'pixel_qa' in self.get_measurements() else \
+        key = 'bit_mask' if 'pixel_qa' in self.get_measurements() or \
+                            self.name == 'Landsat 8 Collection 2 Level 2' else \
               'cf_mask' if 'cf_mask' in self.get_measurements() else \
               'default'
 
@@ -179,8 +195,6 @@ class Area(models.Model):
 
     satellites = models.ManyToManyField(Satellite)
 
-    # satellite_prod_dict = MapModel(name='satellite_prod_dict')
-
     def __str__(self):
         return self.id
 
@@ -225,9 +239,7 @@ class Application(models.Model):
             they are in a multilevel dropdown by group.
         color_scale: path to a color scale image to be displayed in the main tool view. If no color scale is
             necessary, this should be left blank/null.
-
     """
-
     id = models.CharField(max_length=250, default="", unique=True, primary_key=True)
     name = models.CharField(max_length=250, default="")
     areas = models.ManyToManyField(Area)

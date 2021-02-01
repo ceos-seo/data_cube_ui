@@ -24,12 +24,12 @@ if [ "$ENVIRONMENT" = "DEV" ]; then
   if [[ "$(stat -c '%u' /etc/apache2/sites-available/)" != $APACHE_UID ]]; then
     chown -R www-data:www-data /etc/apache2/sites-available/
   fi
-  if [[ "$(stat -c '%u' /etc/default)" != $APACHE_UID ]]; then
-    chown -R www-data:www-data /etc/default
-  fi
-  if [[ "$(stat -c '%u' /etc/init.d)" != $APACHE_UID ]]; then
-    chown -R www-data:www-data /etc/init.d
-  fi
+#   if [[ "$(stat -c '%u' /etc/default)" != $APACHE_UID ]]; then
+#     chown -R www-data:www-data /etc/default
+#   fi
+#   if [[ "$(stat -c '%u' /etc/init.d)" != $APACHE_UID ]]; then
+#     chown -R www-data:www-data /etc/init.d
+#   fi
   
   # Make the Apache user a sudoer with no password required.
   echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers

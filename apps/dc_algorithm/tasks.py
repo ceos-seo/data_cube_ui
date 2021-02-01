@@ -8,10 +8,26 @@ from django.apps import apps
 
 from .models import Application
 
+from datacube.utils.rio import configure_s3_access
+import os
 
 class DCAlgorithmBase(celery.Task):
     """Serves as a base class for all DC algorithm celery tasks"""
     app_name = None
+
+    def __init__(self):
+        # Set some Celery env vars.
+        # Tried (1) sourcing `/var/www/[.profile|.bashrc]` in `/etc/init.d/data_cube_ui`,
+        # (2) writing to `/etc/default/[data_cube_ui|celerybeat]`, and 
+        # (3) writing a Python file to define Celery environment variables to `exec` in Celery code. 
+        # All were unsuccessful.
+        # TODO: This should run on worker init, not when running a task.
+        if '/miniconda/envs/odc/bin' not in os.environ['PATH']:
+            os.environ['PATH'] = '/miniconda/envs/odc/bin:' + os.environ['PATH']
+        # Configure ODC to load from requester-pays S3 buckets.
+        if os.environ.get('AWS_ACCESS_KEY_ID') is not None and \
+           os.environ.get('AWS_SECRET_ACCESS_KEY') is not None:
+            configure_s3_access(requester_pays=True)
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """Onfailure call for celery tasks

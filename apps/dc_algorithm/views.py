@@ -217,6 +217,10 @@ class ToolView(View, ToolClass):
         user_id = request.user.id
         tool_name = self._get_tool_name()
 
+        # from celery.utils.log import get_task_logger
+        # logger = get_task_logger(__name__)
+        # logger.info(f'area_id: {area_id}')
+        
         area = Area.objects.get(id=area_id)
         app = Application.objects.get(id=tool_name)
         satellites = area.satellites.all() & app.satellites.all()

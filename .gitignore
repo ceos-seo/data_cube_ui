@@ -1,3 +1,4 @@
+.vscode/
 .idea/
 datacube_env
 apps/*/migrations/
@@ -7,3 +8,4 @@ data_cube_ui/__pycache__/
 docker/.env
 celerybeat-schedule*
 log
+ui_results
