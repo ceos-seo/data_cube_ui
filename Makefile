@@ -108,7 +108,8 @@ create-odc-db:
 	--name=odc-db \
 	--network="odc" \
 	-v odc-db-vol:/var/lib/postgresql/data \
-	postgres:10-alpine
+	postgis/postgis:10-2.5
+	# postgres:10-alpine
 
 start-odc-db:
 	docker start odc-db

@@ -85,6 +85,8 @@ Before we begin, note that multiple commands should not be copied and pasted to 
 
 ---
 
+Run `git submodule init && git submodule update` from the top level directory of this repository to retrieve the utility code in a `utils` directory.
+
 You can set the port that the UI will be available on with the `HOST_PORT` environment varaible in the `docker/.env` file. By default, the UI will be available on port `8000` in the development environment.
 
 The `DJANGO_DB_*` and `ODC_DB_*` variables in the `docker/.env` file are the connection credentials for the Django database and the ODC database. The `ODC_DB_*` variables are set to match the default settings for the ODC database container, but if these settings were changed in the command for the `create-odc-db` target in the `Makefile` file, they will need to be changed here.

@@ -48,7 +48,7 @@ Run the following command to do this:
 `make create-odc-db-volume`
 
 Now we need to create the Docker container for the database.
-In the `Makefile` file at the top-level directory, find the `create-odc-db` target. Here you will see the command to create the ODC database Docker container. You can replace the values for `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` with the desired Postgres database name, user name, and password, but if you use the defaults here, you will not need to change corresponding settings for applications that use them, like the [CEOS Open Data Cube Notebooks](https://github.com/ceos-seo/data_cube_notebooks) or the [CEOS Open Data Cube UI](https://github.com/ceos-seo/data_cube_ui).
+In the `Makefile` file at the top-level directory, find the `create-odc-db` target. Here you will see the command to create the ODC database Docker container. You can replace the values for `POSTGRES_DB`, `POSTGRES_USER` and `POSTGRES_PASSWORD` with the desired Postgres database name, user name, and password. Note that if you change these settings, you will need to change the corresponding settings for applications that use them, like the [CEOS Open Data Cube Notebooks](https://github.com/ceos-seo/data_cube_notebooks) or the [CEOS Open Data Cube UI](https://github.com/ceos-seo/data_cube_ui).
 
 Once you are ready to start the database, run this command:
 `make create-odc-db`
