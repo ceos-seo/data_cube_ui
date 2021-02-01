@@ -221,6 +221,7 @@ class Metadata(BaseMetadata):
         self.total_scenes = len(dates)
         self.scenes_processed = len(dates)
         self.acquisition_list = ",".join([date.strftime("%m/%d/%Y") for date in dates])
+
         self.water_pixels_per_acquisition = ",".join([str(metadata_dict[date]['water_pixels']) for date in dates])
         self.clean_pixels_per_acquisition = ",".join([str(metadata_dict[date]['clean_pixels']) for date in dates])
         self.clean_pixel_percentages_per_acquisition = ",".join(

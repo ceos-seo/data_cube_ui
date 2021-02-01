@@ -53,7 +53,9 @@ def pixel_drill(task_id=None):
         # mask out water manually. Necessary for frac. cover.
         wofs = wofs_classify(ds, clean_mask=clear_mask[idx], mosaic=True)
         clear_mask[idx] = False if wofs.wofs.values[0] == 1 else clear_mask[idx]
-        fractional_cover = frac_coverage_classify(ds, clean_mask=clear_mask[idx], no_data=task.satellite.no_data_value)
+        fractional_cover = frac_coverage_classify(
+            ds, clean_mask=clear_mask[idx], no_data=task.satellite.no_data_value,
+            platform=task.satellite.platform, collection=task.satellite.collection)
         return fractional_cover
 
     fractional_cover = xr.concat(
@@ -426,11 +428,14 @@ def process_band_math(self, chunk, task_id=None, num_scn_per_chk=None):
     if check_cancel_task(self, task): return
 
     def _apply_band_math(dataset):
-        clear_mask = task.satellite.get_clean_mask_func()(dataset)
+        clear_mask = task.satellite.get_clean_mask_func()(dataset).values
         # mask out water manually. Necessary for frac. cover.
         wofs = wofs_classify(dataset, clean_mask=clear_mask, mosaic=True)
         clear_mask[wofs.wofs.values == 1] = False
-        return frac_coverage_classify(dataset, clean_mask=clear_mask, no_data=task.satellite.no_data_value)
+        return frac_coverage_classify(\
+            dataset, clean_mask=clear_mask, no_data=task.satellite.no_data_value,
+            platform=task.satellite.platform, collection=task.satellite.collection
+        )
 
     if chunk is None:
         return None

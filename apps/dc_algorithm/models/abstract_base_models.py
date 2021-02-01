@@ -24,9 +24,11 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 
 import datetime
+from django.utils import timezone
+import pytz
+
 import uuid
 import os
-
 
 class Query(models.Model):
     """Base Query model meant to be inherited by a TaskClass
@@ -60,8 +62,8 @@ class Query(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(max_length=10000)
 
-    execution_start = models.DateTimeField('execution_start', default=datetime.datetime.now)
-    execution_end = models.DateTimeField('execution_end', default=datetime.datetime.now)
+    execution_start = models.DateTimeField('execution_start', default=timezone.now)#datetime.datetime.now)
+    execution_end = models.DateTimeField('execution_end', default=timezone.now)#datetime.datetime.now)
 
     area_id = models.CharField(max_length=100)
 

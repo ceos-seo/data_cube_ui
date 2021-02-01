@@ -8,7 +8,8 @@ DJANGO_SETTINGS_MODULE="data_cube_ui.settings"
 CELERYD_CHDIR="${DC_UI_DIR}"
 
 # Extra command-line arguments to the worker
-CELERYD_OPTS="-c:task_processing 10 -c:data_cube_manager 2 --max-tasks-per-child:data_cube_manager=1  -Q:data_cube_manager data_cube_manager -Ofair"
+CELERYD_OPTS="-c:task_processing 10 -c:data_cube_manager 2 --max-tasks-per-child:data_cube_manager=1  -Q:data_cube_manager data_cube_manager -Ofair \
+--pidfile=/var/run/celery/%n.pid"
 
 CELERYD_LOG_LEVEL="INFO"
 
@@ -19,5 +20,7 @@ CELERYD_USER="www-data"
 CELERYD_GROUP="www-data"
 
 CELERY_CREATE_DIRS=1
+CELERY_CREATE_RUNDIR=1
+CELERY_CREATE_LOGDIR=1
 
 # DATACUBE_CONFIG_PATH=${DATACUBE_CONFIG_PATH}

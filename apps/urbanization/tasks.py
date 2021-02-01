@@ -20,12 +20,24 @@ from .models import UrbanizationTask
 from apps.dc_algorithm.models import Satellite
 from apps.dc_algorithm.tasks import DCAlgorithmBase, check_cancel_task, task_clean_up
 
+from utils.data_cube_utilities.dc_water_classifier import NDWI
+from utils.data_cube_utilities.vegetation import NDVI
+from utils.data_cube_utilities.urbanization import NDBI
+
 logger = get_task_logger(__name__)
 
 
 class BaseTask(DCAlgorithmBase):
     app_name = 'urbanization'
 
+def _apply_band_math(dataset):
+        ndvi = NDVI(dataset) 
+        #(dataset.nir - dataset.red) / (dataset.nir + dataset.red)
+        ndwi = NDWI(dataset) 
+        #(dataset.green - dataset.nir) / (dataset.green + dataset.nir)
+        ndbi = NDBI(dataset) 
+        #(dataset.swir2 - dataset.nir) / (dataset.swir2 + dataset.nir)
+        return ndvi, ndwi, ndbi
 
 @task(name="urbanization.pixel_drill", base=BaseTask)
 def pixel_drill(task_id=None):
@@ -45,12 +57,6 @@ def pixel_drill(task_id=None):
     if len(dates) < 2:
         task.update_status("ERROR", "There is only a single acquisition for your parameter set.")
         return None
-
-    def _apply_band_math(dataset):
-        ndvi = (dataset.nir - dataset.red) / (dataset.nir + dataset.red)
-        ndwi = (dataset.green - dataset.nir) / (dataset.green + dataset.nir)
-        ndbi = (dataset.swir2 - dataset.nir) / (dataset.swir2 + dataset.nir)
-        return ndvi, ndwi, ndbi
 
     datasets = [data_array.values.transpose() for data_array in _apply_band_math(single_pixel)] + [clear_mask]
     data_labels = ["NDVI", "NDWI", "NDBI"] + ["Clear"]
@@ -378,13 +384,6 @@ def process_band_math(self, chunk, task_id=None):
     returns the dataarray. The data array is then appended under 'band_math', then saves the
     result to disk in the same path as the nc file already exists.
     """
-
-    def _apply_band_math(dataset):
-        ndvi = (dataset.nir - dataset.red) / (dataset.nir + dataset.red)
-        ndwi = (dataset.green - dataset.nir) / (dataset.green + dataset.nir)
-        ndbi = (dataset.swir2 - dataset.nir) / (dataset.swir2 + dataset.nir)
-        return ndvi, ndwi, ndbi
-
     if chunk is None:
         return None
 

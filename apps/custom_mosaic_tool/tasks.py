@@ -3,7 +3,11 @@ from django.db.models import F
 from celery.task import task
 from celery import chain, group, chord
 from celery.utils.log import get_task_logger
-from datetime import datetime, timedelta
+
+from datetime import datetime
+from django.utils import timezone
+import pytz
+
 import shutil
 import xarray as xr
 import numpy as np
@@ -41,7 +45,6 @@ def pixel_drill(task_id=None):
 
     dc = DataAccessApi(config=task.config_path)
     single_pixel = dc.get_stacked_datasets_by_extent(**parameters).squeeze()
-    #isel(latitude=0, longitude=0)
     clear_mask = task.satellite.get_clean_mask_func()(single_pixel)
     single_pixel = single_pixel.where(single_pixel != task.satellite.no_data_value)
 
@@ -100,9 +103,8 @@ def parse_parameters_from_task(self, task_id=None):
         'latitude': (task.latitude_min, task.latitude_max),
         'measurements': task.satellite.get_measurements()
     }
-    logger.info(f"In parse_parameters_from_task(): parameters: {parameters}")
 
-    task.execution_start = datetime.now()
+    task.execution_start = timezone.now()
     if check_cancel_task(self, task): return
     task.update_status("WAIT", "Parsed out parameters.")
 
@@ -125,7 +127,6 @@ def validate_parameters(self, parameters, task_id=None):
     task = CustomMosaicToolTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
-    logger.info(f"task.config_path: {task.config_path}")
     dc = DataAccessApi(config=task.config_path)
 
     #validate for any number of criteria here - num acquisitions, etc.
@@ -510,7 +511,7 @@ def create_output_products(self, data, task_id=None):
         fill_color=task.query_type.fill,
         scale=task.satellite.get_scale(),
         no_data=task.satellite.no_data_value)
-
+    
     if task.animated_product.animation_id != "none":
         with imageio.get_writer(task.animation_path, mode='I', duration=1.0) as writer:
             valid_range = reversed(
@@ -533,8 +534,7 @@ def create_output_products(self, data, task_id=None):
             titles="Clean Pixel Percentage Per Acquisition")
 
     logger.info("All products created.")
-    # task.update_bounds_from_dataset(dataset)
     task.complete = True
-    task.execution_end = datetime.now()
+    task.execution_end = timezone.now()
     task.update_status("OK", "All products have been generated. Your result will be loaded on the map.")
     return True

@@ -5,13 +5,14 @@ from celery import chain, group, chord
 from celery.utils.log import get_task_logger
 from datetime import datetime, timedelta
 import xarray as xr
+import numpy as np
 import os
 import stringcase
 
 from utils.data_cube_utilities.data_access_api import DataAccessApi
 from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, create_bit_mask, write_geotiff_from_xr,
                                                     write_png_from_xr, write_single_band_png_from_xr,
-                                                    add_timestamp_data_to_xr, clear_attrs)
+                                                    add_timestamp_data_to_xr, clear_attrs, convert_range)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
@@ -23,14 +24,25 @@ from apps.dc_algorithm.tasks import DCAlgorithmBase, check_cancel_task, task_cle
 
 logger = get_task_logger(__name__)
 
+from utils.data_cube_utilities.vegetation import NDVI, EVI, SAVI, NBR 
+from utils.data_cube_utilities.dc_water_classifier import NDWI
+from utils.data_cube_utilities.urbanization import NDBI
+
 spectral_indices_map = {
-    'ndvi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red),
-    'evi': lambda ds: 2.5 * (ds.nir - ds.red) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1),
-    'savi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red + 0.5) * (1.5),
-    'nbr': lambda ds: (ds.nir - ds.swir2) / (ds.nir + ds.swir2),
-    'nbr2': lambda ds: (ds.swir1 - ds.swir2) / (ds.swir1 + ds.swir2),
-    'ndwi': lambda ds: (ds.nir - ds.swir1) / (ds.nir + ds.swir1),
-    'ndbi': lambda ds: (ds.swir1 - ds.nir) / (ds.nir + ds.swir1),
+    'ndvi': lambda ds: NDVI(ds.astype(np.float64)),
+    #(ds.nir - ds.red) / (ds.nir + ds.red),
+    'evi': lambda ds: EVI(ds.astype(np.float64)),
+    #2.5 * (ds.nir - ds.red) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1),
+    'savi': lambda ds: SAVI(ds.astype(np.float64)),
+    #(ds.nir - ds.red) / (ds.nir + ds.red + 0.5) * (1.5),
+    'nbr': lambda ds: NBR(ds.astype(np.float64), band_pair=0),
+    #(ds.nir - ds.swir2) / (ds.nir + ds.swir2),
+    'nbr2': lambda ds: NBR(ds.astype(np.float64), band_pair=1),
+    #(ds.swir1 - ds.swir2) / (ds.swir1 + ds.swir2),
+    'ndwi': lambda ds: NDWI(ds.astype(np.float64), band_pair=0), 
+    # lambda ds: (ds.nir - ds.swir1) / (ds.nir + ds.swir1), 
+    'ndbi': lambda ds: NDBI(ds.astype(np.float64)),
+    #(ds.swir1 - ds.nir) / (ds.nir + ds.swir1),
 }
 
 class BaseTask(DCAlgorithmBase):
@@ -55,16 +67,6 @@ def pixel_drill(task_id=None):
     if len(dates) < 2:
         task.update_status("ERROR", "There is only a single acquisition for your parameter set.")
         return None
-
-    # spectral_indices_map = {
-    #     'ndvi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red),
-    #     'evi': lambda ds: 2.5 * (ds.nir - ds.red) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1),
-    #     'savi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red + 0.5) * (1.5),
-    #     'nbr': lambda ds: (ds.nir - ds.swir2) / (ds.nir + ds.swir2),
-    #     'nbr2': lambda ds: (ds.swir1 - ds.swir2) / (ds.swir1 + ds.swir2),
-    #     'ndwi': lambda ds: (ds.nir - ds.swir1) / (ds.nir + ds.swir1),
-    #     'ndbi': lambda ds: (ds.swir1 - ds.nir) / (ds.nir + ds.swir1),
-    # }
 
     for spectral_index in spectral_indices_map:
         single_pixel[spectral_index] = spectral_indices_map[spectral_index](single_pixel)
@@ -314,6 +316,7 @@ def processing_task(self,
             continue
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
+
         add_timestamp_data_to_xr(data)
 
         metadata = task.metadata_from_dataset(metadata, data, clear_mask, updated_params)
@@ -331,6 +334,7 @@ def processing_task(self,
     if iteration_data is None:
         return None
     path = os.path.join(task.get_temp_path(), chunk_id + ".nc")
+    
     export_xarray_to_netcdf(iteration_data, path)
     dc.close()
     logger.info("Done with chunk: " + chunk_id)
@@ -402,16 +406,6 @@ def process_band_math(self, chunk, task_id=None):
     task = SpectralIndicesTask.objects.get(pk=task_id)
     if check_cancel_task(self, task): return
 
-    # spectral_indices_map = {
-    #     'ndvi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red),
-    #     'evi': lambda ds: 2.5 * (ds.nir - ds.red) / (ds.nir + 6 * ds.red - 7.5 * ds.blue + 1),
-    #     'savi': lambda ds: (ds.nir - ds.red) / (ds.nir + ds.red + 0.5) * (1.5),
-    #     'nbr': lambda ds: (ds.nir - ds.swir2) / (ds.nir + ds.swir2),
-    #     'nbr2': lambda ds: (ds.swir1 - ds.swir2) / (ds.swir1 + ds.swir2),
-    #     'ndwi': lambda ds: (ds.nir - ds.swir1) / (ds.nir + ds.swir1),
-    #     'ndbi': lambda ds: (ds.swir1 - ds.nir) / (ds.nir + ds.swir1),
-    # }
-
     def _apply_band_math(dataset):
         return spectral_indices_map[task.query_type.result_id](dataset)
 
@@ -420,6 +414,7 @@ def process_band_math(self, chunk, task_id=None):
 
     dataset = xr.open_dataset(chunk[0]).load()
     dataset['band_math'] = _apply_band_math(dataset)
+    
     #remove previous nc and write band math to disk
     os.remove(chunk[0])
     export_xarray_to_netcdf(dataset, chunk[0])
@@ -490,6 +485,18 @@ def create_output_products(self, data, task_id=None):
 
     export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
+
+    # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
+    # since the color scales are tailored for that dataset.
+    platform = task.satellite.platform
+    collection = task.satellite.collection
+    level = task.satellite.level
+    if (platform, collection) != ('LANDSAT_7', 'c1'):
+        dataset = \
+            convert_range(dataset, from_platform=platform, 
+                        from_collection=collection, from_level=level,
+                        to_platform='LANDSAT_7', to_collection='c1', to_level='l2')
+
     write_png_from_xr(
         task.mosaic_path,
         dataset,

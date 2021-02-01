@@ -13,7 +13,7 @@ import imageio
 from utils.data_cube_utilities.data_access_api import DataAccessApi
 from utils.data_cube_utilities.dc_utilities import (
     create_cfmask_clean_mask, create_bit_mask, write_geotiff_from_xr, write_png_from_xr, write_single_band_png_from_xr,
-    add_timestamp_data_to_xr, clear_attrs, perform_timeseries_analysis)
+    add_timestamp_data_to_xr, clear_attrs, perform_timeseries_analysis, convert_range)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from utils.data_cube_utilities.dc_water_quality import tsm, mask_water_quality
@@ -49,6 +49,17 @@ def pixel_drill(task_id=None):
     if len(dates) < 2:
         task.update_status("ERROR", "There is only a single acquisition for your parameter set.")
         return None
+
+    # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
+    # since the color scales are tailored for that dataset.
+    platform = task.satellite.platform
+    collection = task.satellite.collection
+    level = task.satellite.level
+    if (platform, collection) != ('LANDSAT_7', 'c1'):
+        single_pixel = \
+            convert_range(single_pixel, from_platform=platform, 
+                        from_collection=collection, from_level=level,
+                        to_platform='LANDSAT_7', to_collection='c1', to_level='l2')
 
     wofs_data = task.get_processing_method()(single_pixel,
                                              clean_mask=clear_mask,
@@ -296,7 +307,6 @@ def processing_task(self,
     dc = DataAccessApi(config=task.config_path)
     updated_params = parameters
     updated_params.update(geographic_chunk)
-    #updated_params.update({'products': parameters['']})
     water_analysis = None
     tsm_analysis = None
     combined_data = None
@@ -316,13 +326,25 @@ def processing_task(self,
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
 
+        # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
+        # since the color scales are tailored for that dataset.
+        platform = task.satellite.platform
+        collection = task.satellite.collection
+        level = task.satellite.level
+        if (platform, collection) != ('LANDSAT_7', 'c1'):
+            data = \
+                convert_range(data, from_platform=platform, 
+                            from_collection=collection, from_level=level,
+                            to_platform='LANDSAT_7', to_collection='c1', to_level='l2')
+        
         wofs_data = task.get_processing_method()(data,
                                                  clean_mask=clear_mask,
                                                  no_data=task.satellite.no_data_value)
+        
         water_analysis = perform_timeseries_analysis(
             wofs_data, 'wofs', intermediate_product=water_analysis, no_data=task.satellite.no_data_value)
 
-        clear_mask[(data.swir2.values > 100) | (wofs_data.wofs.values == 0)] = False
+        # clear_mask.data[(data.swir2.values > 100) | (wofs_data.wofs.values == 0)] = False
         tsm_data = tsm(data, clean_mask=clear_mask, no_data=task.satellite.no_data_value)
         tsm_analysis = perform_timeseries_analysis(
             tsm_data, 'tsm', intermediate_product=tsm_analysis, no_data=task.satellite.no_data_value)
