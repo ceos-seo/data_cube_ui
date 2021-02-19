@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from django.db.models import F
 
 from celery.task import task
