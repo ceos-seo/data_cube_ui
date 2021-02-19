@@ -1,3 +1,5 @@
+# To avoid conflict with existing app.py inside this dir 
+from __future__ import absolute_import 
 from django.conf import settings
 from django.db import connections
 from django.forms.models import model_to_dict
