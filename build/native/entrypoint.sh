@@ -32,7 +32,7 @@ if [ "$ENVIRONMENT" = "DEV" ]; then
 #   fi
   
   # Make the Apache user a sudoer with no password required.
-  echo "www-data ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
+  echo "www-data ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 fi
 
 # Start Apache.
