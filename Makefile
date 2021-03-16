@@ -100,6 +100,8 @@ delete-odc-db-volume:
 recreate-odc-db-volume: delete-odc-db-volume create-odc-db-volume
 
 # Create the ODC database Docker container.
+# The `-N` argument sets the maximum number of concurrent connections (`max_connections`).
+# The `-B` argument sets the shared buffer size (`shared_buffers`).
 create-odc-db:
 	docker run -d \
 	-e POSTGRES_DB=datacube \
@@ -109,6 +111,8 @@ create-odc-db:
 	--network="odc" \
 	-v odc-db-vol:/var/lib/postgresql/data \
 	postgis/postgis:10-2.5
+	-N 1000 \
+	-B 2048MB
 	# postgres:10-alpine
 
 start-odc-db:
