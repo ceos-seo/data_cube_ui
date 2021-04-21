@@ -111,7 +111,7 @@ create-odc-db:
 	--name=odc-db \
 	--network="odc" \
 	-v odc-db-vol:/var/lib/postgresql/data \
-	postgis/postgis:10-2.5
+	postgis/postgis:10-2.5 \
 	-N 1000 \
 	-B 2048MB
 	# postgres:10-alpine
