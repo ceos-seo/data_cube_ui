@@ -47,7 +47,7 @@ def pixel_drill(task_id=None):
         task.update_status("ERROR", "There is only a single acquisition for your parameter set.")
         return None
 
-    # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
+    # Ensure data variables have the range of Landsat Collection 1 Level 2
     # since the color scales are tailored for that dataset.
     platform = task.satellite.platform
     collection = task.satellite.collection
@@ -302,16 +302,21 @@ def processing_task(self,
 
         clear_mask = task.satellite.get_clean_mask_func()(data)
 
-        # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
+        # Ensure data variables have the range of Landsat Collection 1 Level 2
         # since the color scales are tailored for that dataset.
         platform = task.satellite.platform
         collection = task.satellite.collection
         level = task.satellite.level
-        if (platform, collection) != ('LANDSAT_7', 'c1'):
+        if collection != 'c1':
+            old_dataset = data
+            drop_vars = [data_var for data_var in old_dataset.data_vars if data_var not in ['red', 'green', 'blue', 'nir', 'swir1', 'swir2']]
             data = \
-                convert_range(data, from_platform=platform, 
+                convert_range(old_dataset.drop_vars(drop_vars), from_platform=platform, 
                             from_collection=collection, from_level=level,
-                            to_platform='LANDSAT_7', to_collection='c1', to_level='l2')
+                            to_platform=platform, to_collection='c1', to_level='l2')
+            for drop_var in drop_vars:
+                data[drop_var] = old_dataset[drop_var]
+            data = data.transpose("time", "latitude", "longitude")
 
         wofs_data = task.get_processing_method()(data,
                                                  clean_mask=clear_mask,

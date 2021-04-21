@@ -236,10 +236,8 @@ def start_chunk_processing(self, chunk_details, task_id=None):
     # to process, also considering intermediate chunks to be combined.
     num_scenes = len(geographic_chunks) * sum([len(time_chunk) for time_chunk in time_chunks])
     # recombine_time_chunks() and process_band_math() scenes:
-    # num_scn_per_chk * len(time_chunks) * len(geographic_chunks)
     num_scn_per_chk = round(num_scenes / (len(time_chunks) * len(geographic_chunks)))
     # recombine_geographic_chunks() and create_output_products() scenes:
-    # num_scn_per_chk_geo * len(geographic_chunks)
     num_scn_per_chk_geo = round(num_scenes / len(geographic_chunks))
     # Scene processing progress is tracked in: processing_task(), recombine_time_chunks(),
     # and process_band_math(). Scenes in process_band_math() are counted twice

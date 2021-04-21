@@ -10,7 +10,7 @@ import os
 from utils.data_cube_utilities.data_access_api import DataAccessApi
 from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask, create_bit_mask, write_geotiff_from_xr,
                                                     write_png_from_xr, write_single_band_png_from_xr,
-                                                    add_timestamp_data_to_xr, clear_attrs)
+                                                    add_timestamp_data_to_xr, clear_attrs, convert_range)
 from utils.data_cube_utilities.dc_chunker import (create_geographic_chunks, create_time_chunks,
                                                   combine_geographic_chunks)
 from apps.dc_algorithm.utils import create_2d_plot, _get_datetime_range_containing
@@ -98,7 +98,6 @@ def parse_parameters_from_task(self, task_id=None):
     task = UrbanizationTask.objects.get(pk=task_id)
 
     parameters = {
-        'platform': task.satellite.datacube_platform,
         'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),
@@ -384,10 +383,29 @@ def process_band_math(self, chunk, task_id=None):
     returns the dataarray. The data array is then appended under 'band_math', then saves the
     result to disk in the same path as the nc file already exists.
     """
+    task = UrbanizationTask.objects.get(pk=task_id)
+    if check_cancel_task(self, task): return
+
     if chunk is None:
         return None
 
     dataset = xr.open_dataset(chunk[0]).load()
+
+    # Ensure data variables have the range of Landsat Collection 1 Level 2
+    # since the color scales are tailored for that dataset.
+    platform = task.satellite.platform
+    collection = task.satellite.collection
+    level = task.satellite.level
+    if collection != 'c1':
+        old_dataset = dataset
+        drop_vars = [data_var for data_var in old_dataset.data_vars if data_var not in ['red', 'green', 'blue', 'nir', 'swir1', 'swir2']]
+        dataset = \
+            convert_range(old_dataset.drop_vars(drop_vars), from_platform=platform, 
+                          from_collection=collection, from_level=level,
+                          to_platform=platform, to_collection='c1', to_level='l2')
+        for drop_var in drop_vars:
+            dataset[drop_var] = old_dataset[drop_var]
+
     dataset['ndvi'], dataset['ndwi'], dataset['ndbi'] = _apply_band_math(dataset)
     #remove previous nc and write band math to disk
     os.remove(chunk[0])

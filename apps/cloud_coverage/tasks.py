@@ -55,7 +55,6 @@ def parse_parameters_from_task(self, task_id=None):
     task = CloudCoverageTask.objects.get(pk=task_id)
 
     parameters = {
-        'platform': task.satellite.datacube_platform,
         'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),

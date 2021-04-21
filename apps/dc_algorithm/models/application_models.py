@@ -31,6 +31,8 @@ from utils.data_cube_utilities.dc_utilities import (create_cfmask_clean_mask) #,
 from utils.data_cube_utilities.clean_mask import landsat_qa_clean_mask
 from utils.data_cube_utilities.dc_mosaic import (ls5_unpack_qa, ls7_unpack_qa, ls8_unpack_qa)
 
+# TODO: This should be called `Datasource` or something similar - not Satellite.
+#       These could be drones or any other sources of geospatial data.
 class Satellite(models.Model):
     """Stores a satellite that exists in the Data Cube
 
@@ -50,11 +52,14 @@ class Satellite(models.Model):
         no_data_value: No data value to be used for all outputs/masking functionality.
 
     """
-
+    # TODO: This name needs to be changed. The datacube platforms are in `platform`.
+    #       This is used as a short name (`name` being the long name)
     datacube_platform = models.CharField(
         help_text="This should correspond with a Data Cube platform. Combinations should be comma seperated with no spaces, e.g. LANDSAT_7,LANDSAT_8",
         max_length=100)
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        help_text="This is the full name of this satellite.",
+        max_length=100)
     
     # product_prefix = models.CharField(
     #     max_length=250,
@@ -62,8 +67,8 @@ class Satellite(models.Model):
     #                s1a_gamma0_vietnam. For combined products, prefixes should be comma seperated with no spaces in the order of the datacube_platform."
     # )
 
-    date_min = models.DateField('date_min', default=timezone.now) #datetime.date.today)
-    date_max = models.DateField('date_max', default=timezone.now) #datetime.date.today)
+    date_min = models.DateField('date_min', default=timezone.now)
+    date_max = models.DateField('date_max', default=timezone.now)
 
     data_min = models.FloatField(
         help_text="Define the minimum of the valid range of this dataset. This is used for image creation/scaling.",
@@ -82,7 +87,8 @@ class Satellite(models.Model):
     
     platform = models.CharField(
         help_text='The platform associated with this satellite. ' \
-                  'Examples include "LANDSAT_5", "LANDSAT_7", or "LANDSAT_8"',
+                  'Examples include "LANDSAT_5", "LANDSAT_7", or "LANDSAT_8". ' \
+                  'Combinations should be comma seperated with no spaces, e.g. LANDSAT_7,LANDSAT_8.',
         default='',
         max_length=250)
 
@@ -141,7 +147,7 @@ class Satellite(models.Model):
         return len(self.datacube_platform.split(",")) > 1
 
     def get_platforms(self):
-        return self.datacube_platform.split(",")
+        return self.platform.split(",")
 
     def get_products(self, area_id):
         from apps.dc_algorithm.models.application_models \
