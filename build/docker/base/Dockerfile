@@ -1,7 +1,12 @@
-FROM jcrattzama/datacube-core:1.8.3
+ARG BASE_IMG
+FROM $BASE_IMG
+# jcrattzama/datacube-core:1.8.3
 
 ARG WORKDIR="/app"
 WORKDIR $WORKDIR
+
+RUN apt-get update
+RUN pip3 install setuptools
 
 # Install system dependencies.
 COPY build/native/sys_deps/install_apache_deps.sh \
