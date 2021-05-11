@@ -6,3 +6,4 @@ db_database: ${ODC_DB_DATABASE} \n\
 db_username: ${ODC_DB_USER} \n\
 db_password: ${ODC_DB_PASSWORD} \n" > config/datacube.conf
 cp config/datacube.conf /etc/datacube.conf
+export DATACUBE_CONFIG_PATH=${WORKDIR}/config/datacube.conf

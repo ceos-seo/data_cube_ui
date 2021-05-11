@@ -25,7 +25,6 @@ DEV_COMMON_EXPRTS=export OUT_IMG=${DEV_OUT_IMG};  export BASE_IMG=${UI_BASE_IMG}
 
 # Base #
 base-build:
-	echo ${BASE_IMG}
 	docker build . -f build/docker/base/Dockerfile --build-arg BASE_IMG=${BASE_IMG} -t ${UI_BASE_IMG}
 
 base-run:

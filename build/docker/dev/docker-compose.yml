@@ -7,6 +7,9 @@ services:
       context: ${DKR_CMP_CONTEXT}
       args:
         BASE_IMG: ${BASE_IMG}
+        # Specify a directory for matplotlib configuration.
+        MPLCONFIGDIR: ${MPLCONFIGDIR}
+    environment:
         DJANGO_DB_HOSTNAME: django_db
         DJANGO_DB_DATABASE: ${DJANGO_DB_DATABASE}
         DJANGO_DB_USER: ${DJANGO_DB_USER}
@@ -15,15 +18,12 @@ services:
         ODC_DB_DATABASE: ${ODC_DB_DATABASE}
         ODC_DB_USER: ${ODC_DB_USER}
         ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
+        ODC_DB_PORT: 5432
         REDIS_HOST: redis
-        # Specify a directory for matplotlib configuration.
-        MPLCONFIGDIR: ${MPLCONFIGDIR}
         # AWS env vars for loading data from S3.
         AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
         AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
         AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
-    # environment:
-      # DKR_CMP_CONTEXT: ${DKR_CMP_CONTEXT}
     ports:
       - ${HOST_PORT}:80
     volumes:

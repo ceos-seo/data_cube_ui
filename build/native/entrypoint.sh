@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Run startup initialization.
+CONTAINER_STARTED="/tmp/container_started"
+if [ ! -e $CONTAINER_STARTED ]; then
+    bash build/native/odc_conf.sh
+    bash build/native/apache_conf.sh
+    bash build/native/celery_conf.sh
+    bash build/native/pg_conf.sh
+    bash build/native/env_vars.sh
+    touch $CONTAINER_STARTED
+fi
+
 # (dev) Change the Apache UID to match
 # the owner of the apps directory (using volumes).
 if [ "$ENVIRONMENT" = "DEV" ]; then
