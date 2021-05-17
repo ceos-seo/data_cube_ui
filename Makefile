@@ -23,7 +23,7 @@ BASE_COMMON_EXPRTS=export OUT_IMG=${UI_BASE_IMG}; export BASE_IMG=${BASE_IMG}; $
 PROD_COMMON_EXPRTS=export OUT_IMG=${PROD_OUT_IMG}; export BASE_IMG=${UI_BASE_IMG}; ${COMMON_EXPRTS}
 DEV_COMMON_EXPRTS=export OUT_IMG=${DEV_OUT_IMG};  export BASE_IMG=${UI_BASE_IMG}; ${COMMON_EXPRTS}
 
-# Base #
+## Base ##
 base-build:
 	docker build . -f build/docker/base/Dockerfile --build-arg BASE_IMG=${BASE_IMG} -t ${UI_BASE_IMG}
 
@@ -32,9 +32,9 @@ base-run:
 
 base-push:
 	docker push ${UI_BASE_IMG}
-# End Base #
+## End Base ##
 
-# Development #
+## Development ##
 
 # `rcv`: recursive.
 dev-build-no-rcv:
@@ -77,18 +77,18 @@ dev-clear:
 
 dev-push:
 	docker push ${DEV_OUT_IMG}
-# End Development #
+## End Development ##
 
-# ODC Docker Network #
+## ODC Docker Network ##
 # Create the `odc` network on which everything runs.
 create-odc-network:
 	docker network create odc
 
 delete-odc-network:
 	docker network rm odc
-# End ODC Docker Network #
+## End ODC Docker Network ##
 
-# ODC DB #
+## ODC DB ##
 # Create the persistent volume for the ODC database.
 create-odc-db-volume:
 	docker volume create odc-db-vol
@@ -135,9 +135,9 @@ delete-odc-db:
 recreate-odc-db: stop-odc-db delete-odc-db create-odc-db
 
 recreate-odc-db-and-vol: stop-odc-db delete-odc-db recreate-odc-db-volume create-odc-db
-# End ODC DB #
+## End ODC DB ##
 
-# Django DB #
+## Django DB ##
 # Create the persistent volume for the Django database.
 dev-create-django-db-volume:
 	docker volume create django-db-vol
@@ -147,13 +147,14 @@ dev-delete-django-db-volume:
 	docker volume rm django-db-vol
 
 recreate-django-db-volume: dev-down dev-delete-django-db-volume dev-create-django-db-volume
+## End Django DB ##
 
-# End Django DB #
-
-# Docker Misc #
+## Docker Misc ##
 sudo-ubuntu-install-docker:
 	sudo apt-get update
-	sudo apt install -y docker.io docker-compose
+	sudo apt install -y docker.io
+	sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-x86_64" -o /usr/local/bin/docker-compose
+	sudo chmod +x /usr/local/bin/docker-compose
 	sudo systemctl start docker
 	sudo systemctl enable docker
 	# The following steps are for enabling use 
@@ -161,10 +162,10 @@ sudo-ubuntu-install-docker:
 	# without using `sudo`
 	getent group docker || sudo groupadd docker
 	sudo usermod -aG docker ${USER}
-# End Docker Misc #
+## End Docker Misc ##
 
-# Native Install #
+## Native Install ##
 
 # TODO: native-build:
 
-# End Native Install #
+## End Native Install ##
