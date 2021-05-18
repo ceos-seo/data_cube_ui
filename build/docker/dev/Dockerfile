@@ -46,7 +46,7 @@ ENV MPLCONFIGDIR=${MPLCONFIGDIR}
 ENV AWS_ACCESS_KEY_ID \
     AWS_SECRET_ACCESS_KEY \
     AWS_DEFAULT_REGION
-    
+
 ENV NEW_APACHE_USER_PATH=''
 COPY build/native/env_vars.sh build/native/env_vars.sh
 
@@ -57,7 +57,7 @@ RUN build/native/export_path.sh
 COPY build/native/entrypoint.sh build/native/entrypoint.sh
 ENV ENVIRONMENT="DEV" \
     APACHE_UID=""
-RUN chmod 555 build/native/entrypoint.sh
+RUN chmod 555 -R build
 ENTRYPOINT ["build/native/entrypoint.sh"]
 
 WORKDIR $WORKDIR

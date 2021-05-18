@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run startup initialization.
-CONTAINER_STARTED="/tmp/container_started"
+CONTAINER_STARTED="/etc/container_started"
 if [ ! -e $CONTAINER_STARTED ]; then
     bash build/native/odc_conf.sh
     bash build/native/apache_conf.sh
