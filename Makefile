@@ -53,9 +53,6 @@ dev-up-no-build:
 
 # Stop the UI
 dev-down:
-	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down)
-
-dev-down-remove-orphans:
 	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down --remove-orphans)
 
 dev-restart: dev-down dev-up
