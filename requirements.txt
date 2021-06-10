@@ -4,7 +4,7 @@ celery==4.4.6
 # cloudpickle==1.5.0
 # dask==2.21.0
 # datacube==1.7
-Django==1.11.27
+Django==2.2.24
 django-bootstrap3==11.1.0
 # TODO: Can we use gdal 2.4.2 here?
 # (would also need to change version in apt)
