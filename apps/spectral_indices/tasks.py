@@ -114,7 +114,6 @@ def parse_parameters_from_task(self, task_id=None):
     task = SpectralIndicesTask.objects.get(pk=task_id)
 
     parameters = {
-        'platform': task.satellite.datacube_platform,
         'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'longitude': (task.longitude_min, task.longitude_max),
@@ -413,6 +412,22 @@ def process_band_math(self, chunk, task_id=None):
         return None
 
     dataset = xr.open_dataset(chunk[0]).load()
+
+    # Ensure data variables have the range of Landsat Collection 1 Level 2
+    # since the color scales are tailored for that dataset.
+    platform = task.satellite.platform
+    collection = task.satellite.collection
+    level = task.satellite.level
+    if collection != 'c1':
+        old_dataset = dataset
+        drop_vars = [data_var for data_var in old_dataset.data_vars if data_var not in ['red', 'green', 'blue', 'nir', 'swir1', 'swir2']]
+        dataset = \
+            convert_range(old_dataset.drop_vars(drop_vars), from_platform=platform, 
+                          from_collection=collection, from_level=level,
+                          to_platform=platform, to_collection='c1', to_level='l2')
+        for drop_var in drop_vars:
+            dataset[drop_var] = old_dataset[drop_var]
+
     dataset['band_math'] = _apply_band_math(dataset)
     
     #remove previous nc and write band math to disk
@@ -485,17 +500,6 @@ def create_output_products(self, data, task_id=None):
 
     export_xarray_to_netcdf(dataset, task.data_netcdf_path)
     write_geotiff_from_xr(task.data_path, dataset.astype('int32'), bands=bands, no_data=task.satellite.no_data_value)
-
-    # Ensure data variables have the range of Landsat 7 Collection 1 Level 2
-    # since the color scales are tailored for that dataset.
-    platform = task.satellite.platform
-    collection = task.satellite.collection
-    level = task.satellite.level
-    if (platform, collection) != ('LANDSAT_7', 'c1'):
-        dataset = \
-            convert_range(dataset, from_platform=platform, 
-                        from_collection=collection, from_level=level,
-                        to_platform='LANDSAT_7', to_collection='c1', to_level='l2')
 
     write_png_from_xr(
         task.mosaic_path,

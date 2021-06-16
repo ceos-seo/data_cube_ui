@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Run startup initialization.
+CONTAINER_STARTED="/etc/container_started"
+if [ ! -e $CONTAINER_STARTED ]; then
+    bash build/native/odc_conf.sh
+    bash build/native/apache_conf.sh
+    bash build/native/celery_conf.sh
+    bash build/native/pg_conf.sh
+    bash build/native/env_vars.sh
+    touch $CONTAINER_STARTED
+fi
+
 # (dev) Change the Apache UID to match
 # the owner of the apps directory (using volumes).
 if [ "$ENVIRONMENT" = "DEV" ]; then
@@ -38,10 +49,6 @@ fi
 # Start Apache.
 service apache2 start
 
-# Initialize ODC and the database.
-source datacube_env/bin/activate
-datacube system init
-
 # Start the Celery workers and scheduler.
 /etc/init.d/data_cube_ui start
 chmod 777 /var/log/celery/ /var/run/celery/
@@ -62,5 +69,9 @@ until PGPASSWORD=$ODC_DB_PASSWORD psql -h "$ODC_DB_HOSTNAME" -U "$ODC_DB_USER" $
   sleep 1
 done
 >&2 echo "ODC database is accessible."
+
+# Initialize ODC and the database.
+# source datacube_env/bin/activate
+# datacube system init
 
 exec "$@"

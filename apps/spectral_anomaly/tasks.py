@@ -85,7 +85,6 @@ def parse_parameters_from_task(self, task_id=None):
     task = SpectralAnomalyTask.objects.get(pk=task_id)
 
     parameters = {
-        'platform': task.satellite.datacube_platform,
         'product': task.satellite.get_products(task.area_id)[0],
         'time': (task.time_start, task.time_end),
         'baseline_time': (task.baseline_time_start, task.baseline_time_end),
@@ -338,7 +337,10 @@ def processing_task(self,
         # Compute the spectral index for the composite.
         spec_ind_params = dict()
         if spectral_index == 'fractional_cover':
-            spec_ind_params = dict(clean_mask=composite_clean_mask, no_data=no_data_value)
+            platform = task.satellite.platform
+            collection = task.satellite.collection
+            spec_ind_params = dict(clean_mask=composite_clean_mask, no_data=no_data_value,
+                                   platform=platform, collection=collection)
         spec_ind_result = spectral_indices_function_map[spectral_index](composite, **spec_ind_params)
         if spectral_index in ['ndvi', 'ndbi', 'ndwi', 'evi']:
             composite[spectral_index] = spec_ind_result
