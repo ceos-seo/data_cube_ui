@@ -87,13 +87,13 @@ Before we begin, note that multiple commands should not be copied and pasted to 
 
 Run `git submodule init && git submodule update` from the top level directory of this repository to retrieve the utility code in a `utils` directory.
 
-You can set the port that the UI will be available on with the `HOST_PORT` environment varaible in the `build/docker/.env` file. By default, the UI will be available on port `8000` in the development environment.
+You can set the port that the UI will be available on with the `HOST_PORT` environment varaible in the `build/docker/dev/.env` file. By default, the UI will be available on port `8000` in the development environment.
 
-The `DJANGO_DB_*` and `ODC_DB_*` variables in the `build/docker/.env` file are the connection credentials for the Django database and the ODC database. The `ODC_DB_*` variables are set to match the default settings for the ODC database container, but if these settings were changed in the command for the `create-odc-db` target in the `Makefile` file, they will need to be changed here.
+The `DJANGO_DB_*` and `ODC_DB_*` variables in the `build/docker/dev/.env` file are the connection credentials for the Django database and the ODC database. The `ODC_DB_*` variables are set to match the default settings for the ODC database container, but if these settings were changed in the command for the `create-odc-db` target in the `Makefile` file, they will need to be changed here.
 
 The `ADMIN_EMAIL` setting is unsued and the `MPLCONFIGDIR` setting should not be changed.
 
-If you want to access data on S3, you will need to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables. By default, they are set to use the values of identically named environment variables. You should set these environment variables before running the UI. Do not write these AWS credentials to the `build/docker/.env` file directly.
+If you want to access data on S3, you will need to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables. By default, they are set to use the values of identically named environment variables. You should set these environment variables before running the UI. Do not write these AWS credentials to the `build/docker/dev/.env` file directly.
 
 > ### <a name="install_launch_django_db"></a> Launch Django database
 
@@ -174,7 +174,7 @@ To restore the UI database, run `bash scripts/load_fixture.sh <path>`, where `<p
 
 ---
 
-In the development environment, you can connect to the UI on the host machine at `localhost:<HOST_PORT>`, where `<HOST_PORT>` is the value of the `HOST_PORT` environment variable specified in `build/docker/.env`.
+In the development environment, you can connect to the UI on the host machine at `localhost:<HOST_PORT>`, where `<HOST_PORT>` is the value of the `HOST_PORT` environment variable specified in `build/docker/dev/.env`.
 
 ## <a name="task_system_overview"></a> Task System Overview
 
