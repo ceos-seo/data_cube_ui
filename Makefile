@@ -1,5 +1,8 @@
 SHELL:=/bin/bash
-docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml
+# Set the project name to the path - making underscore the path separator.
+PWD=$(pwd)
+project_name=$(shell echo $${PWD//\//_})
+docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml -p $(project_name)
 
 # The `export` here is to allow commands (notably `docker-compose`) 
 # in the Make targets to use them. 
