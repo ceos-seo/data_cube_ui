@@ -1,34 +1,33 @@
-# CEOS Open Data Cube UI Installation Guide
+# CEOS Open Data Cube UI Guide
 
-This document will guide users through the process of installing and configuring
-our Open Data Cube (ODC) user interface. Our interface is a full Python web server stack
-using Django, Celery, PostgreSQL, and Boostrap3. In this guide, both Python and
-system packages will be installed and configured and users will learn how to start
+This document will guide users through the process of installing, configuring, and running our Open Data Cube (ODC) user interface. 
+
+Our interface is a full Python web server stack
+using Django, Celery, PostgreSQL, and Boostrap3. 
+
+In this guide, both Python and system packages will be installed and configured and users will learn how to start
 the asynchronous task processing system.
 
-## Contents
-
 - [Introduction](#introduction)
-- [System Requirements](#system_requirements)
+- [System Requirements](#system-requirements)
 - [Prerequisites](#prerequisites)
-- [Installation Process](#installation_process)
-  - [Pre-start configuration](#install_pre_start_config)
-  - [Launch Django database](#install_launch_django_db)
-  - [Start, stop, or restart the UI](#install_start_stop_restart)
-  - [SSH to the UI](#install_ssh)
-  - [UI first-time post-start setup](#install_first_time_post_start_setup)
-- [UI Database Backups and Restoration](#install_backup_restore)
-- [Access the UI](#connect)
-- [Task System Overview](#task_system_overview)
-- [Adding Data to an App](#adding_data)
+- [Installation Process](#installation-process)
+  - [Pre-start Configuration](#pre-start-configuration)
+  - [Launch Django Database](#launch-django-database)
+  - [Starting Stopping Restarting](#starting-stopping-restarting)
+  - [SSH to the UI](#ssh-to-the-ui)
+  - [UI first-time post-start setup](#ui-first-time-post-start-setup)
+- [UI Database Backups and Restoration](#ui-database-backups-and-restoration)
+- [Access the UI](#access-the-ui)
+- [Task System Overview](#task-system-overview)
+- [Adding Data to an App](#adding-data-to-an-app)
 - [Upgrades](#upgrades)
 - [Troubleshooting](#troubleshooting)
-  - [Running Celery non-daemonized](#celery_non_daemonized)
-- [Common Problems/FAQs](#faqs)
+  - [Running Celery non-daemonized](#running-celery-non-daemonized)
+- [Common Problems/FAQs](#common-problemsfaqs)
 
-## <a name="introduction"></a> Introduction
-
----
+## Introduction
+----
 
 The CEOS ODC UI is a full stack Python web application used to perform analysis
 on raster datasets using the Open Data Cube. Using common and widely accepted frameworks
@@ -36,7 +35,7 @@ and libraries, our UI is a good tool for demonstrating ODC capabilities and some
 
 - [**Django**](https://www.djangoproject.com/):
   Web framework, ORM, template processor, entire MVC stack
-- [**Celery + Redis**](http://www.celeryproject.org/):
+- [**Celery**](https://docs.celeryproject.org/en/stable/) + [**Redis**](https://redis.io/):
   Asynchronous task processing
 - [**Open Data Cube**](http://datacube-core.readthedocs.io/en/stable/):
   API for data access and analysis
@@ -54,36 +53,31 @@ Using these common technologies provides a good starting platform for users who 
 - Generate both visual (image) and data products (GeoTIFF/NetCDF)
 - Provide easy access to metadata and previously run analysis cases
 
-## <a name="system_requirements"></a> System Requirements
-
----
+## System Requirements
+----
 
 These are the base requirements for the UI:
 
 - **Memory**: 8GiB
 - **Local Storage**: 50GiB
 
-## <a name="prerequisites"></a> Prerequisites
-
----
+## Prerequisites
+----
 
 To set up and run the ODC UI, the following conditions must be met:
 
-- The [Docker Installation Guide](docker_install.md) must have been completed.
-- The [Open Data Cube Database Installation Guide](odc_db_setup.md) must have been completed.
+- The [Environment Setup Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/environment_setup.html) must have been completed.
+- The [ODC Database Installation Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/database_install.html) must have been completed.
 
-If you want to analyze data from the UI, you must add data through indexing. Read the [Open Data Cube indexing documentation](https://datacube-core.readthedocs.io/en/latest/ops/indexing.html) to learn how to index data. The UI will work without any indexed data,
+If you want to analyze data from the UI, you must add data through indexing. See the [ODC Indexer](https://github.com/ceos-seo/odc_manual_indexer) to learn how to index data. The UI will work without any indexed data,
 but no analysis can occur.
 
 Before we begin, note that multiple commands should not be copied and pasted to be run simultaneously unless you know it is acceptable in a given command block. Run each line individually.
 
-## <a name="installation_process"></a> Installation Process
+## Installation Process
+----
 
----
-
-> ### <a name="install_pre_start_config"></a> Pre-start configuration
-
----
+>### Pre-start Configuration
 
 Run `git submodule init && git submodule update` from the top level directory of this repository to retrieve the utility code in a `utils` directory.
 
@@ -95,90 +89,79 @@ The `ADMIN_EMAIL` setting is unsued and the `MPLCONFIGDIR` setting should not be
 
 If you want to access data on S3, you will need to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` variables. By default, they are set to use the values of identically named environment variables. You should set these environment variables before running the UI. Do not write these AWS credentials to the `build/docker/dev/.env` file directly.
 
-> ### <a name="install_launch_django_db"></a> Launch Django database
-
----
+>### Launch Django Database
 
 We need to create a filesystem volume for the Django database data so that it remains on the local filesystem and is not lost whenever the Docker container for the Django database terminates.
 
 Run the following command to do this:
 `make dev-create-django-db-volume`
 
-> ### <a name="install_start_stop_restart"></a> Start, stop, or restart the UI
+>### Starting Stopping Restarting
 
----
+To start the development environment, run this command:
 
-<a name="install_start"></a>To start the development environment, run this command:
-
-```
+```bash
 make dev-up
 ```
 
-<a name="install_stop"></a>To stop the development environment, run this command:
+To stop the development environment, run this command:
 
-```
+```bash
 make dev-down
 ```
 
-<a name="install_restart"></a>To restart the development environment, run this command:
+To restart the development environment, run this command:
 
-```
+```bash
 dev-restart
 ```
 
-When starting or restarting in the future, you can use the `-no-build` versions of the `Makefile` targets if the dependencies have not changed (e.g. if only changes have been made to the UI code). These include:
+When starting or restarting in the future, you can use the `-no-build` versions of the `Makefile` targets if the dependencies have not changed (e.g. if only changes have been made to the UI code). These target variants complete faster than their counterparts which do rebuild (few seconds difference usually). These include:
 
-- dev-up-no-build
-- dev-restart-no-build
+- `dev-up-no-build`
+- `dev-restart-no-build`
 
-> ### <a name="install_ssh"></a> SSH to the UI
-
----
+>### SSH to the UI
 
 To connect to the development environment through a bash shell over SSH, run this command:
 
-```
+```bash
 make dev-ssh
 ```
 
 Once connected, run this command to activate the Python virtual environment:
 
-```
+```bash
 source datacube_env/bin/activate
 ```
 
 This must be run for every connection with `make dev-ssh`.
 
-> ### <a name="install_first_time_post_start_setup"></a> UI first-time post-start setup
-
----
+>### UI first-time post-start setup
 
 In the development environment, you will need to run these commands in the UI container **only if this is the first time starting the UI** - they must be run once before the UI will work (connect through SSH as explained in the [instructions above](#install_ssh)).
 
-```
+```bash
 bash scripts/migrations.sh
 bash scripts/load_default_fixture.sh
 ```
 
 The second command sets the UI (Django) database state to a default one. Do not run this command later if you have modified the UI database and want to keep your modifications (e.g. [Area objects added for the UI to access your own Data Cube products](#adding_data)), because they will be lost when running `bash scripts/load_default_fixture.sh`.
 
-## <a name="install_backup_restore"></a> UI Database Backups and Restoration
-
----
+## UI Database Backups and Restoration
+----
 
 To backup the UI database, run `bash scripts/create_fixture.sh <path>`, where `<path>` is the desired path to your new database backup JSON file, such as `db_backups/init_database_YYYY_MM_DD.json`, where `YYYY_MM_DD` is the date, such as `2020_09_10` for September 10, 2020.
 
 To restore the UI database, run `bash scripts/load_fixture.sh <path>`, where `<path>` is the path to your database backup JSON file.
 
-## <a name="connect"></a> Access the UI
-
----
+## Access the UI
+----
 
 In the development environment, you can connect to the UI on the host machine at `localhost:<HOST_PORT>`, where `<HOST_PORT>` is the value of the `HOST_PORT` environment variable specified in `build/docker/dev/.env`.
 
-## <a name="task_system_overview"></a> Task System Overview
-
----
+## Task System Overview
+----
 
 The task system can seem complex at first, but the basic workflow is shown below:
 
@@ -200,15 +183,14 @@ The task system can seem complex at first, but the basic workflow is shown below
 - The master process creates a Result and Metadata model based on what was just
   created and returns the details to the browser
 
-## <a name="adding_data"></a> Adding Data to an App
-
----
+## Adding Data to an App
+----
 
 To finish the configuration, we will need to create an `Area` object in the UI for a Data Cube product that you have indexed.
 
 First, we need to find the bounding box of your data. Use the following commands in the UI Docker container to open a Django Python shell and query the Data Cube for your product's extents:
 
-```
+```bash
 source ~/datacube_env/bin/activate
 python3 manage.py shell
 
@@ -238,20 +220,18 @@ Navigate back to the main admin page and select `Dc_Algorithm -> Applications`. 
 
 Go back to the main site and navigate back to the Custom Mosaic Tool. You will see that your area is the only one in the list - select this area to load the tool. Make sure your Celery workers are running (`service data_cube_ui status`) and submit a task over the default time over some small area you know you have data for and watch it complete. The web page should show an image over the query area when the task completes.
 
-## <a name="upgrades"></a> Upgrades
-
----
+## Upgrades
+----
 
 Upgrades can be pulled directly from our GitHub releases using Git. There are a few steps that will need to be taken to complete an upgrade from an earlier release version:
 
 - Pull the code from our repository.
-- [Restart the UI](#install_restart).
+- [Restart the UI](#starting-stopping-restarting).
 - Make and run the Django migrations with `bash scripts/migrations.sh`. We do not keep our migrations in Git so these are specific to your system.
 - If we have added any new applications (found in the `apps` directory) then you will need to obtain the default state for that app with `python manage.py loaddata db_backups/default/{app_name}.json`.
 
-## <a name="troubleshooting"></a> Troubleshooting
-
----
+## Troubleshooting
+----
 
 The general workflow for troubleshooting the UI is found below:
 
@@ -266,9 +246,8 @@ The general workflow for troubleshooting the UI is found below:
 If you are having trouble diagnosing issues with the UI, feel free to contact us with a description of the issue and all relevant logs or screenshots. To ensure that we are able to assist you quickly and efficiently, please verify that your
 server is running with `DEBUG = True`.
 
-> ### <a name="celery_non_daemonized"></a> Running Celery non-daemonized
-
----
+>### Running Celery non-daemonized
+----
 
 When troubleshooting, you may consider running Celery manually (non-daemonized).
 Only do this if you are sure that Celery is not functioning properly when daemonized.
@@ -280,38 +259,37 @@ You can install `tmux` with the command `apt-get install tmux`.
 A reference is available [here](https://gist.github.com/MohamedAlaa/2961058).
 For all terminals, ensure the virtual environment is activated and you are in the UI directory:
 
-```
+```bash
 source ~/Datacube/datacube_env/bin/activate
 cd ~/Datacube/data_cube_ui
 ```
 
 In the first terminal, run the celery process with:
 
-```
+```bash
 celery -A data_cube_ui worker -l info -c 4
 ```
 
 In the second terminal, run the single-use Data Cube Manager queue.
 
-```
+```bash
 celery -A data_cube_ui worker -l info -c 2 -Q data_cube_manager --max-tasks-per-child 1 -Ofair
 ```
 
 Additionally, you can run both simultaneously using `celery multi`:
 
-```
+```bash
 celery multi start -A data_cube_ui task_processing data_cube_manager -c:task_processing 10 -c:data_cube_manager 2 --max-tasks-per-child:data_cube_manager=1  -Q:data_cube_manager data_cube_manager -Ofair
 ```
 
 To start the task scheduler, run the following command:
 
-```
+```bash
 celery -A data_cube_ui beat
 ```
 
-## <a name="faqs"></a> Common Problems/FAQs
-
----
+## Common Problems/FAQs
+----
 
 Q:
 
@@ -319,13 +297,9 @@ Q:
 
 A:
 
->     More often than not the issue is caused by a lack of permissions on the
->
-> folder where the application is located. Grant full access to the folder
-> and its subfolders and files (this can be done by using the command
-> `chmod -R 777 FOLDER_NAME`).
+> More often than not the issue is caused by a lack of permissions on the folder where the application is located. Grant full access to the folder and its subfolders and files (this can be done by using the command `chmod -R 777 FOLDER_NAME`).
 
----
+----
 
 Q:
 
@@ -348,7 +322,7 @@ A:
 > opening postgres connections and not closing them. Ensure that you stop the
 > daemon process (`service data_cube_ui stop`) before creating the console Celery worker process.
 
----
+----
 
 Q:
 
@@ -370,7 +344,7 @@ A:
 > `python manage.py shell` in the top-level `data_cube_ui` directory with parameters
 > matching the ones in errors like this in your Celery log files.
 
----
+----
 
 Q:
 
@@ -378,11 +352,11 @@ Q:
 
 A:
 
->     Start your celery worker in the terminal with debug mode turned on and `loglevel=info`.
+> Start your celery worker in the terminal with debug mode turned on and `loglevel=info`.
 >
 > Stop the daemon process if it is started to ensure that all tasks will be visible. Run the task that is failing and observe any errors. The terminal output will tell you what task caused the error and what the general problem is.
 
----
+----
 
 Q:
 
@@ -397,7 +371,7 @@ A:
 > the `MASTER_NODE` setting is set in the `settings.py` file to point to
 > your server (should be by default) and that Celery is able to connect. To do this, stop Celery (`service data_cube_ui stop`) and [run the worker in the terminal](#celery_non_daemonized).
 
----
+----
 
 Q:
 
@@ -410,7 +384,7 @@ A:
 > If any are missing, run `python manage.py makemigrations {app_name}` followed
 > by `python manage.py migrate`.
 
----
+----
 
 Q:
 
@@ -423,4 +397,4 @@ A:
 > enter the Django console:<br/> > `cd ~/Datacube/data_cube_ui`<br/> > `python manage.py shell`<br/>
 > then run this function, which should update the cache:<br/> > `import apps.data_cube_manager.tasks as dcmt`<br/> > `dcmt.update_data_cube_details()`
 
----
+----

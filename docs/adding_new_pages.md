@@ -1,37 +1,33 @@
-Open Data Cube UI Algorithm Addition Guide
-=================
+# Open Data Cube UI Algorithm Addition Guide
 
 This document will guide users through the process of adding new algorithms or analysis cases to the UI, including the general Django files and the Celery workflow. This guide assumes that the user has a working Data Cube installation and has completed the full UI installation guide.
 
-Contents
-=================
+- [Introduction](#introduction)
+- [Basic Components](#basic-components)
+- [Base Classes](#base-classes)
+- [Generating Base Files](#generating-base-files)
+- [Basic Applications](#basic-applications)
+- [Complex Applications](#complex-applications)
+- [Template Changes](#template-changes)
 
-  * [Introduction](#introduction)
-  * [Basic Components](#basic_components)
-  * [Base Classes](#base_classes)
-  * [Generating Base Files](#base_files)
-  * [Basic Applications](#band_math_app)
-  * [Complex Applications](#complex_app)
-  * [Template Changes](#templates)
-<!--  * [Common problems/FAQs](#faqs) -->
+## Introduction
+-----
 
-<a name="introduction"></a> Introduction
-=================
 The Data Cube UI is designed to be quickly and easily extended to integrate new algorithms that operate on Data Cube based raster datasets. A new algorithm implementation includes three main parts:
 
-* Django views - map URLs to rendered HTML pages
-* Django models - Hold the main task attributes (parameters, results, etc)
-* Celery workflows - Process asynchronous tasks, populating a Django model with updates and results
+- Django views - map URLs to rendered HTML pages
+- Django models - Hold the main task attributes (parameters, results, etc)
+- Celery workflows - Process asynchronous tasks, populating a Django model with updates and results
 
 Two manage.py commands are provided to expedite this processing, requiring only simple and defined changes to get an application working.
 
-<a name="basic_components"></a> Basic Components
-=================
+## Basic Components
+-----
+
 The three main components of a new algorithm implementation were outlined above - the views, models, and celery tasks.
 
-Django Views
---------
-```
+>### Django Views
+```python
 class SubmitNewRequest(SubmitNewRequest):
     """
     Submit new request REST API Endpoint
@@ -54,9 +50,8 @@ class SubmitNewRequest(SubmitNewRequest):
 
 Each view class subclasses the base dc_algorithm class so only minor changes need to be made for a new page. Functions and variables that need to be provided are defined in the base class docstring, and if they are omitted then an exception is raised. HTML content that is rendered in the browser is controlled here - forms, panels, etc.
 
-Django models
-------
-```
+>### Django Models
+```python
 class Query(BaseQuery):
     """
 
@@ -154,11 +149,10 @@ class Query(BaseQuery):
 
 Django models contain all of the information and parameters required to perform your operation and create output products. This includes where to save the output products, how to split data for processing, and the Python function that should be used to create the output products. All input and output parameters should be enumerated here.
 
-Celery tasks
-------
+>### Celery tasks
 Celery tasks perform all processing for the algorithms. Tasks use information found on the models to separate data chunks into manageable sizes, perform analysis functions, and create output products.
 
-```
+```python
 @task(name="coastal_change.perform_task_chunking")
 def perform_task_chunking(parameters, task_id):
     """Chunk parameter sets into more manageable sizes
@@ -253,23 +247,24 @@ The Celery tasks open models by their id and parse out the required information.
 
 The processing pipeline in tasks.py is organized so that each task operates independently of one another - the process is fully asynchronous and non-blocking. The tasks are also arranged so that you work down the page as the task executes, and each task completes a single function.
 
-* Parameters are parsed out from the task model
-* Parameters are verified and validated
-* Parameters are chunked into smaller, more manageable pieces for parallelized processing
-* A processing pipeline is created from the parameter chunks and submitted for processing - this involves both geographic and time based chunks
-* Each chunk is processed, with the results being saved to disk. Metadata is collected here and passed forward
-* The chunks are combined both geographically and over time, combining metadata as well
-* The output products are generated and the model is updated
+- Parameters are parsed out from the task model
+- Parameters are verified and validated
+- Parameters are chunked into smaller, more manageable pieces for parallelized processing
+- A processing pipeline is created from the parameter chunks and submitted for processing - this involves both geographic and time based chunks
+- Each chunk is processed, with the results being saved to disk. Metadata is collected here and passed forward
+- The chunks are combined both geographically and over time, combining metadata as well
+- The output products are generated and the model is updated
 
-<a name="base_classes"></a> Base Classes
-=================
+## Base Classes
+-----
+
 Django models and views allow for standard Python inheritance, allowing us to simply subclass a common dc_algorithm base to quickly create new apps. Take some time to look through the files in `apps/dc_algorithm` - the docstrings explain exactly what each view and model does and what attributes are required.
 
 The main portion of the dc_algorithm base app lies within `views.py` and `models/abstract_base_models.py`.
 
-Below is the base class for task submission. You'll notice the extensive docstrings outlining all required attributes and parameters. Additionally, there are 'getter' functions that raise a NotImplementedError when a required attribute is not present. Compare this class to the implementation in <a name="basic_components">Basic Components</a> - Only the required attributes are defined, and everything else lies within the base class.
+Below is the base class for task submission. You'll notice the extensive docstrings outlining all required attributes and parameters. Additionally, there are 'getter' functions that raise a NotImplementedError when a required attribute is not present. Compare this class to the implementation in [Basic Components](#basic-components) - Only the required attributes are defined, and everything else lies within the base class.
 
-```
+```python
 class SubmitNewRequest(View, ToolClass):
     """Submit a new request for processing using a task created with form data
 
@@ -365,21 +360,22 @@ class SubmitNewRequest(View, ToolClass):
 
 Model base classes work in the same way - common attributes are defined, and users are free to add or remove fields in child classes.
 
-<a name="base_files"></a> Generating Base Files
-=================
+## Generating Base Files
+-----
+
 Two manage.py commands are provided to easily create appliations - one for simple algorithms (band math, any application that should be run on a mosaic) and a more flexible base used for more complex concepts.
 
-```
+```bash
 python manage.py start_bandmath_app app_name
 python manage.py start_dc_algorithm_app app_name
 ```
 
 These commands do a few things:
 
-* Copy the associated base files to apps/app_name
-* Rename all of the templated values for app_name in all of the Python files, models, views, forms, tasks, etc.
-* Create a dc_algorithm.models.Application model for your new app
-* Provides instructions on next steps to get your application working
+- Copy the associated base files to apps/app_name
+- Rename all of the templated values for app_name in all of the Python files, models, views, forms, tasks, etc.
+- Create a dc_algorithm.models.Application model for your new app
+- Provides instructions on next steps to get your application working
 
 The instructions include to run the migrations and to initialize the database with your new models. These base files contain a few `TODO:` statements within the files, marking where inputs are required. To integrate a new algorithm, generate an app using the command above, grep/search for instance of `TODO:` and follow the instructions there.
 
@@ -387,19 +383,20 @@ Apps come in two main classes - Band math-like apps and more complex apps. Band 
 
 For example, fractional cover involves creating a mosaic and running a computationally intensive function on the resulting data, so the band math base app was used. Coastal change involves non standard time chunking, animation generation, etc. so the more generalized app was used.
 
-<a name="band_math_app"></a> Basic Applications
-=================
+## Basic Applications
+-----
+
 For a basic application, there are very few changes required to have a functional app. After generating the base files, run the migrations commands as seen below.
 
-```
+```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
 Now you will have all of the base tables generated in the database and are ready to implement your algorithm. If you search for `TODO` in that directory, there will only be one occurrence in `tasks.py` and one in models.
 
-tasks.py
-```
+`tasks.py`
+```python
   def _apply_band_math(dataset):
       #TODO: apply your band math here!
       return (dataset.nir - dataset.red) / (dataset.nir + dataset.red)
@@ -410,7 +407,7 @@ tasks.py
 
 Replace the expression above with your band math-like algorithm. If it is somewhat more complicated, like fractional cover, the snippet will look like the snippet below:
 
-```
+```python
   def _apply_band_math(dataset):
       clear_mask = create_cfmask_clean_mask(dataset.cf_mask) if 'cf_mask' in dataset else create_bit_mask(
           dataset.pixel_qa, [1, 2])
@@ -426,7 +423,7 @@ Replace the expression above with your band math-like algorithm. If it is somewh
 
 Now that you've implemented your algorithm, you'll need to handle the output. The base application will produce a single true color mosaic and the result of your band math. To do this, a color scale needs to be provided. The default color scale is a simple red->green scale for 0%->100% - to replace this, create a [GDALDEM compatible color scale](http://www.gdal.org/gdaldem.html#gdaldem_color_relief) and name it the same as your app (app_name) and place it in utils/color_scales.
 
-```
+```bash
 -0.40 172 21 14
 -0.30 247 103 50
 -0.20 249 133 20
@@ -442,17 +439,18 @@ nan 0 0 0
 
 Now that this is all complete, you can see your working application by:
 
-* Restarting Apache2
-* Restarting Celery workers
-* Go to your site and select your application under Tools, choose your area, and submit a task.
+- Restarting Apache2
+- Restarting Celery workers
+- Go to your site and select your application under Tools, choose your area, and submit a task.
 
-<a name="complex_app"></a> Complex Applications
-=================
+## Complex Applications
+-----
+
 The process for implementing an advanced application is similar to the band math app. Generate the base application using the manage.py command, but don't run the migrations yet. You can start by Grepping/Searching for all instance of `TODO` and filling in the information that you're able to.
 
 Determine what additional input parameters are required. Add these input parameters to the form in the app's forms.py. It is at this step that you can also extend the base DataSelectionForm to change parameters as wel, e.g. for coastal change, we override time start and time end to be years rather than dates.
 
-```
+```python
 class AdditionalOptionsForm(forms.Form):
     """
     Django form to be created for selecting information and validating input for:
@@ -485,15 +483,16 @@ In tasks.py, implement your algorithm by filling in all the `TODO` blocks. Add a
 
 A few general tips/tricks:
 
-* Only a single NetCDF storage unit is passed from task to task, along with a metadata dict and some general chunk details. If you have multiple data products, merge them into a single NetCDF before writing to disk.
-* The main Celery processing pipeline may seem confusing, but due to some weird issues with how Celery interprets/unrolls groups and chords it can't be helped. If you want to add additional steps, do so with the '|' like the combination functions are added. 
+- Only a single NetCDF storage unit is passed from task to task, along with a metadata dict and some general chunk details. If you have multiple data products, merge them into a single NetCDF before writing to disk.
+- The main Celery processing pipeline may seem confusing, but due to some weird issues with how Celery interprets/unrolls groups and chords it can't be helped. If you want to add additional steps, do so with the '|' like the combination functions are added. 
 
-<a name="templates"></a> Template Changes
-=================
+## Template Changes
+-----
+
 Template changes are the last step in the app development process. The base apps include only the common features - time start/end, execution times, geographic bounds. Make the following changes to add more data to your template.
 
-* In all the templates (there should be four of them), add any additional query parameters (fields you added to Query in models.py)
-* In output_list.html, modify the entries in the Data Guide section so that they are accurate to your output products. Additionally, ensure that the options cover all of the output products in the download_options block
-* In results_list.html, in the task_table_rows block add checkbox inputs for any additional image outputs that should be displayed on the map. Make sure that the function in the functions_block handles this - removing old images, adding new, highlighting.
-* In results_list.html in the meta_table_rows block, add any additional 'full task' metadata that exists on the task model.
-* In results_list.html in the metadata_dl_block, ensure that the zipped fields corresponds with the fields enumerated on your Metadata model.
+- In all the templates (there should be four of them), add any additional query parameters (fields you added to Query in models.py)
+- In output_list.html, modify the entries in the Data Guide section so that they are accurate to your output products. Additionally, ensure that the options cover all of the output products in the download_options block
+- In results_list.html, in the task_table_rows block add checkbox inputs for any additional image outputs that should be displayed on the map. Make sure that the function in the functions_block handles this - removing old images, adding new, highlighting.
+- In results_list.html in the meta_table_rows block, add any additional 'full task' metadata that exists on the task model.
+- In results_list.html in the metadata_dl_block, ensure that the zipped fields corresponds with the fields enumerated on your Metadata model.
