@@ -30,8 +30,7 @@ Currently supported applications include:
 
 First follow the instructions in the [Environment Setup Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/environment_setup.html) if you have not yet.
 
-Follow the instructions in the 
-[Open Data Cube Database Installation Guide]([docs/odc_db_setup.md](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/database_install.html)) to setup the Open Data Cube (ODC) database.
+Follow the instructions in the [Open Data Cube Database Installation Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/database_install.html) to setup the Open Data Cube (ODC) database.
 
 Follow the instructions in the [Open Data Cube UI Guide](docs/ui_guide.md) to install the ODC UI. That document also contains troubleshooting information for the UI in the form of an FAQ at the end.
 
