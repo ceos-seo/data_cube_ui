@@ -1,0 +1,10 @@
+# image: 
+#   name: busybox:latest
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - echo hi
