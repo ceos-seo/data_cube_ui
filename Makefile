@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
 # Set the project name to the path - making underscore the path separator.
-PWD=$(pwd)
-project_name=$(shell echo $${PWD//\//_})
+# Remove the leading slash and use lowercase since docker-compose will.
+project_name=$(shell PWD_var=$$(pwd); PWD_no_lead_slash=$${PWD_var:1}; echo $${PWD_no_lead_slash//\//_} | awk '{print tolower($$0)}' | cat)
 docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml -p $(project_name)
 
 # The `export` here is to allow commands (notably `docker-compose`) 
