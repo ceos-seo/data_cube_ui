@@ -25,7 +25,7 @@ Currently supported applications include:
 * Urbanization (NDBI-NDVI-NDWI false-color composites)
 * Water detection (using the [Water Observations from Space](https://www.ga.gov.au/scientific-topics/community-safety/flood/wofs) algorithm)
 
-## Installation
+## Guide
 -------
 
 First follow the instructions in the [Environment Setup Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/environment_setup.html) if you have not yet.

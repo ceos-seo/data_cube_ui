@@ -33,6 +33,9 @@ base-build:
 base-run:
 	docker run -it ${UI_BASE_IMG} bash
 
+base-pull:
+	docker pull ${UI_BASE_IMG}
+
 base-push:
 	docker push ${UI_BASE_IMG}
 ## End Base ##
@@ -74,6 +77,11 @@ dev-ssh:
 dev-clear:
 	$(docker_compose_dev) stop
 	$(docker_compose_dev) rm -fs
+
+dev-pull-no-rcv:
+	docker pull ${DEV_OUT_IMG}
+
+dev-pull: base-pull dev-pull-no-rcv
 
 dev-push:
 	docker push ${DEV_OUT_IMG}

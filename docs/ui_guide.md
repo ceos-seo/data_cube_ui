@@ -18,10 +18,15 @@ the asynchronous task processing system.
   - [SSH to the UI](#ssh-to-the-ui)
   - [UI first-time post-start setup](#ui-first-time-post-start-setup)
 - [UI Database Backups and Restoration](#ui-database-backups-and-restoration)
+- [Clearing Migrations](#clearing-migrations)
+- [Clearing Tasks](#clearing-tasks)
 - [Access the UI](#access-the-ui)
 - [Task System Overview](#task-system-overview)
 - [Adding Data to an App](#adding-data-to-an-app)
 - [Upgrades](#upgrades)
+- [Logging](#logging)
+  - [Logging Django Database](#logging-django-database)
+  - [Logging Postgres Database](#logging-postgres-database)
 - [Troubleshooting](#troubleshooting)
   - [Running Celery non-daemonized](#running-celery-non-daemonized)
 - [Common Problems/FAQs](#common-problemsfaqs)
@@ -155,6 +160,14 @@ To backup the UI database, run `bash scripts/create_fixture.sh <path>`, where `<
 
 To restore the UI database, run `bash scripts/load_fixture.sh <path>`, where `<path>` is the path to your database backup JSON file.
 
+## Clearing Migrations
+
+You can clear the Django migrations with `bash scripts/clear_migrations.sh`.
+
+## Clearing Tasks
+
+You can clear the UI's task history (not Celery's task queue) with `bash scripts/`.
+
 ## Access the UI
 ----
 
@@ -229,6 +242,51 @@ Upgrades can be pulled directly from our GitHub releases using Git. There are a 
 - [Restart the UI](#starting-stopping-restarting).
 - Make and run the Django migrations with `bash scripts/migrations.sh`. We do not keep our migrations in Git so these are specific to your system.
 - If we have added any new applications (found in the `apps` directory) then you will need to obtain the default state for that app with `python manage.py loaddata db_backups/default/{app_name}.json`.
+
+## Logging
+----
+
+>### Logging Django Database
+
+To see logs for the Django database, follow these steps to setup logging to the filepath `/datacube/ui_results/support.log`, which you can specify to whatever path you want:
+1. In `settings.py`:
+   1. Set `DEBUG = True`.
+   2. Add the following text (say, at the bottom of the file):
+    ```python
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': '/datacube/ui_results/support.log',
+            },
+        },
+        'loggers': {
+            'django.db.backends': {
+                'level': 'DEBUG',
+                'handlers': ['file', ],
+            },
+        }
+    }
+    ```
+
+2. Run `sudo service apache2 restart` to restart the webserver.
+
+>### Logging Postgres Database
+
+To also log Postgres output (not database changes from the perspective of Django - these are the Postgres logs, separate from Django):
+1. Backup the current `postgresql.conf` file:
+   1. `cd ~/Datacube/data_cube_ui/config`
+   2. `sudo cp /etc/postgresql/{version}/main/postgresql.conf postgresql_backup.conf` where version is probably 9.5 or 10
+   3. `cp postgresql_backup.conf postgresql.conf `
+2. Make the following edits to `~/Datacube/data_cube_ui/config/postgresql.conf`:
+   1. Uncomment `log_statement` and set it to `'all'`.
+   2. Uncomment `log_destination`.
+3. Put the new `postgresql.conf` file in its proper location:
+`sudo cp postgresql.conf /etc/postgresql/{version}/main/postgresql.conf`.
+4. Run `sudo service postgresql restart`.
 
 ## Troubleshooting
 ----
@@ -366,10 +424,19 @@ Q:
 A:
 
 > This state means that the Celery worker pool is not accepting your task.
-> Check your server to ensure that a Celery worker process is running with
-> `ps aux | grep celery`. If there is a Celery worker running, check that
-> the `MASTER_NODE` setting is set in the `settings.py` file to point to
-> your server (should be by default) and that Celery is able to connect. To do this, stop Celery (`service data_cube_ui stop`) and [run the worker in the terminal](#celery_non_daemonized).
+> If the system has worked recently and no changes have occurred recently to the code, follow these steps:
+>> 1. Stop all Celery workers with this command:<br>
+`ps aux | grep 'celery worker' | awk '{print $2}' | xargs kill`
+>> 2. Run this command in the UI directory (repository root directory) to purge the task queue (otherwise Celery may crash again on restart as it tries to process the tasks in the task queue):<br>
+>> `bash scripts/celery/purge_task_queue.sh`
+>> 3. Restart the `data_cube_ui` service:
+>> * `sudo service data_cube_ui restart` OR
+>> * `sudo /etc/init.d/data_cube_ui restart` (if the former fails)
+>> Tasks submitted should now complete successfully.
+>
+> If the system has not worked recently or changes have occurred to the code, follow these steps:
+>> 1. Check your server to ensure that a Celery worker process is running with `ps aux | grep celery`. 
+>> 2. If there is a Celery worker running, check that the `MASTER_NODE` setting is set in the `settings.py` file to point to your server (should be by default) and that Celery is able to connect. To do this, stop Celery (`service data_cube_ui stop`) and [run the worker in the terminal](#celery_non_daemonized).
 
 ----
 
