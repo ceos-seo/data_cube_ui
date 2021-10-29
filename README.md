@@ -25,15 +25,14 @@ Currently supported applications include:
 * Urbanization (NDBI-NDVI-NDWI false-color composites)
 * Water detection (using the [Water Observations from Space](https://www.ga.gov.au/scientific-topics/community-safety/flood/wofs) algorithm)
 
-## Installation
+## Guide
 -------
 
-First follow the instructions in the [Docker Installation Guide](docs/docker_install.md) if you do not have Docker installed yet.
+First follow the instructions in the [Environment Setup Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/environment_setup.html) if you have not yet.
 
-Follow the instructions in the 
-[Open Data Cube Database Installation Guide](docs/odc_db_setup.md) to setup the Open Data Cube (ODC) database.
+Follow the instructions in the [Open Data Cube Database Installation Guide](https://ceos-odc.readthedocs.io/en/latest/modules/install_docs/database_install.html) to setup the Open Data Cube (ODC) database.
 
-Follow the instructions in the [Open Data Cube UI Installation Guide](docs/ui_install.md) to install the ODC UI. That document also contains troubleshooting information for the UI in the form of an FAQ at the end.
+Follow the instructions in the [Open Data Cube UI Guide](docs/ui_guide.md) to install the ODC UI. That document also contains troubleshooting information for the UI in the form of an FAQ at the end.
 
 Follow the instructions in the [Open Data Cube UI Algorithm Addition Guide](docs/adding_new_pages.md) to add new applications to the ODC UI. This guide is only intended for programmers.
 

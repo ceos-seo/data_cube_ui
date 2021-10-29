@@ -1,5 +1,8 @@
 SHELL:=/bin/bash
-docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml
+# Set the project name to the path - making underscore the path separator.
+# Remove the leading slash and use lowercase since docker-compose will.
+project_name=$(shell PWD_var=$$(pwd); PWD_no_lead_slash=$${PWD_var:1}; echo $${PWD_no_lead_slash//\//_} | awk '{print tolower($$0)}' | cat)
+docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml -p $(project_name)
 
 # The `export` here is to allow commands (notably `docker-compose`) 
 # in the Make targets to use them. 
@@ -29,6 +32,9 @@ base-build:
 
 base-run:
 	docker run -it ${UI_BASE_IMG} bash
+
+base-pull:
+	docker pull ${UI_BASE_IMG}
 
 base-push:
 	docker push ${UI_BASE_IMG}
@@ -71,6 +77,11 @@ dev-ssh:
 dev-clear:
 	$(docker_compose_dev) stop
 	$(docker_compose_dev) rm -fs
+
+dev-pull-no-rcv:
+	docker pull ${DEV_OUT_IMG}
+
+dev-pull: base-pull dev-pull-no-rcv
 
 dev-push:
 	docker push ${DEV_OUT_IMG}
